@@ -1,0 +1,18 @@
+.bundle/
+pkg/
+/vendor/bundle
+
+# Ignore all logfiles and tempfiles.
+log/*.log
+/tmp
+
+# Ignore the default SQLite database.
+/db/*.sqlite3
+/db/*.sqlite3-journal
+
+# ignore dummy app's database
+test/dummy/db/*.sqlite3
+test/dummy/db/*.sqlite3-journal
+test/dummy/log/*.log
+test/dummy/tmp/
+test/dummy/.sass-cache
