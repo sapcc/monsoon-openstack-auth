@@ -25,7 +25,7 @@ module MonsoonIdentity
   
     def destroy
       logout_user
-      redirect_to new_session_path
+      redirect_to main_app.root_path, :notice => "Signed out!"
     end
   end
 end
