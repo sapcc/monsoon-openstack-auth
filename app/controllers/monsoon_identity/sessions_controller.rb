@@ -3,29 +3,21 @@ require_dependency "monsoon_identity/application_controller"
 module MonsoonIdentity
   class SessionsController < ApplicationController
     def new
-      logout_user
+      MonsoonIdentity::Auth.logout_user(self)
     end
   
     def create
-      success = false
-      begin
-        token = keystone_authenticate(params[:username],params[:password])
-        login_user_token(token)
-        success = (not current_user.nil?)
-      rescue
-        p "Session Creation Failed"
-      end
-    
-      if success
-        redirect_to root_path
+      redirect_to_url = MonsoonIdentity::Auth.login_form_user(self,params[:username],params[:password])
+      if redirect_to_url 
+        redirect_to redirect_to_url, notice: 'Signed on!'
       else
-        render action: :new and return 
+        render action: :new
       end
     end
   
     def destroy
-      logout_user
-      redirect_to main_app.root_path, :notice => "Signed out!"
+      MonsoonIdentity::Auth.logout_user(self)
+      redirect_to main_app.root_path, notice: "Signed out!"
     end
   end
 end

@@ -1,0 +1,11 @@
+<%= content_for :title do%>
+  Organizations
+<%end%>
+
+<%= link_to 'Back to Welcome', welcome_index_path %>
+
+<ul>
+  <% @domains.each do |domain| %>
+    <li><%=link_to domain["name"], organization_path(@region,domain["id"])%></li>
+  <%end %>
+</ul>

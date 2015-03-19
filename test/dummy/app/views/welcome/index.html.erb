@@ -1,4 +1,9 @@
-<h1>Welcome#index</h1>
-<p>Find me in app/views/welcome/index.html.erb</p>
+<%= content_for :title do%>
+  Welcome
+<%end%>
 
-<%= link_to 'Test', tests_index_path %>
+<%if logged_in?%>
+<p><%= link_to 'Organizations in Europe', organizations_path('europe') %></p>
+
+<p><%= link_to 'Organizations in US', organizations_path('us') %></p>
+<%end%>

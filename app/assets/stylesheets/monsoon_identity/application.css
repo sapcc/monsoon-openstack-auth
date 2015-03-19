@@ -13,3 +13,14 @@
  *= require_tree .
  *= require_self
  */
+
+.login-form {
+  width: 230px;
+  margin: 200px auto;
+  font-family: Helvetica;
+}
+
+.login-form label {
+ display: block;
+ font-size: 12px; 
+}
