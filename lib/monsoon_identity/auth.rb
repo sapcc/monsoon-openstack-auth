@@ -40,12 +40,13 @@ module MonsoonIdentity
       
       def keystone_password_auth(region, username,password, scope=nil)      
         auth = {auth:{identity: {methods: ["password"],password:{user:{id: username,password: password}}}, scope: scope}}
-        keystone_connection(region).tokens.authenticate(auth).attributes
+        HashWithIndifferentAccess.new(keystone_connection(region).tokens.authenticate(auth).attributes)
       end
       
       def keystone_token_auth(region, token, scope=nil)      
         auth = {auth:{identity: {methods: ["token"],token:{ id: token}}, scope: scope}}
-        keystone_connection(region).tokens.authenticate(auth).attributes
+        p auth
+        HashWithIndifferentAccess.new(keystone_connection(region).tokens.authenticate(auth).attributes)
       end
       
       def keystone_external_auth(region, username, scope=nil)
@@ -53,7 +54,7 @@ module MonsoonIdentity
         #REMOTE_DOMAIN=test
 
         auth = { auth: { identity: {methods: ["external"], external:{user: username }}, scope: scope}}
-        keystone_connection(region).tokens.authenticate(auth).attributes
+        HashWithIndifferentAccess.new(keystone_connection(region).tokens.authenticate(auth).attributes)
       end
       
       def session_id_presented?(controller)
@@ -128,26 +129,33 @@ module MonsoonIdentity
         p ">>>>>>>>>>>>>>>>>>>>>>organization: #{@scope[:organization]}"
         p ">>>>>>>>>>>>>>>>>>>>>>token project: #{project}"
         p ">>>>>>>>>>>>>>>>>>>>>>token organization: #{domain}"
-        p ">>>>>>>>>>>>token"
-        p token
         
-        if project and @scope[:project]
+        if @scope[:project]
           return if project && project["id"]==@scope[:project]
           scope= {project: {domain:{id: @scope[:organization]},id: @scope[:project]}}
-        elsif domain and @scope[:organization]
+        elsif @scope[:organization]
           return if domain && domain["id"]==@scope[:organization]
           scope = {domain:{id:@scope[:organization]}}
         else
-          unless token&&(domain || project)
-            return 
-          end
-          scope=nil
+          #TODO: verify if scope=nil should reset the token to unscoped token
+          # unless token&&(domain || project)
+          # #if !token || (!domain && !project)
+          #   p ">>>>>>>>>>>>>>>>>>return"
+          #   return
+          # end
+          # p ">>>>>>>>>>>>>>>>>>>scope to nil"
+          # scope=nil
+          return
+        end
+        
+        begin
+          token = self.class.keystone_token_auth(@region, token[:value], scope) 
+          load_user_from_token(token)
+          @session.token=token if session_id_presented?    
+        rescue
+          raise MonsoonIdentity::NotAuthorized.new("User has no access to the requested organization")
         end
       end
-      
-      token = self.class.keystone_token_auth(@region, token, scope) 
-      load_user_from_token(token)
-      @session.token=token if session_id_presented?      
    end
     
     def redirect_to_login_form

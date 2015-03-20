@@ -1,13 +1,15 @@
 Rails.application.routes.draw do
 
   get 'welcome/index'
-  get 'tests/index'
-  get 'tests/new'
-  
+    
   scope '/regions' do
     scope ':region_id' do
-      resources :organizations, only: [:index, :show] do
-        resources :projects, only: [:index, :show]
+      resources :dashboard, only: [:index]
+      
+      scope module: 'dashboard' do
+        resources :organizations, only: [:index, :show] do
+          resources :projects, only: [:index, :show]
+        end
       end
     end
   end

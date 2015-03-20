@@ -28,37 +28,6 @@ module MonsoonIdentity
       @context = MonsoonIdentity::Context.new(self,token)
     end
      
-    def domains(region, options={per_page: 30, page: 1})
-      domains_response = MonsoonIdentity::Auth.keystone_connection(region).request({
-        method: 'GET', 
-        path: 'domains', 
-        headers: {'X-Auth-Token' => @token[:value]}, 
-        query: {per_page: options[:per_page], page: options[:page]}
-      })
-      
-      if domains_response and domains_response.body 
-        domains_response.body["domains"] 
-      else
-        []
-      end
-    end
-    
-    def domain(region, domain_id, options={per_page: 10, page: 1})
-      domains_response = MonsoonIdentity::Auth.keystone_connection(region).request({
-        method: 'GET', 
-        path: "domains/#{domain_id}", 
-        headers: {'X-Auth-Token' => @token[:value]}, 
-        query: {per_page: options[:per_page], page: options[:page]}
-      })
-      
-      if domains_response and domains_response.body 
-        domains_response.body["domains"] 
-      else
-        []
-      end
-    end
-    
-     
     protected
   
     def add_user_methods(token)

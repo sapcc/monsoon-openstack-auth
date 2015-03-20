@@ -2,8 +2,8 @@
   Welcome
 <%end%>
 
-<%if logged_in?%>
-<p><%= link_to 'Organizations in Europe', organizations_path('europe') %></p>
-
-<p><%= link_to 'Organizations in US', organizations_path('us') %></p>
-<%end%>
+<div class="regions">
+  <h3>Please select a region</h3>
+  <%=link_to 'Europe', dashboard_index_path('europe')%> | 
+  <%=link_to 'US', dashboard_index_path('us')%>  
+</div>

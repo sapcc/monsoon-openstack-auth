@@ -1,9 +1,9 @@
 GIT
   remote: git://github.com/sapcc/monsoon/monsoon-fog.git
-  revision: 23aac23fa93a7c49349e19e00356ca8d9638572e
+  revision: 4f32402bb862344c642a0b5f853c3ca8cfd1f298
   specs:
-    monsoon-fog (0.2.2)
-      fog (= 1.28)
+    monsoon-fog (0.3.0)
+      fog (~> 1.28)
       retryable (~> 1.3)
 
 PATH
@@ -16,7 +16,7 @@ GEM
   remote: http://github.com/sapcc:8080/rubygemsorg/
   remote: http://github.com/sapcc:8080/geminabox/
   specs:
-    CFPropertyList (2.3.0)
+    CFPropertyList (2.3.1)
     actionmailer (4.1.9)
       actionpack (= 4.1.9)
       actionview (= 4.1.9)
