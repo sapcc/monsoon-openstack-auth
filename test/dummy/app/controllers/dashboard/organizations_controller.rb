@@ -1,7 +1,7 @@
 module Dashboard
   class OrganizationsController < DashboardController
     before_filter do
-      @service = KeystoneService.new(MonsoonIdentity::Auth.keystone_connection(@region))
+      @service = KeystoneService.new(MonsoonIdentity.api_client(@region))
     end
     
     def index

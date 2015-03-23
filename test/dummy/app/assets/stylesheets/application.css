@@ -60,3 +60,17 @@ body .header a {
 body .token {
   font-size: 12px;
 }
+
+.notice, .alert {
+  padding: 10px;
+}
+
+.notice {
+  color: green;
+  border-color: green;
+}
+
+.alert {
+  color: red;
+  border-color: red;
+}
