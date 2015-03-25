@@ -74,12 +74,6 @@ module MonsoonIdentity
           return if domain && domain["id"]==@scope[:organization]
           scope = {domain:{id:@scope[:organization]}}
         else
-          #TODO: verify if scope=nil should reset the token to unscoped token
-          # unless token&&(domain || project)
-          # #if !token || (!domain && !project)
-          #   return
-          # end
-          # scope=nil
           return
         end
         
@@ -89,7 +83,7 @@ module MonsoonIdentity
           create_user_from_token(token)
           save_token_in_session_store(token)
         rescue => e
-          raise MonsoonIdentity::NotAuthorized.new("User has no access to the requested organization")
+          raise MonsoonIdentity::NotAuthorized.new("User has no access to the requested organization: #{e}")
         end
       end
     end
@@ -268,7 +262,7 @@ module MonsoonIdentity
       end
       
       begin          
-        redirect_to_url = (@session_store.redirect_to || @controller.main_app.root_path)
+        redirect_to_url = (MonsoonIdentity.configuration.login_redirect_url || @session_store.redirect_to || @controller.main_app.root_path)
         token = @api_client.authenticate_with_credentials(username, password)
         @session_store.token=token 
         @session_store.delete_redirect_to

@@ -9,7 +9,8 @@ GIT
 PATH
   remote: .
   specs:
-    monsoon_identity (0.0.1)
+    monsoon_identity (0.1.0)
+      monsoon-fog
       rails (~> 4.1.8)
 
 GEM

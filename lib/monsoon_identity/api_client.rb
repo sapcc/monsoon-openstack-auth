@@ -19,12 +19,16 @@ module MonsoonIdentity
     end
     
     def authenticate_with_credentials(username,password, scope=nil)
-      auth = {auth:{identity: {methods: ["password"],password:{user:{id: username,password: password}}}, scope: scope}}
+      auth = {auth:{identity: {methods: ["password"],password:{user:{id: username,password: password}}}}}
+      auth[:auth][:scope]=scope if scope
+      Rails.logger.info "Monsoon Identity: authenticate_with_credentials -> #{auth}" if MonsoonIdentity.configuration.debug
       HashWithIndifferentAccess.new(@connection.tokens.authenticate(auth).attributes)
     end
 
     def authenticate_with_token(token, scope=nil)
-      auth = {auth:{identity: {methods: ["token"],token:{ id: token}}, scope: scope}}
+      auth = {auth:{identity: {methods: ["token"],token:{ id: token}}}}
+      auth[:auth][:scope]=scope if scope
+      Rails.logger.info "Monsoon Identity: authenticate_with_token -> #{auth}" if MonsoonIdentity.configuration.debug
       HashWithIndifferentAccess.new(@connection.tokens.authenticate(auth).attributes)
     end
 
@@ -33,7 +37,9 @@ module MonsoonIdentity
       #REMOTE_USER=d000000
       #REMOTE_DOMAIN=test
 
-      auth = { auth: { identity: {methods: ["external"], external:{user: username }}, scope: scope}}
+      auth = { auth: { identity: {methods: ["external"], external:{user: username }}}}
+      auth[:auth][:scope]=scope if scope
+      Rails.logger.info "Monsoon Identity: authenticate_external_user -> #{auth}" if MonsoonIdentity.configuration.debug
       HashWithIndifferentAccess.new(@connection.tokens.authenticate(auth).attributes)
     end
   end

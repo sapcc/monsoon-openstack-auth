@@ -4,11 +4,11 @@ class KeystoneService
     @connection = @client.connection
   end
   
-  def user_domains(username,options={per_page: 30, page: 1})
+  def user_domains(username,options={per_page: 30, page: 1})    
     users = @connection.users.find_by_name(username)
     projects = users.first.projects if users and users.length>0
     if projects
-      projects.collect{|project| project["domain"]}.uniq
+      projects.collect{|project| project["domain"] || { "name" => project["domain_id"], "id" => project["domain_id"] }  }.uniq
     else
       []
     end

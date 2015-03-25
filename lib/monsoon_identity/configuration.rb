@@ -1,6 +1,7 @@
 module MonsoonIdentity
   class Configuration
-    METHODS = [:api_endpoint, :api_userid, :api_password, :token_auth_allowed, :basic_atuh_allowed, :sso_auth_allowed, :form_auth_allowed, :debug]
+    METHODS = [:api_endpoint, :api_userid, :api_password, :token_auth_allowed, :basic_atuh_allowed, 
+      :sso_auth_allowed, :form_auth_allowed, :login_redirect_url, :debug]
     attr_accessor *METHODS
 
     def initialize
