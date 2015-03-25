@@ -7,6 +7,10 @@ module MonsoonIdentity
     end
  
     module ClassMethods
+      
+      # def skip_authentication(options={})
+      #   skip_before_filter
+      # end
 
       def authentication_required(options={})
         # unless self.ancestors.include?(MonsoonIdentity::Controller::InstanceMethods)
@@ -38,7 +42,7 @@ module MonsoonIdentity
               project = self.send(prj.to_sym) if self.respond_to?(prj.to_sym)
             end
           end
-          @monsoon_identity = MonsoonIdentity::Auth.authenticate(self, region, organization: organization, project: project)
+          @monsoon_identity = MonsoonIdentity::Session.check_authentication(self, region, organization: organization, project: project)
         end
       end
     end
@@ -46,19 +50,11 @@ module MonsoonIdentity
     module InstanceMethods
         
       def current_user
-        if @monsoon_identity
-          @monsoon_identity.user
-        else
-          MonsoonIdentity::Auth.user_from_session(self)
-        end
+        @monsoon_identity.nil? ? nil : @monsoon_identity.user
       end
       
       def logged_in?
-        if @monsoon_identity
-          @monsoon_identity.logged_in?
-        else
-          not MonsoonIdentity::Auth.user_from_session(self).nil?
-        end
+        @monsoon_identity.nil? ? false : @monsoon_identity.logged_in?
       end
     end
   end

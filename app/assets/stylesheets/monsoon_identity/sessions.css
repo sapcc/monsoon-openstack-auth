@@ -2,3 +2,19 @@
   Place all the styles related to the matching controller here.
   They will automatically be included in application.css.
 */
+
+.login-form {
+  width: 230px;
+  margin: 200px auto;
+  font-family: Helvetica;
+}
+
+.login-form label {
+ display: block;
+ font-size: 12px; 
+}
+
+.login-form .error {
+ color: red;
+ font-size: 12px; 
+}

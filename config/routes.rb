@@ -1,5 +1,9 @@
 MonsoonIdentity::Engine.routes.draw do
-  resources :sessions, only: [:new,:create]
-   
+  scope '/regions' do
+    scope ':region_id' do
+      resources :sessions, only: [:new,:create]
+    end
+  end
+    
   get 'logout', to: 'sessions#destroy'
 end

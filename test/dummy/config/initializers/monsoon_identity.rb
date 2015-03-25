@@ -13,7 +13,9 @@ MonsoonIdentity.configure do |config|
   config.api_password = 'secret'
   
   config.token_auth_allowed = true
-  config.basic_atuh_allowed = false
-  config.sso_auth_allowed   = false
+  config.basic_atuh_allowed = true
+  config.sso_auth_allowed   = true
   config.form_auth_allowed  = true
+  
+  config.debug=true
 end
