@@ -103,7 +103,7 @@ module MonsoonIdentity
         return false
       end
        
-      if auth_token and MonsoonIdentity.configuration.token_auth_allowed?
+      if MonsoonIdentity.configuration.token_auth_allowed?
         # auth token is presented
         if @session_store and @session_store.token_valid? and @session_store.token_eql?(auth_token)
           # session token is valid and equal to the auth token
@@ -264,6 +264,8 @@ module MonsoonIdentity
       begin          
         redirect_to_url = (MonsoonIdentity.configuration.login_redirect_url || @session_store.redirect_to || @controller.main_app.root_path)
         token = @api_client.authenticate_with_credentials(username, password)
+        p ">>>>>>>>>>>>>>>>>>>>>>>"
+        p token
         @session_store.token=token 
         @session_store.delete_redirect_to
         create_user_from_token(token)

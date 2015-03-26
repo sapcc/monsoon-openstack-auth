@@ -2,8 +2,6 @@ require "monsoon_identity/configuration"
 require "monsoon_identity/api_client"
 require "monsoon_identity/engine"
 require "monsoon_identity/errors"
-require "monsoon_identity/token_value"
-require "monsoon_identity/context"
 require "monsoon_identity/user"
 require "monsoon_identity/session_store"
 require "monsoon_identity/session"
@@ -28,4 +26,3 @@ module MonsoonIdentity
 end
 
 ActionController::Base.send(:include, MonsoonIdentity::Controller)
-

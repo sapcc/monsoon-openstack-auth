@@ -1,10 +1,7 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV["RAILS_ENV"] ||= 'test'
-require File.expand_path("../dummy/config/environment", __FILE__)
+require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
-require 'vcr'
-
-require 'monsoon_identity'
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
@@ -13,41 +10,13 @@ require 'monsoon_identity'
 # run twice. It is recommended that you do not name files matching this glob to
 # end with _spec.rb. You can configure this pattern with with the --pattern
 # option on the command line or in ~/.rspec, .rspec or `.rspec-local`.
-
-Dir[File.expand_path("spec/support/**/*.rb")].each { |f| require f }
 Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 
 # Checks for pending migrations before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
 ActiveRecord::Migration.maintain_test_schema!
 
-
-#
-# VCR.config do |c|
-#   c.cassette_library_dir     = 'spec/cassettes'
-#   c.stub_with                :fakeweb
-#   c.default_cassette_options = { :record => :new_episodes }
-# end
-
-VCR.configure do |config|
-  config.cassette_library_dir = 'spec/cassettes'
-  config.hook_into :webmock
-  config.default_cassette_options = { :record => :new_episodes }
-  config.allow_http_connections_when_no_cassette = true
-end
-
 RSpec.configure do |config|
-  
-  config.around(:each) do |example|
-    options = example.metadata[:vcr] || {}
-    if options[:record] == :skip 
-      VCR.turned_off(&example)
-    else
-      name = example.metadata[:full_description].split(/\s+/, 2).join("/").underscore.gsub(/[^\w\/]+/, "_")
-      VCR.use_cassette(name, options, &example)
-    end
-  end
-  
   # ## Mock Framework
   #
   # If you prefer to use mocha, flexmock or RR, uncomment the appropriate line:
@@ -90,6 +59,3 @@ RSpec.configure do |config|
   # https://relishapp.com/rspec/rspec-rails/v/3-0/docs
   config.infer_spec_type_from_file_location!
 end
-
-
-
