@@ -222,7 +222,7 @@ module MonsoonIdentity
         Rails.logger.info "Monsoon Identity: validate_session_token -> session store not presented." if @debug
         return false  
       end
-      
+
       if @session_store.token_valid?
         create_user_from_session_store
         if logged_in?
@@ -239,11 +239,11 @@ module MonsoonIdentity
     end
     
     def create_user_from_session_store
-      @user = MonsoonIdentity::User.new(@session_store.token)
+      @user = MonsoonIdentity::User.new(@region,@session_store.token)
     end
     
     def create_user_from_token(token)
-      @user = MonsoonIdentity::User.new(token) 
+      @user = MonsoonIdentity::User.new(@region, token) 
     end
     
     def user
@@ -264,8 +264,6 @@ module MonsoonIdentity
       begin          
         redirect_to_url = (MonsoonIdentity.configuration.login_redirect_url || @session_store.redirect_to || @controller.main_app.root_path)
         token = @api_client.authenticate_with_credentials(username, password)
-        p ">>>>>>>>>>>>>>>>>>>>>>>"
-        p token
         @session_store.token=token 
         @session_store.delete_redirect_to
         create_user_from_token(token)

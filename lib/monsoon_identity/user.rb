@@ -1,21 +1,20 @@
 module MonsoonIdentity
   class User
-    attr_reader :context#, :token, :id, :name, :user_domain_id, :domain_id, :domain_name, :project_id, :project_name, 
+    attr_reader :context, :services_region#, :token, :id, :name, :user_domain_id, :domain_id, :domain_name, :project_id, :project_name, 
       #:service_catalog, :roles, :endpoint, :projects, :region
     
-    def initialize(token_hash)
+    def initialize(region,token_hash)
       raise MonsoonIdentity::MalformedToken.new("Token is nil.") if token_hash.nil?
       raise MonsoonIdentity::MalformedToken.new("Token should be a hash.") unless token_hash.is_a?(Hash)
-      
+      @services_region = region
       @context = token_hash
-      #init_from_token(token_hash)
     end
 
-    
     def enabled?
       @enabled
     end
-    
+
+    # Returns the token value (auth_token)  
     def token
       @token ||= @context["value"] 
     end
@@ -63,9 +62,90 @@ module MonsoonIdentity
     def project_scoped
       @project_scoped ||= read_value("project")
     end
+    
+    def domain_scoped
+      @domain_scoped ||= read_value("domain")
+    end
+    
+    def token_expires_at
+      @token_expires_at ||= DateTime.parse(@context["expires_at"])
+    end
+    
+    def token_expired?
+      token_expires_at<Time.now
+    end
+    
+    def token_issued_at
+      @token_issued_at ||= DateTime.parse(@context["issued_at"])
+    end
+    
+    def service_catalog
+      @service_catalog ||= (@context["catalog"] || @context["serviceCatalog"] || [])
+    end
+    
+    def has_service?(type)
+      catch(:found) do 
+        service_catalog.each { |service| throw(:found, true) if service["type"]==type }
+        # not found
+        false
+      end
+    end
+    
+    def roles
+      @roles ||= (@context["roles"] || read_value("user.roles") || [])
+    end
+    
+    def has_role?(name)
+      catch(:found) do 
+        roles.each { |role| throw(:found, true) if role["name"]==name }
+        # not found
+        false
+      end
+    end
+ 
+    def admin?
+      if @is_admin.nil?
+        @is_admin = catch(:found) do
+          # return true if found
+          roles.each{ |role| throw(:found, true) if role["name"]=="admin" } 
+          # else return false
+          false
+        end
+      end
+      @is_admin
+    end
+    
+    # Returns the first endpoint region for first non-identity service
+    # in the service catalog
+    def default_services_region
+      @default_services_region ||= catch(:found) do
+        service_catalog.each do |service|
+          throw(:found, service["endpoints"].first["region"]) if service["type"]!="identity" and service["endpoints"] and service["endpoints"].first
+        end
+        ''
+      end
+      @default_services_region.empty? ? nil : @default_services_region
+    end
+    
+    # Returns list of unique region name values found in service catalog 
+    def available_services_regions
+      unless @regions
+        @regions = []
+        service_catalog.each do |service|
+          next if service["type"]=="identity"
+          (service["endpoints"] || []).each do |endpint|
+            @regions << endpint['region']
+          end  
+        end
+        @regions.uniq!
+      end
+      @regions
+    end  
      
     protected
     
+    # Returns a value from context for given key.
+    # example for key: "user.id"
     def read_value(key)
       keys = key.split('.')
       result = @context
@@ -75,74 +155,5 @@ module MonsoonIdentity
       end
       return result
     end
-    
-    # def init_from_token(token_hash)
-    #   @context = token_hash
-    #   @token = token_hash["value"]
-    #
-    #   user_params = user_params(token_hash)
-    #   @id = user_params["id"] if user_params
-    #   @name = user_params["name"] if user_params
-    #   @user_domain_id = user_params["domain"]["id"] if user_params["domain"]
-    #
-    #
-    #   #@domain_id =
-    # end
-    
-    # def user_params(token_hash)
-    #   token_hash["user"]
-    # end
-  
-    # def add_user_methods(token)
-    #   user_params = (token["user"] || token[:user])
-    #   return unless user_params
-    #
-    #   user_params.each do |key,value|
-    #     key=key.to_s.gsub(/\.|\s|-|\/|\'/, '_').downcase.to_sym
-    #     method_name = key
-    #     if key==:domain_id
-    #       method_name=:user_domain_id
-    #     end
-    #     self.instance_variable_set("@#{method_name}", value)
-    #     self.class.send(:define_method, method_name, proc{self.instance_variable_get("@#{method_name}")})
-    #   end
-    # end
-    #
-    # def to_object(token)
-    #   if token.kind_of? Hash
-    #     keys = token.keys
-    #     struct_fields = keys.inject([]){|array,key| array << key.to_sym}
-    #     struct = TokenStruct.new(*struct_fields)
-    #     values = []
-    #
-    #     keys.each do |key|
-    #       value = token[key]
-    #       if (key.to_s=="expires_at" or key.to_s=="issued_at") and value.kind_of? String
-    #         value = DateTime.parse(value)
-    #       end
-    #       values << create_methods(value)
-    #     end
-    #     return struct.new(*values)
-    #   elsif token.kind_of? Array
-    #     values = []
-    #     token.each do |value|
-    #       values << create_methods(value)
-    #     end
-    #     return values
-    #   else
-    #     return token
-    #   end
-    # end
   end
 end
-
-# module MonsoonIdentity
-#   class TokenValue < Struct
-#     undef []=
-#
-#     def initialize(*args, &block)
-#       super(*args, &block)
-#       members.each{ |member| instance_eval{ undef :"#{member}=" } }
-#     end
-#   end
-# end

@@ -5,7 +5,7 @@ module Dashboard
     end
     
     def index
-      @organizations = @service.user_domains(current_user.name)
+      @organizations = @service.user_domains(current_user.id)
     end
   
     def show

@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/sapcc/monsoon/monsoon-fog.git
-  revision: 1569014a80347d543051ad9604d863be8c9598e3
+  revision: 88d94b63b980d64fe408215469dbfb9b5a0abb14
   specs:
     monsoon-fog (0.3.3)
       fog (~> 1.28)
