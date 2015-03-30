@@ -1,4 +1,4 @@
-MonsoonIdentity.configure do |config|
+MonsoonOpenstackAuth.configure do |config|
   config.api_endpoint = 'http://localhost:8183/v3/auth/tokens'
   config.api_userid   = 'u-admin'
   config.api_password = 'secret'

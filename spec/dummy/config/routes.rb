@@ -16,7 +16,7 @@ Rails.application.routes.draw do
   
   #resources :organizations, only: [:index, :show]
 
-  mount MonsoonIdentity::Engine => "/monsoon_identity"
+  mount MonsoonOpenstackAuth::Engine => "/monsoon_openstack_auth"
   
   root to: 'welcome#index'
 end

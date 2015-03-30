@@ -1,7 +1,7 @@
 module Dashboard
   class ProjectsController < DashboardController
     before_filter do
-      @service = KeystoneService.new(MonsoonIdentity.api_client(@region))
+      @service = KeystoneService.new(MonsoonOpenstackAuth.api_client(@region))
     end
     
     def show

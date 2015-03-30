@@ -9,7 +9,7 @@ GIT
 PATH
   remote: .
   specs:
-    monsoon_identity (0.1.0)
+    monsoon-openstack-auth (0.1.0)
       monsoon-fog
       rails
 
@@ -293,7 +293,7 @@ DEPENDENCIES
   factory_girl_rails (~> 4.0)
   guard-rspec
   monsoon-fog!
-  monsoon_identity!
+  monsoon-openstack-auth!
   rspec-rails (~> 2.99.0)
   sqlite3
   uglifier (>= 1.3.0)
