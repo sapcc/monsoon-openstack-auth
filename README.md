@@ -55,7 +55,44 @@ MonsoonOpenstackAuth.configure do |config|
 end
 ```
 
-### Develop
+### Controller
+
+Example:
+```ruby
+DashboardController < ApplicationController
+  authentication_required region: :get_region 
+
+  def index
+  end
+  
+  def get_region
+    @region = params[:region_id]
+  end
+end
+```
+
+Example:
+```ruby
+DashboardController < ApplicationController
+  authentication_required only: [:index], region: -> c {'europe'}, project: :get_project, organization: :get_organization 
+  
+  def index
+  end
+  
+  def get_organization
+    @organization_id = (controller_name == 'organizations') ? params[:id] : params[:organization_id]
+  end
+  
+  def get_project
+    @project_id = (controller_name == 'projects') ? params[:id] : params[:project_id]
+  end
+end
+```
+
+Example: spec/dummy/app/controllers/dashboard_controller.rb
+
+Develop
+-------
 ```
 git clone https://github.com/sapcc/monsoon/monsoon-openstack-auth.git
 cd monsoon-openstack-auth
