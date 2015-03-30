@@ -16,6 +16,9 @@ gemspec
 gem 'activerecord-session_store', '~> 0.1.0'
 gem 'monsoon-fog', git: 'git://github.com/sapcc/monsoon/monsoon-fog.git'
 
+# Use Uglifier as compressor for JavaScript assets
+gem 'uglifier', '>= 1.3.0'
+
 group :test do
   gem 'webmock'
   gem "rspec-rails", "~> 2.99.0"

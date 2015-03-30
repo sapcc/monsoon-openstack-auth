@@ -16,7 +16,7 @@ Rails.application.routes.draw do
   
   #resources :organizations, only: [:index, :show]
 
-  mount MonsoonIdentity::Engine => "/monsoon_identity"#, as: :monsoon_identity
+  mount MonsoonIdentity::Engine => "/monsoon_identity"
   
   root to: 'welcome#index'
 end

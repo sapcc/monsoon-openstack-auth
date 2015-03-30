@@ -1,3 +1,4 @@
+require "monsoon_fog"
 require "monsoon_identity/configuration"
 require "monsoon_identity/api_client"
 require "monsoon_identity/engine"

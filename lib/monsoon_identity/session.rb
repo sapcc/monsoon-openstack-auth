@@ -270,6 +270,7 @@ module MonsoonIdentity
         return redirect_to_url
       rescue => e
         Rails.logger.error "Monsoon Identity: login_form_user -> failed. #{e}"
+        Rails.logger.error e.backtrace.join("\n") if @debug
         return nil
       end
     end

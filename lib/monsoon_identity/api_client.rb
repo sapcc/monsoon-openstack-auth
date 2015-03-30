@@ -1,5 +1,3 @@
-require "monsoon_fog"
-
 module MonsoonIdentity
   class ApiClient
     attr_reader :connection
@@ -21,7 +19,7 @@ module MonsoonIdentity
     def authenticate_with_credentials(username,password, scope=nil)
       auth = {auth:{identity: {methods: ["password"],password:{user:{id: username,password: password}}}}}
       auth[:auth][:scope]=scope if scope
-      Rails.logger.info "Monsoon Identity: authenticate_with_credentials -> #{auth}" if MonsoonIdentity.configuration.debug
+      #Rails.logger.info "Monsoon Identity: authenticate_with_credentials -> #{auth}" if MonsoonIdentity.configuration.debug
       HashWithIndifferentAccess.new(@connection.tokens.authenticate(auth).attributes)
     end
 
