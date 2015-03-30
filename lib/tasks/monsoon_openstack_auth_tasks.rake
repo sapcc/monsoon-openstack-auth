@@ -1,4 +1,4 @@
-# desc "Explaining what the task does"
+# desc "Setup monsoon-openstack-auth"
 # task :monsoon_openstack_auth do
-#   # Task goes here
+#
 # end

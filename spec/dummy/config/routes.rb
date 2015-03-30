@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  mount MonsoonOpenstackAuth::Engine => '/auth'
   get 'welcome/index'
     
   scope '/regions' do
@@ -13,10 +14,6 @@ Rails.application.routes.draw do
       end
     end
   end
-  
-  #resources :organizations, only: [:index, :show]
-
-  mount MonsoonOpenstackAuth::Engine => "/monsoon_openstack_auth"
   
   root to: 'welcome#index'
 end
