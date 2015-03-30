@@ -28,6 +28,7 @@ Usage
 -----
 
 ### Configuration
+File: config/initializers/monsoon-openstack-auth.rb
 ```ruby
 MonsoonOpenstackAuth.configure do |config|
   # api auth endpoint
