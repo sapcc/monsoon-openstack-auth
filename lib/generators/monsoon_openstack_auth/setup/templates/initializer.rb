@@ -1,7 +1,7 @@
 MonsoonOpenstackAuth.configure do |config|
-  config.api_endpoint = 'http://localhost:8183/v3/auth/tokens'
-  config.api_userid   = 'u-admin'
-  config.api_password = 'secret'
+  config.api_endpoint = ENV['MONSOON_OPENSTACK_AUTH_API_ENDPOINT']
+  config.api_userid   = ENV['MONSOON_OPENSTACK_AUTH_API_USERID']
+  config.api_password = ENV['MONSOON_OPENSTACK_AUTH_API_PASSWORD']
   
   # optional, default=true
   config.token_auth_allowed = true

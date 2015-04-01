@@ -1,22 +1,16 @@
 require 'spec_helper'
 
 describe MonsoonOpenstackAuth::Session, :type => :controller do
-  
-  before do
-    @testuser_token = nil
-    @user = MonsoonOpenstackAuth.api_client('europe').connection.users.find_by_name('auth_testuser').first
-    unless @user
-      @user = MonsoonOpenstackAuth.api_client('europe').connection.users.create({
-        name: 'auth_testuser',
-        password: 'secret',
-        email: 'test@example.com'
-      })
-    end
+  test_token = HashWithIndifferentAccess.new(ApiStub.keystone_token.merge("expires_at" => (Time.now+1.hour).to_s))
 
-    if @user
-      response = MonsoonOpenstackAuth.api_client('europe').authenticate_with_credentials(@user.id,'secret')
-      @testuser_token = HashWithIndifferentAccess.new(response) if response
-    end
+  before :each do    
+    Fog::IdentityV3::OpenStack.stub(:new)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:validate_token).with(test_token[:value]) { test_token } 
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:validate_token).with("INVALID_TOKEN") { raise Fog::Identity::OpenStack::NotFound.new } 
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_credentials).with("test","secret").and_return(test_token)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_credentials).with("me","me") { raise Fog::Identity::OpenStack::NotFound.new } 
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_token).and_return(test_token)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_external_user).and_return(test_token)
   end
   
   controller do # anonymous subclass of ActionController::Base
@@ -61,23 +55,23 @@ describe MonsoonOpenstackAuth::Session, :type => :controller do
       end
     end
     
-    context "session token not presented" do        
+    context "session token not presented" do
       it "should authenticate user from auth token" do
-        request.headers["X-Auth-Token"]=@testuser_token[:value]
+        request.headers["X-Auth-Token"]=test_token[:value]
         get "index", { region_id: 'europe' }
         expect(controller.current_user).not_to be(nil)
-        expect(controller.current_user.token).to eq(@testuser_token[:value])
+        expect(controller.current_user.token).to eq(test_token[:value])
       end
     end
     
     context "session token presented" do
       before do
-        @session_store = MonsoonOpenstackAuth::SessionStore.new(controller.session)  
-        @session_store.token=@testuser_token
+        @session_store = MonsoonOpenstackAuth::SessionStore.new(controller.session)
+        @session_store.token=test_token
       end
-      
+
       it "should authenticate user from session token" do
-        request.headers["X-Auth-Token"]=@testuser_token[:value]
+        request.headers["X-Auth-Token"]=test_token[:value]
         get "index", { region_id: 'europe' }
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
       end
@@ -91,15 +85,15 @@ describe MonsoonOpenstackAuth::Session, :type => :controller do
       MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { false }
       MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { false }
     end
-    
+
     context "no basic auth presented" do
       it "should redirect to main app's root path" do
         get "index", region_id: 'europe'
         expect(response).to redirect_to(controller.main_app.root_path)
         expect(flash[:notice]).to eq "User is not authenticated!"
       end
-    end 
-    
+    end
+
     context "wrong basic auth credentials" do
       it "should redirect to main app's root path" do
         request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("me","me")
@@ -108,17 +102,17 @@ describe MonsoonOpenstackAuth::Session, :type => :controller do
         expect(flash[:notice]).to eq "User is not authenticated!"
       end
     end
-    
+
     context "valid basic auth presented" do
       it "should authenticate user" do
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_credentials).and_return({})
-        request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(@user.id,"secret")
+        request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
         get "index", region_id: 'europe'
         expect(controller.current_user).not_to be(nil)
       end
     end
   end
-  
+
   context "sso auth is allowed" do
     before :each do
       MonsoonOpenstackAuth.configuration.stub(:token_auth_allowed?){ false  }
@@ -126,27 +120,27 @@ describe MonsoonOpenstackAuth::Session, :type => :controller do
       MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { true }
       MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { false }
     end
-    
+
     context "no sso header presented" do
       it "should redirect to main app's root path" do
         get "index", region_id: 'europe'
         expect(response).to redirect_to(controller.main_app.root_path)
         expect(flash[:notice]).to eq "User is not authenticated!"
       end
-    end 
-    
+    end
+
     context "valid sso header presented" do
       it "should authenticate user" do
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_external_user).and_return({})
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
-        request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=#{@user.id}"
-    
+        request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=test"
+
         get "index", region_id: 'europe'
         expect(controller.current_user).not_to be(nil)
       end
     end
   end
-  
+
   context "form auth is allowed" do
     before :each do
       MonsoonOpenstackAuth.configuration.stub(:token_auth_allowed?){ false  }
@@ -154,28 +148,28 @@ describe MonsoonOpenstackAuth::Session, :type => :controller do
       MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { false }
       MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { true }
     end
-    
-    context "session token not presented" do        
+
+    context "session token not presented" do
       it "should authenticate user from auth token" do
         get "index", { region_id: 'europe' }
         expect(response).to redirect_to(controller.monsoon_openstack_auth.new_session_path('europe'))
       end
     end
-    
+
     context "session token presented" do
       before do
-        @session_store = MonsoonOpenstackAuth::SessionStore.new(controller.session)  
-        @session_store.token=@testuser_token
+        @session_store = MonsoonOpenstackAuth::SessionStore.new(controller.session)
+        @session_store.token=test_token
       end
-      
+
       it "should authenticate user from session token" do
         get "index", { region_id: 'europe' }
         expect(controller.current_user).not_to be(nil)
-        expect(controller.current_user.token).to eq(@testuser_token[:value])
+        expect(controller.current_user.token).to eq(test_token[:value])
       end
     end
   end
-  
+
   context "all auth methods are allowed" do
     before :each do
       MonsoonOpenstackAuth.configuration.stub(:token_auth_allowed?){ true  }
@@ -184,59 +178,57 @@ describe MonsoonOpenstackAuth::Session, :type => :controller do
       MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { true }
     end
 
-      
-    it "authenticates from session" do  
-      @session_store = MonsoonOpenstackAuth::SessionStore.new(controller.session)  
-      @session_store.token=@testuser_token
-      
-      request.headers["X-Auth-Token"]=@testuser_token[:value]  
-      request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(@user.id,"secret")
+
+    it "authenticates from session" do
+      @session_store = MonsoonOpenstackAuth::SessionStore.new(controller.session)
+      @session_store.token=test_token
+
+      request.headers["X-Auth-Token"]=test_token[:value]
+      request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
       request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
-      request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=#{@user.id}"
-      
+      request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=test"
+
       expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
       expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
       expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_token)
       expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_external_user)
-      
+
       get "index", { region_id: 'europe' }
       expect(controller.current_user).not_to be(nil)
-      expect(controller.current_user.token).to eq(@testuser_token[:value])
+      expect(controller.current_user.token).to eq(test_token[:value])
     end
 
-    it "authenticates from auth token" do        
-      request.headers["X-Auth-Token"]=@testuser_token[:value]  
-      request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(@user.id,"secret")
+    it "authenticates from auth token" do
+      request.headers["X-Auth-Token"]=test_token[:value]
+      request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
       request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
-      request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=#{@user.id}"
-      
-      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).and_return(@testuser_token)
+      request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=test"
+
+      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).and_return(test_token)
       expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
       expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_token)
       expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_external_user)
-      
+
       get "index", { region_id: 'europe' }
       expect(controller.current_user).not_to be(nil)
-      expect(controller.current_user.token).to eq(@testuser_token[:value])
+      expect(controller.current_user.token).to eq(test_token[:value])
       expect(MonsoonOpenstackAuth.api_client('europe')).to have_received(:validate_token)
     end
-    
-    it "authenticates from sso" do         
-      request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(@user.id,"secret")
+
+    it "authenticates from sso" do
+      request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
       request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
-      request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=#{@user.id}"
-      
-      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_external_user).and_return(@testuser_token)
+      request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=test"
+
+      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_external_user).and_return(test_token)
       expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
       expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_token)
       expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
-      
+
       get "index", { region_id: 'europe' }
       expect(controller.current_user).not_to be(nil)
-      expect(controller.current_user.token).to eq(@testuser_token[:value])
+      expect(controller.current_user.token).to eq(test_token[:value])
       expect(MonsoonOpenstackAuth.api_client('europe')).to have_received(:authenticate_external_user)
     end
   end
-  
-
 end

@@ -20,11 +20,11 @@ gem 'monsoon-fog', git: 'git://github.com/sapcc/monsoon/monsoon-fog.git'
 
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
+gem 'dotenv-rails', :groups => [:development, :test] 
 
 group :test do
   gem 'webmock'
   gem "rspec-rails", "~> 2.99.0"
   gem "factory_girl_rails", "~> 4.0"
   gem 'guard-rspec'
-  gem 'vcr'
 end

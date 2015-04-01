@@ -2,7 +2,6 @@
 ENV["RAILS_ENV"] ||= 'test'
 require File.expand_path("../dummy/config/environment", __FILE__)
 require 'rspec/rails'
-require 'vcr'
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
@@ -19,24 +18,7 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 # If you are not using ActiveRecord, you can remove this line.
 ActiveRecord::Migration.maintain_test_schema!
 
-VCR.configure do |config|
-  config.cassette_library_dir = 'spec/cassettes'
-  config.hook_into :webmock
-  config.default_cassette_options = { :record => :new_episodes }
-  config.allow_http_connections_when_no_cassette = true
-end
-
 RSpec.configure do |config|
-  
-  config.around(:each) do |example|
-    options = example.metadata[:vcr] || {}
-    if options[:record] == :skip 
-      VCR.turned_off(&example)
-    else
-      name = example.metadata[:full_description].split(/\s+/, 2).join("/").underscore.gsub(/[^\w\/]+/, "_")
-      VCR.use_cassette(name, options, &example)
-    end
-  end
   
   # ## Mock Framework
   #

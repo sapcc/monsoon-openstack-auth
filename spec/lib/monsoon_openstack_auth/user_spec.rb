@@ -347,50 +347,12 @@ describe MonsoonOpenstackAuth::User do
       let(:token) { ApiStub.keystone_token }
       let(:region) { 'europe' }
     end
-    
-    # real token
-    it_should_behave_like "an user" do
-      let(:token) {
-        api_params = Constants.keystone_api_params
-        user_params = {id: 'ac33746004f1470b904e364d408cf42e', password:'openstack' }
-
-        api_connection = Fog::IdentityV3::OpenStack.new({
-          openstack_region:   'europe',
-          openstack_auth_url: api_params[:openstack_auth_url],
-          openstack_userid:   api_params[:openstack_userid],
-          openstack_api_key:  api_params[:openstack_api_key]
-        })
-
-        auth = {auth:{identity: {methods: ["password"],password:{user:{id: user_params[:id],password: user_params[:password]}}}}}
-        HashWithIndifferentAccess.new(api_connection.tokens.authenticate(auth).attributes)
-      }
-      let(:region) { 'europe' }
-    end
   end
   
   context "Authority" do
     # stubed token
     it_should_behave_like "an user" do
       let(:token) { ApiStub.authority_token }
-      let(:region) { 'europe' }
-    end
-    
-    # real token
-    it_should_behave_like "an user" do
-      let(:token) {
-        api_params = Constants.authority_api_params
-        user_params = {id: 'test-user', password:'test' }
-
-        api_connection = Fog::IdentityV3::OpenStack.new({
-          openstack_region:   'europe',
-          openstack_auth_url: api_params[:openstack_auth_url],
-          openstack_userid:   api_params[:openstack_userid],
-          openstack_api_key:  api_params[:openstack_api_key]
-        })
-
-        auth = {auth:{identity: {methods: ["password"],password:{user:{id: user_params[:id],password: user_params[:password]}}}}}
-        HashWithIndifferentAccess.new(api_connection.tokens.authenticate(auth).attributes)
-      }
       let(:region) { 'europe' }
     end
   end
