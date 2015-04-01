@@ -14,7 +14,8 @@ PATH
       rails
 
 GEM
-  remote: https://rubygems.org/
+  remote: http://github.com/sapcc:8080/rubygemsorg/
+  remote: http://github.com/sapcc:8080/geminabox/
   specs:
     CFPropertyList (2.3.1)
     actionmailer (4.2.1)

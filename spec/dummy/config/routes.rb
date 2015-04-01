@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
 
   mount MonsoonOpenstackAuth::Engine => '/auth'
+
   get 'welcome/index'
     
   scope '/regions' do
