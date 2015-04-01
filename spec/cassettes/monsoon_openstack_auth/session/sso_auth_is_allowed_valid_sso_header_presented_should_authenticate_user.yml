@@ -1,0 +1,169 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://localhost:8183/v3/users?name=auth_testuser&page=1&per_page=30
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - fog/1.28.0 fog-core/1.29.0
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      X-Auth-Token:
+      - eb90789795f645a8b8e1274be35371a8
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - '"5bc4f24203940649b1ad8b86400443f3"'
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - 66cf2414-069b-433d-ba32-f8667e6a20ae
+      X-Runtime:
+      - '0.022227'
+      Server:
+      - WEBrick/1.3.1 (Ruby/1.9.3/2013-01-15)
+      Date:
+      - Wed, 01 Apr 2015 13:08:50 GMT
+      Content-Length:
+      - '409'
+      Connection:
+      - Keep-Alive
+      Set-Cookie:
+      - _monsoon_authority_session=b0pRRnUxVE1YQTI3OGtlWGxJcGthVkR5RTRpclRVQm9LMWxSS0pRVGwxU0pKYTB2aitETFlBMnFyZ0xrMjBibjg2SjFnSTdaanZpMTdRcXR2am4zQlE9PS0tSkNYUDZOakpaL3VHSzVpaFFXT2lRUT09--e2daefee63df25fbf8917859f395e968ac8716a1;
+        path=/; HttpOnly
+    body:
+      encoding: UTF-8
+      string: '{"users":[{"id":"u-1c2a5acd0","name":"auth_testuser","description":null,"email":"test@example.com","enabled":true,"domain_id":"default","default_project_id":null,"links":{"self":"http://localhost:8183/v3/users/auth_testuser"},"domain":{"id":"default","name":"default","links":{"self":"http://localhost:8183/v3/domains/default"}}}],"links":{"self":"http://localhost:8183/v3/users","next":null,"previous":null}}'
+    http_version: 
+  recorded_at: Wed, 01 Apr 2015 13:08:50 GMT
+- request:
+    method: post
+    uri: http://localhost:8183/v3/auth/tokens
+    body:
+      encoding: UTF-8
+      string: '{"auth":{"identity":{"methods":["password"],"password":{"user":{"id":"u-1c2a5acd0","password":"secret"}}}}}'
+    headers:
+      User-Agent:
+      - fog/1.28.0 fog-core/1.29.0
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      X-Auth-Token:
+      - eb90789795f645a8b8e1274be35371a8
+  response:
+    status:
+      code: 201
+      message: ''
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-Subject-Token:
+      - 0901c9c2c9d54fe5a6caeeb1d9eab06c
+      X-Monsoon-User:
+      - auth_testuser
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - '"fd46be06077b6f5083fb10fee5c6ea84"'
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - 200e5fcc-23c2-4086-a57f-745e5c30acfa
+      X-Runtime:
+      - '0.089001'
+      Server:
+      - WEBrick/1.3.1 (Ruby/1.9.3/2013-01-15)
+      Date:
+      - Wed, 01 Apr 2015 13:08:50 GMT
+      Content-Length:
+      - '6404'
+      Connection:
+      - Keep-Alive
+      Set-Cookie:
+      - _monsoon_authority_session=M3VtWThlWHBkNkxXbnRWcHJMaTg5NElnOU5QdCtmWnFha0sxQXZVdndTYlp3dUoxN0tuV0dSc241RmcvS1prOFd1c3Q4Tlh6a09yeFJCcXdSY1pTTFE9PS0tejV5M2hGTFJ6T09zM3NsY0NiMzFTZz09--9d105c64827768cbe4e74803e193afba842baace;
+        path=/; HttpOnly
+    body:
+      encoding: UTF-8
+      string: '{"token":{"expires_at":"2015-04-01T14:08:50.357Z","issued_at":"2015-04-01T13:08:50.357Z","methods":["password"],"user":{"id":"u-1c2a5acd0","name":"auth_testuser","description":null,"email":"test@example.com","enabled":true,"domain_id":"default","default_project_id":null,"links":{"self":"http://localhost:8183/v3/users/auth_testuser"},"domain":{"id":"default","name":"default","links":{"self":"http://localhost:8183/v3/domains/default"}}},"domain":{"uri":"/domains/default","id":"default","name":"default","description":"Default","enabled":true,"links":{"self":"http://localhost:8183/v3/domains/default"}},"catalog":[{"uri":"/services/s-0855485d5","id":"s-0855485d5","name":"authority-internal-prod","description":"","type":"identity","links":{"self":"http://localhost:8183/v3/services/s-0855485d5"},"endpoints":[{"uri":"/endpoints/e-16fd629f7","id":"e-16fd629f7","name":"authority_private","interface":"internal","region":null,"url":"https://localhost/private/api","enabled":true,"region_id":null,"service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-16fd629f7"}},{"uri":"/endpoints/e-01bc74211","id":"e-01bc74211","name":"keystone-admin-v2.0","interface":"admin","region":"asia_pac","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"asia_pac","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-01bc74211"}},{"uri":"/endpoints/e-062f2bc8e","id":"e-062f2bc8e","name":"keystone-public-v2.0","interface":"public","region":"europe","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"europe","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-062f2bc8e"}},{"uri":"/endpoints/e-0f2cd3f03","id":"e-0f2cd3f03","name":"keystone-internal-v2.0","interface":"internal","region":"europe","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"europe","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-0f2cd3f03"}},{"uri":"/endpoints/e-60100a86c","id":"e-60100a86c","name":"keystone-admin-v2.0","interface":"admin","region":"europe","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"europe","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-60100a86c"}},{"uri":"/endpoints/e-0ff4d41b2","id":"e-0ff4d41b2","name":"keystone-public-v2.0","interface":"public","region":"us","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"us","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-0ff4d41b2"}},{"uri":"/endpoints/e-90d367262","id":"e-90d367262","name":"keystone-internal-v2.0","interface":"internal","region":"us","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"us","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-90d367262"}},{"uri":"/endpoints/e-844939572","id":"e-844939572","name":"keystone-admin-v2.0","interface":"admin","region":"us","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"us","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-844939572"}},{"uri":"/endpoints/e-05592af04","id":"e-05592af04","name":"keystone-public-v2.0","interface":"public","region":"asia_pac","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"asia_pac","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-05592af04"}},{"uri":"/endpoints/e-b2791cc9f","id":"e-b2791cc9f","name":"keystone-internal-v2.0","interface":"internal","region":"asia_pac","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"asia_pac","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-b2791cc9f"}}]},{"uri":"/services/s-6043f13a1","id":"s-6043f13a1","name":"identity_v3","description":"Monsoon
+        Keystone V3 Service","type":"identity_v3","links":{"self":"http://localhost:8183/v3/services/s-6043f13a1"},"endpoints":[{"uri":"/endpoints/e-d30861ac8","id":"e-d30861ac8","name":"keystone-public-v3","interface":"public","region":"europe","url":"http://localhost:8183/v3","enabled":true,"region_id":"europe","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-d30861ac8"}},{"uri":"/endpoints/e-49bc54cb5","id":"e-49bc54cb5","name":"keystone-internal-v3","interface":"internal","region":"europe","url":"http://localhost:8183/v3","enabled":true,"region_id":"europe","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-49bc54cb5"}},{"uri":"/endpoints/e-4c01e6528","id":"e-4c01e6528","name":"keystone-admin-v3","interface":"admin","region":"europe","url":"http://localhost:8183/v3","enabled":true,"region_id":"europe","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-4c01e6528"}},{"uri":"/endpoints/e-e6931c5f7","id":"e-e6931c5f7","name":"keystone-public-v3","interface":"public","region":"us","url":"http://localhost:8183/v3","enabled":true,"region_id":"us","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-e6931c5f7"}},{"uri":"/endpoints/e-5e8ee4e17","id":"e-5e8ee4e17","name":"keystone-internal-v3","interface":"internal","region":"us","url":"http://localhost:8183/v3","enabled":true,"region_id":"us","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-5e8ee4e17"}},{"uri":"/endpoints/e-6c071160a","id":"e-6c071160a","name":"keystone-admin-v3","interface":"admin","region":"us","url":"http://localhost:8183/v3","enabled":true,"region_id":"us","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-6c071160a"}},{"uri":"/endpoints/e-c5032fdc3","id":"e-c5032fdc3","name":"keystone-public-v3","interface":"public","region":"asia_pac","url":"http://localhost:8183/v3","enabled":true,"region_id":"asia_pac","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-c5032fdc3"}},{"uri":"/endpoints/e-971a8ec42","id":"e-971a8ec42","name":"keystone-internal-v3","interface":"internal","region":"asia_pac","url":"http://localhost:8183/v3","enabled":true,"region_id":"asia_pac","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-971a8ec42"}},{"uri":"/endpoints/e-92f2b36a4","id":"e-92f2b36a4","name":"keystone-admin-v3","interface":"admin","region":"asia_pac","url":"http://localhost:8183/v3","enabled":true,"region_id":"asia_pac","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-92f2b36a4"}}]}]}}'
+    http_version: 
+  recorded_at: Wed, 01 Apr 2015 13:08:50 GMT
+- request:
+    method: post
+    uri: http://localhost:8183/v3/auth/tokens
+    body:
+      encoding: UTF-8
+      string: '{"auth":{"identity":{"methods":["password"],"password":{"user":{"id":"u-1c2a5acd0","password":"secret"}}}}}'
+    headers:
+      User-Agent:
+      - fog/1.28.0 fog-core/1.29.0
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      X-Auth-Token:
+      - 0901c9c2c9d54fe5a6caeeb1d9eab06c
+  response:
+    status:
+      code: 201
+      message: ''
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-Subject-Token:
+      - 88f161ee795e4a5998664969dbba7a29
+      X-Monsoon-User:
+      - auth_testuser
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - '"2e3348df38a8969ba46660920dd08bf1"'
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - ca3d9fbe-f35b-4327-bcaa-87ba8e950a9f
+      X-Runtime:
+      - '0.135753'
+      Server:
+      - WEBrick/1.3.1 (Ruby/1.9.3/2013-01-15)
+      Date:
+      - Wed, 01 Apr 2015 13:47:44 GMT
+      Content-Length:
+      - '6404'
+      Connection:
+      - Keep-Alive
+      Set-Cookie:
+      - _monsoon_authority_session=ajZMeTNpTTBaNmJ3d0daTGlMNVRNdTFnRndkaUdZWm1reStuajlOUWx2dzN5SzlKaHBqTWllZ2dYQVFSR21nazFKT2JmVXMzZXZFUXJpS3ZTU2pDc1JKV2YwZDNKMUVSYVgwR2VXcThMVnc9LS1zaHAvb2kxLzJSRGtRUG5aQVZneXJBPT0%3D--f8ae237277cbecb6798648bc0874d70707dff1c2;
+        path=/; HttpOnly
+    body:
+      encoding: UTF-8
+      string: '{"token":{"expires_at":"2015-04-01T14:47:44.222Z","issued_at":"2015-04-01T13:47:44.222Z","methods":["password"],"user":{"id":"u-1c2a5acd0","name":"auth_testuser","description":null,"email":"test@example.com","enabled":true,"domain_id":"default","default_project_id":null,"links":{"self":"http://localhost:8183/v3/users/auth_testuser"},"domain":{"id":"default","name":"default","links":{"self":"http://localhost:8183/v3/domains/default"}}},"domain":{"uri":"/domains/default","id":"default","name":"default","description":"Default","enabled":true,"links":{"self":"http://localhost:8183/v3/domains/default"}},"catalog":[{"uri":"/services/s-0855485d5","id":"s-0855485d5","name":"authority-internal-prod","description":"","type":"identity","links":{"self":"http://localhost:8183/v3/services/s-0855485d5"},"endpoints":[{"uri":"/endpoints/e-16fd629f7","id":"e-16fd629f7","name":"authority_private","interface":"internal","region":null,"url":"https://localhost/private/api","enabled":true,"region_id":null,"service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-16fd629f7"}},{"uri":"/endpoints/e-01bc74211","id":"e-01bc74211","name":"keystone-admin-v2.0","interface":"admin","region":"asia_pac","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"asia_pac","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-01bc74211"}},{"uri":"/endpoints/e-062f2bc8e","id":"e-062f2bc8e","name":"keystone-public-v2.0","interface":"public","region":"europe","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"europe","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-062f2bc8e"}},{"uri":"/endpoints/e-0f2cd3f03","id":"e-0f2cd3f03","name":"keystone-internal-v2.0","interface":"internal","region":"europe","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"europe","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-0f2cd3f03"}},{"uri":"/endpoints/e-60100a86c","id":"e-60100a86c","name":"keystone-admin-v2.0","interface":"admin","region":"europe","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"europe","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-60100a86c"}},{"uri":"/endpoints/e-0ff4d41b2","id":"e-0ff4d41b2","name":"keystone-public-v2.0","interface":"public","region":"us","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"us","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-0ff4d41b2"}},{"uri":"/endpoints/e-90d367262","id":"e-90d367262","name":"keystone-internal-v2.0","interface":"internal","region":"us","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"us","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-90d367262"}},{"uri":"/endpoints/e-844939572","id":"e-844939572","name":"keystone-admin-v2.0","interface":"admin","region":"us","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"us","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-844939572"}},{"uri":"/endpoints/e-05592af04","id":"e-05592af04","name":"keystone-public-v2.0","interface":"public","region":"asia_pac","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"asia_pac","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-05592af04"}},{"uri":"/endpoints/e-b2791cc9f","id":"e-b2791cc9f","name":"keystone-internal-v2.0","interface":"internal","region":"asia_pac","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"asia_pac","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-b2791cc9f"}}]},{"uri":"/services/s-6043f13a1","id":"s-6043f13a1","name":"identity_v3","description":"Monsoon
+        Keystone V3 Service","type":"identity_v3","links":{"self":"http://localhost:8183/v3/services/s-6043f13a1"},"endpoints":[{"uri":"/endpoints/e-d30861ac8","id":"e-d30861ac8","name":"keystone-public-v3","interface":"public","region":"europe","url":"http://localhost:8183/v3","enabled":true,"region_id":"europe","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-d30861ac8"}},{"uri":"/endpoints/e-49bc54cb5","id":"e-49bc54cb5","name":"keystone-internal-v3","interface":"internal","region":"europe","url":"http://localhost:8183/v3","enabled":true,"region_id":"europe","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-49bc54cb5"}},{"uri":"/endpoints/e-4c01e6528","id":"e-4c01e6528","name":"keystone-admin-v3","interface":"admin","region":"europe","url":"http://localhost:8183/v3","enabled":true,"region_id":"europe","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-4c01e6528"}},{"uri":"/endpoints/e-e6931c5f7","id":"e-e6931c5f7","name":"keystone-public-v3","interface":"public","region":"us","url":"http://localhost:8183/v3","enabled":true,"region_id":"us","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-e6931c5f7"}},{"uri":"/endpoints/e-5e8ee4e17","id":"e-5e8ee4e17","name":"keystone-internal-v3","interface":"internal","region":"us","url":"http://localhost:8183/v3","enabled":true,"region_id":"us","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-5e8ee4e17"}},{"uri":"/endpoints/e-6c071160a","id":"e-6c071160a","name":"keystone-admin-v3","interface":"admin","region":"us","url":"http://localhost:8183/v3","enabled":true,"region_id":"us","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-6c071160a"}},{"uri":"/endpoints/e-c5032fdc3","id":"e-c5032fdc3","name":"keystone-public-v3","interface":"public","region":"asia_pac","url":"http://localhost:8183/v3","enabled":true,"region_id":"asia_pac","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-c5032fdc3"}},{"uri":"/endpoints/e-971a8ec42","id":"e-971a8ec42","name":"keystone-internal-v3","interface":"internal","region":"asia_pac","url":"http://localhost:8183/v3","enabled":true,"region_id":"asia_pac","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-971a8ec42"}},{"uri":"/endpoints/e-92f2b36a4","id":"e-92f2b36a4","name":"keystone-admin-v3","interface":"admin","region":"asia_pac","url":"http://localhost:8183/v3","enabled":true,"region_id":"asia_pac","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-92f2b36a4"}}]}]}}'
+    http_version: 
+  recorded_at: Wed, 01 Apr 2015 13:47:44 GMT
+recorded_with: VCR 2.9.3

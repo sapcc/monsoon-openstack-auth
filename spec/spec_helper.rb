@@ -4,8 +4,6 @@ require File.expand_path("../dummy/config/environment", __FILE__)
 require 'rspec/rails'
 require 'vcr'
 
-require 'monsoon_openstack_auth'
-
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
 # run as spec files by default. This means that files in spec/support that end
@@ -20,14 +18,6 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 # Checks for pending migrations before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
 ActiveRecord::Migration.maintain_test_schema!
-
-
-#
-# VCR.config do |c|
-#   c.cassette_library_dir     = 'spec/cassettes'
-#   c.stub_with                :fakeweb
-#   c.default_cassette_options = { :record => :new_episodes }
-# end
 
 VCR.configure do |config|
   config.cassette_library_dir = 'spec/cassettes'

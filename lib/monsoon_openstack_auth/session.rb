@@ -97,9 +97,7 @@ module MonsoonOpenstackAuth
       end
 
       auth_token = @controller.request.headers['HTTP_X_AUTH_TOKEN']
-      #p "::::::::::::::::::::::"
-      #p auth_token
-      
+
       unless auth_token
         Rails.logger.info "Monsoon Identity: validate_auth_token -> auth token not presented." if @debug
         return false
@@ -120,7 +118,6 @@ module MonsoonOpenstackAuth
         
         # didn't returned -> validate auth token
         begin
-          #p ">>>>>>>>>>>>>>>>>>>"
           token = @api_client.validate_token(auth_token) #self.class.keystone_connection(@region).tokens.validate(auth_token)
           if token
             # token is valid -> create user from token and save token in session store
@@ -132,7 +129,7 @@ module MonsoonOpenstackAuth
               return true
             end
           end
-        rescue Fog::Identity::OpenStack::NotFound
+        rescue Fog::Identity::OpenStack::NotFound => e
           Rails.logger.error "Monsoon Identity: token validation failed #{e}."
         end  
       end

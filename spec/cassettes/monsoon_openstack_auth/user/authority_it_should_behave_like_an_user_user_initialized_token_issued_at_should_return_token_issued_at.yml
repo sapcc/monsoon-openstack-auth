@@ -1,0 +1,114 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://localhost:8183/v3/auth/tokens
+    body:
+      encoding: UTF-8
+      string: '{"auth":{"identity":{"methods":["password"],"password":{"user":{"password":"secret","id":"u-admin"}}}}}'
+    headers:
+      User-Agent:
+      - fog/1.28.0 fog-core/1.29.0
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 201
+      message: ''
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-Subject-Token:
+      - a28187d0652343a9a4b5ec8f4c1b246c
+      X-Monsoon-User:
+      - admin
+      X-Monsoon-Project:
+      - p-admin
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - '"e533af0c7504355c21c9d0c714e42fa4"'
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - 9a1024d0-9273-47bb-93ed-d8045b80d321
+      X-Runtime:
+      - '0.102169'
+      Server:
+      - WEBrick/1.3.1 (Ruby/1.9.3/2013-01-15)
+      Date:
+      - Wed, 01 Apr 2015 11:18:28 GMT
+      Content-Length:
+      - '7289'
+      Connection:
+      - Keep-Alive
+    body:
+      encoding: UTF-8
+      string: '{"token":{"expires_at":"2015-04-01T12:18:28.919Z","issued_at":"2015-04-01T11:18:28.919Z","methods":["password"],"user":{"id":"u-admin","name":"admin","description":"Administrator","email":"noreply@sap.com","enabled":true,"domain_id":"default","default_project_id":"p-admin","links":{"self":"http://localhost:8183/v3/users/admin"},"domain":{"id":"default","name":"default","links":{"self":"http://localhost:8183/v3/domains/default"}},"project":{"uri":"/projects/p-admin","id":"p-admin","domain_id":"default","name":"admin","description":"Keystone
+        V2 Admin Tenant","enabled":true,"parent_id":null,"links":{"self":"http://localhost:8183/v3/projects/p-admin"},"domain":{"uri":"/domains/default","id":"default","name":"default","description":"Default","enabled":true,"links":{"self":"http://localhost:8183/v3/domains/default"}}}},"project":{"uri":"/projects/p-admin","id":"p-admin","domain_id":"default","name":"admin","description":"Keystone
+        V2 Admin Tenant","enabled":true,"parent_id":null,"links":{"self":"http://localhost:8183/v3/projects/p-admin"},"domain":{"uri":"/domains/default","id":"default","name":"default","description":"Default","enabled":true,"links":{"self":"http://localhost:8183/v3/domains/default"}}},"domain":{"uri":"/domains/default","id":"default","name":"default","description":"Default","enabled":true,"links":{"self":"http://localhost:8183/v3/domains/default"}},"roles":[{"id":"r-43f6a2933","links":{"self":"http://localhost:8183/v3/roles/r-43f6a2933"},"name":"admin"}],"catalog":[{"uri":"/services/s-0855485d5","id":"s-0855485d5","name":"authority-internal-prod","description":"","type":"identity","links":{"self":"http://localhost:8183/v3/services/s-0855485d5"},"endpoints":[{"uri":"/endpoints/e-16fd629f7","id":"e-16fd629f7","name":"authority_private","interface":"internal","region":null,"url":"https://localhost/private/api","enabled":true,"region_id":null,"service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-16fd629f7"}},{"uri":"/endpoints/e-01bc74211","id":"e-01bc74211","name":"keystone-admin-v2.0","interface":"admin","region":"asia_pac","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"asia_pac","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-01bc74211"}},{"uri":"/endpoints/e-062f2bc8e","id":"e-062f2bc8e","name":"keystone-public-v2.0","interface":"public","region":"europe","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"europe","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-062f2bc8e"}},{"uri":"/endpoints/e-0f2cd3f03","id":"e-0f2cd3f03","name":"keystone-internal-v2.0","interface":"internal","region":"europe","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"europe","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-0f2cd3f03"}},{"uri":"/endpoints/e-60100a86c","id":"e-60100a86c","name":"keystone-admin-v2.0","interface":"admin","region":"europe","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"europe","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-60100a86c"}},{"uri":"/endpoints/e-0ff4d41b2","id":"e-0ff4d41b2","name":"keystone-public-v2.0","interface":"public","region":"us","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"us","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-0ff4d41b2"}},{"uri":"/endpoints/e-90d367262","id":"e-90d367262","name":"keystone-internal-v2.0","interface":"internal","region":"us","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"us","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-90d367262"}},{"uri":"/endpoints/e-844939572","id":"e-844939572","name":"keystone-admin-v2.0","interface":"admin","region":"us","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"us","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-844939572"}},{"uri":"/endpoints/e-05592af04","id":"e-05592af04","name":"keystone-public-v2.0","interface":"public","region":"asia_pac","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"asia_pac","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-05592af04"}},{"uri":"/endpoints/e-b2791cc9f","id":"e-b2791cc9f","name":"keystone-internal-v2.0","interface":"internal","region":"asia_pac","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"asia_pac","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-b2791cc9f"}}]},{"uri":"/services/s-6043f13a1","id":"s-6043f13a1","name":"identity_v3","description":"Monsoon
+        Keystone V3 Service","type":"identity_v3","links":{"self":"http://localhost:8183/v3/services/s-6043f13a1"},"endpoints":[{"uri":"/endpoints/e-d30861ac8","id":"e-d30861ac8","name":"keystone-public-v3","interface":"public","region":"europe","url":"http://localhost:8183/v3","enabled":true,"region_id":"europe","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-d30861ac8"}},{"uri":"/endpoints/e-49bc54cb5","id":"e-49bc54cb5","name":"keystone-internal-v3","interface":"internal","region":"europe","url":"http://localhost:8183/v3","enabled":true,"region_id":"europe","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-49bc54cb5"}},{"uri":"/endpoints/e-4c01e6528","id":"e-4c01e6528","name":"keystone-admin-v3","interface":"admin","region":"europe","url":"http://localhost:8183/v3","enabled":true,"region_id":"europe","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-4c01e6528"}},{"uri":"/endpoints/e-e6931c5f7","id":"e-e6931c5f7","name":"keystone-public-v3","interface":"public","region":"us","url":"http://localhost:8183/v3","enabled":true,"region_id":"us","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-e6931c5f7"}},{"uri":"/endpoints/e-5e8ee4e17","id":"e-5e8ee4e17","name":"keystone-internal-v3","interface":"internal","region":"us","url":"http://localhost:8183/v3","enabled":true,"region_id":"us","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-5e8ee4e17"}},{"uri":"/endpoints/e-6c071160a","id":"e-6c071160a","name":"keystone-admin-v3","interface":"admin","region":"us","url":"http://localhost:8183/v3","enabled":true,"region_id":"us","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-6c071160a"}},{"uri":"/endpoints/e-c5032fdc3","id":"e-c5032fdc3","name":"keystone-public-v3","interface":"public","region":"asia_pac","url":"http://localhost:8183/v3","enabled":true,"region_id":"asia_pac","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-c5032fdc3"}},{"uri":"/endpoints/e-971a8ec42","id":"e-971a8ec42","name":"keystone-internal-v3","interface":"internal","region":"asia_pac","url":"http://localhost:8183/v3","enabled":true,"region_id":"asia_pac","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-971a8ec42"}},{"uri":"/endpoints/e-92f2b36a4","id":"e-92f2b36a4","name":"keystone-admin-v3","interface":"admin","region":"asia_pac","url":"http://localhost:8183/v3","enabled":true,"region_id":"asia_pac","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-92f2b36a4"}}]}]}}'
+    http_version: 
+  recorded_at: Wed, 01 Apr 2015 11:18:28 GMT
+- request:
+    method: post
+    uri: http://localhost:8183/v3/auth/tokens
+    body:
+      encoding: UTF-8
+      string: '{"auth":{"identity":{"methods":["password"],"password":{"user":{"id":"test-user","password":"test"}}}}}'
+    headers:
+      User-Agent:
+      - fog/1.28.0 fog-core/1.29.0
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      X-Auth-Token:
+      - a28187d0652343a9a4b5ec8f4c1b246c
+  response:
+    status:
+      code: 201
+      message: ''
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-Subject-Token:
+      - 389a8d38c17f4d759f0743215d9eed5e
+      X-Monsoon-User:
+      - test-user
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - '"5193a24e1492bf17d84ea536bf5208a2"'
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - d6e17ce4-c602-430c-8a47-29ff856890ac
+      X-Runtime:
+      - '0.072849'
+      Server:
+      - WEBrick/1.3.1 (Ruby/1.9.3/2013-01-15)
+      Date:
+      - Wed, 01 Apr 2015 11:18:29 GMT
+      Content-Length:
+      - '6109'
+      Connection:
+      - Keep-Alive
+      Set-Cookie:
+      - _monsoon_authority_session=VGV1R2x1NjgxcEUzSzNLajZQd1ZORmZBdlhKa3pVQzIyV1daeEZoS2ZzclVlM25xbVBxZ0NpY2FHM3ZTVkFOY0ZEOW1CQTBua05FL1NaNWEvaVJIS2c9PS0tMUliaVVXdXl0ZHIwV1NheDU3L3Vodz09--a4565b34b717b1d7ca904d3acf3b435728b0dc0b;
+        path=/; HttpOnly
+    body:
+      encoding: UTF-8
+      string: '{"token":{"expires_at":"2015-04-01T12:18:29.032Z","issued_at":"2015-04-01T11:18:29.032Z","methods":["password"],"user":{"id":"u-c5b29b8a5","name":"test-user","description":"User","email":null,"enabled":true,"domain_id":null,"default_project_id":null,"links":{"self":"http://localhost:8183/v3/users/test-user"}},"catalog":[{"uri":"/services/s-0855485d5","id":"s-0855485d5","name":"authority-internal-prod","description":"","type":"identity","links":{"self":"http://localhost:8183/v3/services/s-0855485d5"},"endpoints":[{"uri":"/endpoints/e-16fd629f7","id":"e-16fd629f7","name":"authority_private","interface":"internal","region":null,"url":"https://localhost/private/api","enabled":true,"region_id":null,"service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-16fd629f7"}},{"uri":"/endpoints/e-01bc74211","id":"e-01bc74211","name":"keystone-admin-v2.0","interface":"admin","region":"asia_pac","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"asia_pac","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-01bc74211"}},{"uri":"/endpoints/e-062f2bc8e","id":"e-062f2bc8e","name":"keystone-public-v2.0","interface":"public","region":"europe","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"europe","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-062f2bc8e"}},{"uri":"/endpoints/e-0f2cd3f03","id":"e-0f2cd3f03","name":"keystone-internal-v2.0","interface":"internal","region":"europe","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"europe","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-0f2cd3f03"}},{"uri":"/endpoints/e-60100a86c","id":"e-60100a86c","name":"keystone-admin-v2.0","interface":"admin","region":"europe","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"europe","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-60100a86c"}},{"uri":"/endpoints/e-0ff4d41b2","id":"e-0ff4d41b2","name":"keystone-public-v2.0","interface":"public","region":"us","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"us","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-0ff4d41b2"}},{"uri":"/endpoints/e-90d367262","id":"e-90d367262","name":"keystone-internal-v2.0","interface":"internal","region":"us","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"us","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-90d367262"}},{"uri":"/endpoints/e-844939572","id":"e-844939572","name":"keystone-admin-v2.0","interface":"admin","region":"us","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"us","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-844939572"}},{"uri":"/endpoints/e-05592af04","id":"e-05592af04","name":"keystone-public-v2.0","interface":"public","region":"asia_pac","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"asia_pac","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-05592af04"}},{"uri":"/endpoints/e-b2791cc9f","id":"e-b2791cc9f","name":"keystone-internal-v2.0","interface":"internal","region":"asia_pac","url":"http://localhost:8183/v2.0","enabled":true,"region_id":"asia_pac","service_id":"s-0855485d5","links":{"self":"http://localhost:8183/v3/endpoints/e-b2791cc9f"}}]},{"uri":"/services/s-6043f13a1","id":"s-6043f13a1","name":"identity_v3","description":"Monsoon
+        Keystone V3 Service","type":"identity_v3","links":{"self":"http://localhost:8183/v3/services/s-6043f13a1"},"endpoints":[{"uri":"/endpoints/e-d30861ac8","id":"e-d30861ac8","name":"keystone-public-v3","interface":"public","region":"europe","url":"http://localhost:8183/v3","enabled":true,"region_id":"europe","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-d30861ac8"}},{"uri":"/endpoints/e-49bc54cb5","id":"e-49bc54cb5","name":"keystone-internal-v3","interface":"internal","region":"europe","url":"http://localhost:8183/v3","enabled":true,"region_id":"europe","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-49bc54cb5"}},{"uri":"/endpoints/e-4c01e6528","id":"e-4c01e6528","name":"keystone-admin-v3","interface":"admin","region":"europe","url":"http://localhost:8183/v3","enabled":true,"region_id":"europe","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-4c01e6528"}},{"uri":"/endpoints/e-e6931c5f7","id":"e-e6931c5f7","name":"keystone-public-v3","interface":"public","region":"us","url":"http://localhost:8183/v3","enabled":true,"region_id":"us","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-e6931c5f7"}},{"uri":"/endpoints/e-5e8ee4e17","id":"e-5e8ee4e17","name":"keystone-internal-v3","interface":"internal","region":"us","url":"http://localhost:8183/v3","enabled":true,"region_id":"us","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-5e8ee4e17"}},{"uri":"/endpoints/e-6c071160a","id":"e-6c071160a","name":"keystone-admin-v3","interface":"admin","region":"us","url":"http://localhost:8183/v3","enabled":true,"region_id":"us","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-6c071160a"}},{"uri":"/endpoints/e-c5032fdc3","id":"e-c5032fdc3","name":"keystone-public-v3","interface":"public","region":"asia_pac","url":"http://localhost:8183/v3","enabled":true,"region_id":"asia_pac","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-c5032fdc3"}},{"uri":"/endpoints/e-971a8ec42","id":"e-971a8ec42","name":"keystone-internal-v3","interface":"internal","region":"asia_pac","url":"http://localhost:8183/v3","enabled":true,"region_id":"asia_pac","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-971a8ec42"}},{"uri":"/endpoints/e-92f2b36a4","id":"e-92f2b36a4","name":"keystone-admin-v3","interface":"admin","region":"asia_pac","url":"http://localhost:8183/v3","enabled":true,"region_id":"asia_pac","service_id":"s-6043f13a1","links":{"self":"http://localhost:8183/v3/endpoints/e-92f2b36a4"}}]}]}}'
+    http_version: 
+  recorded_at: Wed, 01 Apr 2015 11:18:29 GMT
+recorded_with: VCR 2.9.3
