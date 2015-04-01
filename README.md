@@ -130,6 +130,14 @@ options:
 * if, optional. Example if: -> c {c.params[:region_id].nil?}
 * unless, optional
 
+#### current_user
+Returns current_user if authenticated.
+Also available in views!
+
+#### logged_in?
+Returns true if current_user is presented.
+Also available in views!
+
 Develop
 -------
 ```
