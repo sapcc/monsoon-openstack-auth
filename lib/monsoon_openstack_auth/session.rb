@@ -34,7 +34,7 @@ module MonsoonOpenstackAuth
       @controller = controller
       @region = region
       @scope = scope 
-      
+            
       # create new session store object
       @session_store = MonsoonOpenstackAuth::SessionStore.new(@controller.session) if self.class.session_id_presented?(controller)
       # get api client
@@ -97,6 +97,8 @@ module MonsoonOpenstackAuth
       end
 
       auth_token = @controller.request.headers['HTTP_X_AUTH_TOKEN']
+      #p "::::::::::::::::::::::"
+      #p auth_token
       
       unless auth_token
         Rails.logger.info "Monsoon Identity: validate_auth_token -> auth token not presented." if @debug
@@ -118,6 +120,7 @@ module MonsoonOpenstackAuth
         
         # didn't returned -> validate auth token
         begin
+          #p ">>>>>>>>>>>>>>>>>>>"
           token = @api_client.validate_token(auth_token) #self.class.keystone_connection(@region).tokens.validate(auth_token)
           if token
             # token is valid -> create user from token and save token in session store

@@ -20,7 +20,7 @@ module MonsoonOpenstackAuth
         reg = options.delete(:region)
         org = options.delete(:organization)
         prj = options.delete(:project)
-        
+
         raise MonsoonOpenstackAuth::InvalidRegion.new("An region should be provided") unless reg
               
 
@@ -42,6 +42,8 @@ module MonsoonOpenstackAuth
               project = self.send(prj.to_sym) if self.respond_to?(prj.to_sym)
             end
           end
+          
+          raise MonsoonOpenstackAuth::InvalidRegion.new("An region should be provided") unless region
           @monsoon_openstack_auth = MonsoonOpenstackAuth::Session.check_authentication(self, region, organization: organization, project: project)
         end
       end

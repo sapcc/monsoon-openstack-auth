@@ -1,4 +1,6 @@
-source "https://rubygems.org"
+# encoding: UTF-8
+source 'http://github.com/sapcc:8080/rubygemsorg/'
+source 'http://github.com/sapcc:8080/geminabox/'
 
 # Declare your gem's dependencies in monsoon_openstack_auth.gemspec.
 # Bundler will treat runtime dependencies like base dependencies, and

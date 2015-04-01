@@ -1,22 +1,61 @@
 require 'spec_helper'
 
 describe MonsoonOpenstackAuth::Session do
-  before(:each) do
-    request = double('request')
-    request.stub(:session_options){ {id:nil} }
-    request.stub(:headers){ {} }
-    
-    @controller = double('controller')
-    @controller.stub(:session){ Hash.new }
-    @controller.stub(:request){ request }
-  end
   
-  describe "initialize" do
-    it "should create a new session object" do
-      session = MonsoonOpenstackAuth::Session.new(@controller, 'europe')
-      expect(session).not_to be(nil)
+  context "included by a controller", :type => :controller do
+    
+    shared_examples_for "a controller" do     
+      controller do # anonymous subclass of ActionController::Base
+        authentication_required region: :get_region
+      
+        def index
+          head :ok
+        end
+      
+        def get_region
+          params[:region_id]
+        end
+      end
+    end
+    
+    context "region id is not presented" do
+      include_examples 'a controller'
+      
+      it "should throw an error" do
+        controller.stub(:get_region) { nil }
+        expect { get "index", region_id: 'europe' }.to raise_error(MonsoonOpenstackAuth::InvalidRegion)
+      end
+    end
+
+    context "only token auth is allowed" do
+      include_examples 'a controller'
+      
+      before :each do
+        MonsoonOpenstackAuth.configuration.stub(:token_auth_allowed?){ true  }
+        MonsoonOpenstackAuth.configuration.stub(:basic_atuh_allowed?){ false }
+        MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { false }
+        MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { false }
+      end
+      
+      context "session token not presented" do  
+        
+        it "should redirect to main app's root path" do
+          get "index", region_id: 'europe'  
+          expect(response).to redirect_to(controller.main_app.root_path)
+          expect(flash[:notice]).to eq "User is not authenticated!"
+        end
+        
+        it "should authenticate user from auth token" do
+          get "index", { region_id: 'europe' }, {"X-Auth-Token" => "asdfghjkl"}
+        end
+      end
+      
+      context "session token presented" do
+        
+      end
     end
   end
+
   
   # context "session id is presented and session is available and sesion token is valid" do
   #   before :each do
