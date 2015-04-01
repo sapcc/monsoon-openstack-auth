@@ -5,7 +5,7 @@ require "monsoon_openstack_auth/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "monsoon_openstack_auth"
+  s.name        = "monsoon-openstack-auth"
   s.version     = MonsoonOpenstackAuth::VERSION
   s.authors     = ["Andreas Pfau"]
   s.email       = ["andreas.pfau@sap.com"]
