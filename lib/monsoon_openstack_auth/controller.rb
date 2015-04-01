@@ -8,23 +8,20 @@ module MonsoonOpenstackAuth
  
     module ClassMethods
       
-      # def skip_authentication(options={})
-      #   skip_before_filter
-      # end
+      def skip_authentication(options={})
+        prepend_before_filter options do 
+          @_skip_authentication=true 
+        end
+      end
 
       def authentication_required(options={})
-        # unless self.ancestors.include?(MonsoonOpenstackAuth::Controller::InstanceMethods)
-        #   send :include, InstanceMethods
-        # end
-
         reg = options.delete(:region)
         org = options.delete(:organization)
         prj = options.delete(:project)
 
         raise MonsoonOpenstackAuth::InvalidRegion.new("An region should be provided") unless reg
-              
 
-        before_filter options do
+        before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") } ) do
           region = reg.kind_of?(Proc) ? reg.call(self) : self.send(reg.to_sym)
           
           if org

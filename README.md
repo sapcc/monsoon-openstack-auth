@@ -77,6 +77,17 @@ Rails.application.config.session_store :active_record_store, :key => '_monsoon_a
 
 ### Controller
 
+#### authentication_required options
+options:
+
+* region, required. Example: 'europe'
+* organization, optional. Example: 'o-ghghad'
+* project, optional. Example: 'p-jhjhhj'
+* only, optional. Example only: [:index,:show]
+* except, optional. Example except: [:index,:show]
+* if, optional. Example if: -> c {c.params[:region_id].nil?}
+* unless, optional
+
 Example:
 ```ruby
 DashboardController < ApplicationController
@@ -110,6 +121,14 @@ end
 ```
 
 Example: spec/dummy/app/controllers/dashboard_controller.rb
+
+#### skip_authentication options
+options:
+
+* only, optional. Example only: [:index,:show]
+* except, optional. Example except: [:index,:show]
+* if, optional. Example if: -> c {c.params[:region_id].nil?}
+* unless, optional
 
 Develop
 -------
