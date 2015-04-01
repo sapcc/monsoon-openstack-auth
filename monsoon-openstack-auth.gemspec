@@ -5,7 +5,7 @@ require "monsoon_openstack_auth/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "monsoon-openstack-auth"
+  s.name        = "monsoon_openstack_auth"
   s.version     = MonsoonOpenstackAuth::VERSION
   s.authors     = ["Andreas Pfau"]
   s.email       = ["andreas.pfau@sap.com"]
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   #s.license     = "MIT"
 
   s.files = Dir["{app,config,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
-  s.test_files = Dir["test/**/*"]
+  s.test_files = Dir["spec/**/*"]
 
   s.add_dependency "rails"
   s.add_dependency 'monsoon-fog'

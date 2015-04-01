@@ -8,7 +8,6 @@ require "monsoon_openstack_auth/session_store"
 require "monsoon_openstack_auth/session"
 require "monsoon_openstack_auth/controller"
 
-
 module MonsoonOpenstackAuth
   class << self
     attr_accessor :configuration
