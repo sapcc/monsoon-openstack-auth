@@ -55,6 +55,26 @@ MonsoonOpenstackAuth.configure do |config|
 end
 ```
 
+#### Session Store
+If this gem should support the form based login then the session store must be anything but cookie_store.
+
+Example of setting up a ActiveRecord session_store (https://github.com/rails/activerecord-session_store)
+
+File: Gemfile:
+```ruby
+gem 'activerecord-session_store'
+```
+
+```
+rails generate active_record:session_migration
+```
+
+File: config/initializers/session_store.rb
+```ruby
+Rails.application.config.session_store :active_record_store, :key => '_monsoon_app_session'
+```
+
+
 ### Controller
 
 Example:
