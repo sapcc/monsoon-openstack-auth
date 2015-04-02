@@ -1,5 +1,5 @@
-MonsoonOpenstackAuth
-=====================
+Monsoon Openstack Auth
+======================
 
 Implements the authentication functionality using Keystone API.
 
@@ -79,20 +79,19 @@ Rails.application.config.session_store :active_record_store, :key => '_monsoon_a
 
 #### authentication_required
 
-Class method
+Class method which is called in controllers. 
 ```ruby
 authentication_required options
 ```
-
 options:
 
-* region, required. Example: 'europe'
-* organization, optional. Example: 'o-ghghad'
-* project, optional. Example: 'p-jhjhhj'
-* only, optional. Example only: [:index,:show]
-* except, optional. Example except: [:index,:show]
-* if, optional. Example if: -> c {c.params[:region_id].nil?}
-* unless, optional
+* **region**, required. Example: 'europe'
+* **organization**, optional. Example: 'o-ghghad'
+* **project**, optional. Example: 'p-jhjhhj'
+* **only**, optional. Example only: [:index,:show]
+* **except**, optional. Example except: [:index,:show]
+* **if**, optional. Example if: -> c {c.params[:region_id].nil?}
+* **unless**, optional
 
 Example:
 ```ruby
@@ -130,65 +129,60 @@ Example: https://github.com/sapcc/monsoon/monsoon-openstack-auth/blob/master/spe
 
 #### skip_authentication
 
-Class method
+Class method which is called in controllers.
 ```ruby
 skip_authentication options
 ```
-
 options:
 
-* only, optional. Example only: [:index,:show]
-* except, optional. Example except: [:index,:show]
-* if, optional. Example if: -> c {c.params[:region_id].nil?}
-* unless, optional
+* **only**, optional. Example only: [:index,:show]
+* **except**, optional. Example except: [:index,:show]
+* **if**, optional. Example if: -> c {c.params[:region_id].nil?}
+* **unless**, optional
 
 #### current_user
 
-Instance method
+Instance method, available in controller instances and views. Returns current_user if authenticated.
 ```ruby
 current_user
 ```
-Returns current_user if authenticated.
-Also available in views!
 
 #### logged_in?
 
-Instance method
+Instance method, available in controller instances and views. Returns true if current_user is presented.
 ```ruby
-current_user
+logged_in?
 ```
-Returns true if current_user is presented.
-Also available in views!
 
-### User Class
+### User Class (current_user)
 
 Instance methods:
 
-* context, returns the token received by API
-* enabled?, true if user is active (enabled)
-* token, returns the token value (auth_token)  
-* id, user id (obtained through the token)
-* name, user name (obtained through the token)
-* user_domain_id, received by scoped token
-* user_domain_name, received by scoped token
-* domain_id, scope (obtained through the token)
-* domain_name, scope (obtained through the token)
-* project_id, scope (obtained through the token)
-* project_name, scope (obtained through the token)
-* project_domain_id, scope (obtained through the token)
-* project_domain_name, scope (obtained through the token)
-* project_scoped, returns a hash (scope)
-* domain_scoped, returns a hash (scope)
-* token_expires_at, returns datetime
-* token_expired?, true if token expired
-* token_issued_at, returns datetime
-* service_catalog, returns an array of hashes (services)
-* has_service?(type), returns true if service_catalog contains the given type
-* roles, returns an array of hashes
-* has_role?(name), returns true if user has the given role
-* admin?, true if user is a superuser (can do anything)    
-* default_services_region, returns the first endpoint region for first non-identity service in the service catalog
-* available_services_regions, returns list of unique region name values found in service catalog 
+* **context**, returns the token received by API
+* **enabled?**, true if user is active (enabled)
+* **token**, returns the token value (auth_token)  
+* **id**, user id (obtained through the token)
+* **name**, user name (obtained through the token)
+* **user_domain_id**, received by scoped token
+* **user_domain_name**, received by scoped token
+* **domain_id**, scope (obtained through the token)
+* **domain_name**, scope (obtained through the token)
+* **project_id**, scope (obtained through the token)
+* **project_name**, scope (obtained through the token)
+* **project_domain_id**, scope (obtained through the token)
+* **project_domain_name**, scope (obtained through the token)
+* **project_scoped**, returns a hash (scope)
+* **domain_scoped**, returns a hash (scope)
+* **token_expires_at**, returns datetime
+* **token_expired?**, true if token expired
+* **token_issued_at**, returns datetime
+* **service_catalog**, returns an array of hashes (services)
+* **has_service?(type)**, returns true if service_catalog contains the given type
+* **roles**, returns an array of hashes
+* **has_role?(name)**, returns true if user has the given role
+* **admin?**, true if user is a superuser (can do anything)    
+* **default_services_region**, returns the first endpoint region for first non-identity service in the service catalog
+* **available_services_regions**, returns list of unique region name values found in service catalog 
 
 
 Develop
