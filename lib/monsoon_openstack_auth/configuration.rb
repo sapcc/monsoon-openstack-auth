@@ -1,19 +1,29 @@
 module MonsoonOpenstackAuth
-  class Configuration
-    METHODS = [:api_endpoint, :api_userid, :api_password, :token_auth_allowed, :basic_atuh_allowed, 
-      :sso_auth_allowed, :form_auth_allowed, :login_redirect_url, :debug]
+  class Configuration    
+    METHODS = [
+      :connection_driver, :token_auth_allowed, :basic_atuh_allowed, :sso_auth_allowed, 
+      :form_auth_allowed, :login_redirect_url, :debug
+    ]
+    
     attr_accessor *METHODS
 
     def initialize
+      @connection_driver  = MonsoonOpenstackAuth::Driver::Default
       @token_auth_allowed = true
       @basic_atuh_allowed = true
       @sso_auth_allowed   = true
       @form_auth_allowed  = true
       @debug = false
     end
+    
+    # support old configuration format
+    delegate :api_endpoint, to: :@connection_driver
+    delegate :api_userid,   to: :@connection_driver
+    delegate :api_password, to: :@connection_driver 
+    # end
   
     def check
-      raise ConfigurationError.new("Api credentials not provided") unless (api_endpoint and api_userid and api_password)
+      raise UnknownConnectionDriver.new("Connection driver should be provided!") unless connection_driver
     end
     
     def to_hash

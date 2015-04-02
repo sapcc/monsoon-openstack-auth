@@ -1,4 +1,6 @@
 require "monsoon_fog"
+require "monsoon_openstack_auth/driver_interface"
+require "monsoon_openstack_auth/driver/default"
 require "monsoon_openstack_auth/configuration"
 require "monsoon_openstack_auth/api_client"
 require "monsoon_openstack_auth/engine"

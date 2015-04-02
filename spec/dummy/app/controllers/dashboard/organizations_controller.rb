@@ -1,7 +1,7 @@
 module Dashboard
   class OrganizationsController < DashboardController
     before_filter do
-      @service = KeystoneService.new(MonsoonOpenstackAuth.api_client(@region))
+      @service = KeystoneService.new(@region)
     end
     
     def index

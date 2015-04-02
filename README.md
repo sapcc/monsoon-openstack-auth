@@ -31,12 +31,15 @@ Usage
 File: config/initializers/monsoon_openstack_auth.rb
 ```ruby
 MonsoonOpenstackAuth.configure do |config|
+  # connection driver, default MonsoonOpenstackAuth::Driver::Default (Fog)
+  # config.connection_driver = DriverClass
+  
   # api auth endpoint
-  config.api_endpoint = 'http://localhost:8183/v3/auth/tokens'
+  config.connection_driver.api_endpoint = ENV['MONSOON_OPENSTACK_AUTH_API_ENDPOINT']
   # api admin user
-  config.api_userid   = 'admin'
+  config.connection_driver.api_userid   = ENV['MONSOON_OPENSTACK_AUTH_API_USERID']
   # api admin password
-  config.api_password = 'secret'
+  config.connection_driver.api_password = ENV['MONSOON_OPENSTACK_AUTH_API_PASSWORD']
   
   # optional, default=true
   config.token_auth_allowed = true
@@ -142,14 +145,14 @@ options:
 
 #### current_user
 
-Instance method, available in controller instances and views. Returns current_user if authenticated.
+Instance method, available in controller instances and views. Returns current logged in user or nil.
 ```ruby
 current_user
 ```
 
 #### logged_in?
 
-Instance method, available in controller instances and views. Returns true if current_user is presented.
+Instance method, available in controller instances and views. Returns true if current logged in user is presented.
 ```ruby
 logged_in?
 ```

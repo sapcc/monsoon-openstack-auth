@@ -1,13 +1,9 @@
 MonsoonOpenstackAuth.configure do |config|
-  p '------------------------------------------'
-  p ENV['MONSOON_OPENSTACK_AUTH_API_ENDPOINT']
-  p ENV['MONSOON_OPENSTACK_AUTH_API_USERID']
-  p ENV['MONSOON_OPENSTACK_AUTH_API_PASSWORD']
-  p '##########################################'
-  
-  config.api_endpoint = ENV['MONSOON_OPENSTACK_AUTH_API_ENDPOINT']
-  config.api_userid   = ENV['MONSOON_OPENSTACK_AUTH_API_USERID']
-  config.api_password = ENV['MONSOON_OPENSTACK_AUTH_API_PASSWORD']
+  # connection driver, default MonsoonOpenstackAuth::Driver::Default (Fog)
+  # config.connection_driver = DriverClass
+  config.connection_driver.api_endpoint = ENV['MONSOON_OPENSTACK_AUTH_API_ENDPOINT']
+  config.connection_driver.api_userid   = ENV['MONSOON_OPENSTACK_AUTH_API_USERID']
+  config.connection_driver.api_password = ENV['MONSOON_OPENSTACK_AUTH_API_PASSWORD']
   
   # optional, default=true
   config.token_auth_allowed = true
