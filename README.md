@@ -79,6 +79,7 @@ Rails.application.config.session_store :active_record_store, :key => '_monsoon_a
 
 #### authentication_required
 
+Class method
 ```ruby
 authentication_required options
 ```
@@ -129,6 +130,7 @@ Example: https://github.com/sapcc/monsoon/monsoon-openstack-auth/blob/master/spe
 
 #### skip_authentication
 
+Class method
 ```ruby
 skip_authentication options
 ```
@@ -142,6 +144,7 @@ options:
 
 #### current_user
 
+Instance method
 ```ruby
 current_user
 ```
@@ -150,6 +153,7 @@ Also available in views!
 
 #### logged_in?
 
+Instance method
 ```ruby
 current_user
 ```
@@ -157,6 +161,7 @@ Returns true if current_user is presented.
 Also available in views!
 
 ### User Class
+
 Instance methods:
 
 * context, returns the token received by API
