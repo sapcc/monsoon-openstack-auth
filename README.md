@@ -75,9 +75,9 @@ Rails.application.config.session_store :active_record_store, :key => '_monsoon_a
 ```
 
 
-## Controller
+### Controller
 
-### authentication_required
+#### authentication_required
 
 ```ruby
 authentication_required options
@@ -127,7 +127,7 @@ end
 
 Example: spec/dummy/app/controllers/dashboard_controller.rb
 
-### skip_authentication
+#### skip_authentication
 
 ```ruby
 skip_authentication options
@@ -140,7 +140,7 @@ options:
 * if, optional. Example if: -> c {c.params[:region_id].nil?}
 * unless, optional
 
-### current_user
+#### current_user
 
 ```ruby
 current_user
@@ -148,7 +148,7 @@ current_user
 Returns current_user if authenticated.
 Also available in views!
 
-### logged_in?
+#### logged_in?
 
 ```ruby
 current_user
