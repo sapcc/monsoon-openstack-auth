@@ -125,7 +125,7 @@ DashboardController < ApplicationController
 end
 ```
 
-Example: spec/dummy/app/controllers/dashboard_controller.rb
+Example: https://github.com/sapcc/monsoon/monsoon-openstack-auth/blob/master/spec/dummy/app/controllers/dashboard_controller.rb
 
 #### skip_authentication
 
