@@ -55,12 +55,12 @@ MonsoonOpenstackAuth.configure do |config|
 end
 ```
 
-#### Session Store
+### Session Store
 If this gem should support the form based login then the session store must be anything but cookie_store.
 
 Example of setting up a ActiveRecord session_store (https://github.com/rails/activerecord-session_store)
 
-File: Gemfile:
+File: Gemfile
 ```ruby
 gem 'activerecord-session_store'
 ```
@@ -75,9 +75,14 @@ Rails.application.config.session_store :active_record_store, :key => '_monsoon_a
 ```
 
 
-### Controller
+## Controller
 
-#### authentication_required options
+### authentication_required
+
+```ruby
+authentication_required options
+```
+
 options:
 
 * region, required. Example: 'europe'
@@ -122,7 +127,12 @@ end
 
 Example: spec/dummy/app/controllers/dashboard_controller.rb
 
-#### skip_authentication options
+### skip_authentication
+
+```ruby
+skip_authentication options
+```
+
 options:
 
 * only, optional. Example only: [:index,:show]
@@ -130,15 +140,25 @@ options:
 * if, optional. Example if: -> c {c.params[:region_id].nil?}
 * unless, optional
 
-#### current_user
+### current_user
+
+```ruby
+current_user
+```
 Returns current_user if authenticated.
 Also available in views!
 
-#### logged_in?
+### logged_in?
+
+```ruby
+current_user
+```
 Returns true if current_user is presented.
 Also available in views!
 
 ### User Class
+Instance methods:
+
 * context, returns the token received by API
 * enabled?, true if user is active (enabled)
 * token, returns the token value (auth_token)  
