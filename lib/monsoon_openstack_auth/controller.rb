@@ -19,7 +19,7 @@ module MonsoonOpenstackAuth
         org = options.delete(:organization)
         prj = options.delete(:project)
 
-        raise MonsoonOpenstackAuth::InvalidRegion.new("An region should be provided") unless reg
+        raise MonsoonOpenstackAuth::InvalidRegion.new("A region should be provided") unless reg
 
         before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") } ) do
           region = reg.kind_of?(Proc) ? reg.call(self) : self.send(reg.to_sym)
@@ -40,7 +40,7 @@ module MonsoonOpenstackAuth
             end
           end
           
-          raise MonsoonOpenstackAuth::InvalidRegion.new("An region should be provided") unless region
+          raise MonsoonOpenstackAuth::InvalidRegion.new("A region should be provided") unless region
           @monsoon_openstack_auth = MonsoonOpenstackAuth::Session.check_authentication(self, region, organization: organization, project: project)
         end
       end
