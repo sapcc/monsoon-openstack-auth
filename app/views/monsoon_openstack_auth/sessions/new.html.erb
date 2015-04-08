@@ -1,20 +1,17 @@
-<div class="login-form">
-  <h3>Login</h3>
-  <% if @error%>
-    <div class="error"><%= @error %></div>
-  <% end %>  
+<div class="container">
+<%= form_tag sessions_path, id: "monsoon_openstack_auth_login" do %>
+  <h1>Log In</h1>
 
-  <%= form_tag(sessions_path) do %>
-    <p>
-      <%= label_tag 'Name' %>
-      <%= text_field_tag :username, @username %>
-    </p>
-    <p>
-      <%= label_tag 'Password' %>
-      <%= password_field_tag :password, @password %>
-    </p>
-    <p>
-      <%= submit_tag 'Login'  %>
-    </p>  
-  <% end %>    
+  <fieldset id="inputs">
+    <p><%= text_field_tag :username, @username, placeholder: "Userid", autofocus: true, required: true %></p>
+    <p><%= password_field_tag :password, @password, placeholder: "Password", required: true %></p>
+  </fieldset>
+  <fieldset id="actions">
+    <% if @error%>
+      <div class="error"><%= @error %></div>
+    <% end %>
+    <input type="submit" id="submit" value="Log in">
+    <!-- <a href="">Forgot your password?</a><a href="">Register</a> -->
+  </fieldset>
+<% end %>
 </div>
