@@ -28,14 +28,14 @@ module MonsoonOpenstackAuth
       def authenticate_with_credentials(username,password, scope=nil)
         auth = {auth:{identity: {methods: ["password"],password:{user:{id: username,password: password}}}}}
         auth[:auth][:scope]=scope if scope
-        #Rails.logger.info "Monsoon Identity: authenticate_with_credentials -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
+        #Rails.logger.info "Monsoon Openstack Auth: authenticate_with_credentials -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
       end
 
       def authenticate_with_token(token, scope=nil)
         auth = {auth:{identity: {methods: ["token"],token:{ id: token}}}}
         auth[:auth][:scope]=scope if scope
-        Rails.logger.info "Monsoon Identity: authenticate_with_token -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
+        Rails.logger.info "Monsoon Openstack Auth: authenticate_with_token -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
       end
 
@@ -46,7 +46,7 @@ module MonsoonOpenstackAuth
 
         auth = { auth: { identity: {methods: ["external"], external:{user: username }}}}
         auth[:auth][:scope]=scope if scope
-        Rails.logger.info "Monsoon Identity: authenticate_external_user -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
+        Rails.logger.info "Monsoon Openstack Auth: authenticate_external_user -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
       end
       
