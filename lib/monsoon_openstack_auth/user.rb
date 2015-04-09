@@ -1,7 +1,6 @@
 module MonsoonOpenstackAuth
   class User
-    attr_reader :context, :services_region#, :token, :id, :name, :user_domain_id, :domain_id, :domain_name, :project_id, :project_name, 
-      #:service_catalog, :roles, :endpoint, :projects, :region
+    attr_reader :context, :services_region
     
     def initialize(region,token_hash)
       raise MonsoonOpenstackAuth::MalformedToken.new("Token is nil.") if token_hash.nil?
