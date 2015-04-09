@@ -30,6 +30,12 @@ describe MonsoonOpenstackAuth::User do
         end
       end
 
+      describe "description" do
+        it "should return description" do
+          expect(user.description).to eq(token["user"]["description"])
+        end
+      end
+
       describe "user_domain_id" do
         it "should return user domain id" do
           user_domain_id = begin token["user"]["domain"]["id"]; rescue; nil; end
