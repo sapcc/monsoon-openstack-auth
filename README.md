@@ -166,6 +166,7 @@ Instance methods:
 * **token**, returns the token value (auth_token)  
 * **id**, user id (obtained through the token)
 * **name**, user name (obtained through the token)
+* **description**, user description (obtained through the token)
 * **user_domain_id**, received by scoped token
 * **user_domain_name**, received by scoped token
 * **domain_id**, scope (obtained through the token)

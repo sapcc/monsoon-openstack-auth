@@ -26,6 +26,10 @@ module MonsoonOpenstackAuth
       @name ||= read_value("user.name")
     end
      
+    def description
+      @description ||= read_value("user.description")
+    end
+
     def user_domain_id
       @user_domain_id ||= read_value("user.domain.id")
     end
