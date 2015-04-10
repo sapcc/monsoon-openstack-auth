@@ -2,7 +2,7 @@ module MonsoonOpenstackAuth
   module TokenHelper
 
     def self.included(base)
-      base.send :helper_method,:dump_openstack_token
+      base.send :helper_method,:dump_openstack_token if base.respond_to? :helper_method
     end
 
     def dump_openstack_token
