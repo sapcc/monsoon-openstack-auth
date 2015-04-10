@@ -10,7 +10,7 @@ module MonsoonOpenstackAuth
     end
 
     def enabled?
-      @enabled
+      @enabled ||= read_value("user.enabled")
     end
 
     # Returns the token value (auth_token)  
