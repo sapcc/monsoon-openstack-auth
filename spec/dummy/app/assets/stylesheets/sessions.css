@@ -5,25 +5,27 @@
   background-image: -moz-linear-gradient(top, #fff, #eee);
   background-image: -ms-linear-gradient(top, #fff, #eee);
   background-image: -o-linear-gradient(top, #fff, #eee);
-  background-image: linear-gradient(top, #fff, #eee);
-  height: 190px;
-  width: 300px;
-  margin: 200px 0 0 -180px;
+  background-image: linear-gradient(top, #fff, #eee);  
+  height: 240px;
+  width: 400px;
+  margin: -150px 0 0 -230px;
   padding: 30px;
+
   position: absolute;
+  top: 50%;
   left: 50%;
   z-index: 0;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
-  border-radius: 3px;
+  border-radius: 3px;  
   -webkit-box-shadow:
         0 0 2px rgba(0, 0, 0, 0.2),
         0 1px 1px rgba(0, 0, 0, .2);
   -moz-box-shadow:
-        0 0 2px rgba(0, 0, 0, 0.2),
+        0 0 2px rgba(0, 0, 0, 0.2),  
         1px 1px   0 rgba(0,   0,   0,   .1);
   box-shadow:
-        0 0 2px rgba(0, 0, 0, 0.2),
+        0 0 2px rgba(0, 0, 0, 0.2),  
         0 1px 1px rgba(0, 0, 0, .2);
 }
 
@@ -42,22 +44,10 @@
 }
 
 #monsoon_openstack_auth_login .error {
-  position: absolute;
-  margin: -90px 0 0 -30px;
-  padding: 10px;
-  width: 338px;
-  border: solid 1px #A94442;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
-  border-radius: 3px;
   color: #A94442;
-  background-color: #fff;
-  border-color: #fff;
-}
-
-#monsoon_openstack_auth_login .error i {
-  padding-right: 10px;
-  font-size: 16px;
+  float: left;
+  padding-top: 5px;
+  font-size: 12px;
 }
 
 /*--------------------*/
@@ -79,16 +69,16 @@ h1:after, h1:before {
   height: 1px;
   position: absolute;
   top: 10px;
-  width: 100px;
+  width: 140px;   
 }
 
-h1:after {
+h1:after { 
   background-image: -webkit-gradient(linear, left top, right top, from(#777), to(#fff));
   background-image: -webkit-linear-gradient(left, #777, #fff);
   background-image: -moz-linear-gradient(left, #777, #fff);
   background-image: -ms-linear-gradient(left, #777, #fff);
   background-image: -o-linear-gradient(left, #777, #fff);
-  background-image: linear-gradient(left, #777, #fff);
+  background-image: linear-gradient(left, #777, #fff);      
   right: 0;
 }
 
@@ -113,10 +103,10 @@ fieldset {
 /*--------------------*/
 
 #inputs input {
-  padding: 10px 10px 10px 30px;
+  background: #f1f1f1 url(http://www.red-team-design.com/wp-content/uploads/2011/09/login-sprite.png) no-repeat;
+  padding: 15px 15px 15px 30px;
   margin: 0 0 10px 0;
-  /*width: 353px;*/ /* 353 + 2 + 45 = 400 */
-  width: 253px;
+  width: 353px; /* 353 + 2 + 45 = 400 */
   border: 1px solid #ccc;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
@@ -127,30 +117,11 @@ fieldset {
 }
 
 #username {
-/*  background-position: 5px -2px !important;*/
-/*  position:relative;*/
-}
-
-.username-wrapper:before, .password-wrapper:before {
-  font-family: 'FontAwesome';
-  color: #999;
-  position: absolute;
-  left: 40px;
-/*  padding-top: 2px;*/
-  margin-top: 10px;
-  z-index: 1;
-}
-
-.username-wrapper:before {
-  content: "\f007";
+  background-position: 5px -2px !important;
 }
 
 #password {
   background-position: 5px -52px !important;
-}
-
-.password-wrapper:before {
-  content: "\f084";
 }
 
 #inputs input:focus {
@@ -164,10 +135,10 @@ fieldset {
 
 /*--------------------*/
 #actions {
-  margin: 15px 0 0 0;
+/*  margin: 25px 0 0 0;*/
 }
 
-#submit {
+#submit {		
   background-color: #ffb94b;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#fddb6f), to(#ffb94b));
   background-image: -webkit-linear-gradient(top, #fddb6f, #ffb94b);
@@ -175,32 +146,31 @@ fieldset {
   background-image: -ms-linear-gradient(top, #fddb6f, #ffb94b);
   background-image: -o-linear-gradient(top, #fddb6f, #ffb94b);
   background-image: linear-gradient(top, #fddb6f, #ffb94b);
-
+  
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   border-radius: 3px;
-
+  
   text-shadow: 0 1px 0 rgba(255,255,255,0.5);
-
+  
    -moz-box-shadow: 0 0 1px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.3) inset;
    -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.3) inset;
-   box-shadow: 0 0 1px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.3) inset;
-
+   box-shadow: 0 0 1px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.3) inset;    
+  
   border-width: 1px;
   border-style: solid;
   border-color: #d69e31 #e3a037 #d5982d #e3a037;
 
-  float: rigth;
+  float: right;
   height: 35px;
   padding: 0;
-/*  width: 120px;*/
-  width: 294px;
+  width: 120px;
   cursor: pointer;
   font: bold 15px Arial, Helvetica;
   color: #8f5a0a;
 }
 
-#submit:hover,#submit:focus {
+#submit:hover,#submit:focus {		
   background-color: #fddb6f;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#ffb94b), to(#fddb6f));
   background-image: -webkit-linear-gradient(top, #ffb94b, #fddb6f);
@@ -208,18 +178,16 @@ fieldset {
   background-image: -ms-linear-gradient(top, #ffb94b, #fddb6f);
   background-image: -o-linear-gradient(top, #ffb94b, #fddb6f);
   background-image: linear-gradient(top, #ffb94b, #fddb6f);
-}
+}	
 
-#submit:active {
+#submit:active {		
   outline: none;
   -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) inset;
   -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) inset;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) inset;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) inset;		
 }
 
 #submit::-moz-focus-inner {
   border: none;
 }
-
-
 
