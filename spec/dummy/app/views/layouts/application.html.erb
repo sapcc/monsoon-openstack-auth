@@ -20,7 +20,7 @@
     </div>
     <div class="userinfo">
       <% if logged_in?%>
-        <h2>Hello <%=current_user.name %> <%= link_to 'Logout', monsoon_openstack_auth.logout_path %></h2>
+        <h2>Hello <%=current_user.description %> <%= link_to 'Logout', monsoon_openstack_auth.logout_path %></h2>
       <% else %>
         <h2><%=link_to "Login", monsoon_openstack_auth.new_session_path(@region) if @region %>  
       <% end %>
