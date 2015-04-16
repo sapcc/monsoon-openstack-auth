@@ -1,0 +1,16 @@
+<% require "json" %>
+
+<h1>Policy#show</h1>
+<p>Find me in app/views/policy/show.html.erb</p>
+
+<p>Policy checks</p>
+<% @policy_checks.each_with_index do |check,i| %>
+    <% col = eval(check).result ? "yellowgreen" : "red" %>
+    <% val = @policy.policy_hash.values[i].to_s.blank? ? "ALLOWED FOR EVERYONE" : @policy.policy_hash.values[i].to_s %>
+    <pre style= color:<%=col%>; font-family:Fixedsys,Courier,monospace; padding:10px;> <%= @policy.policy_hash.keys[i].to_s + " : " + val + " = " + eval(check).result.to_s  %> </pre>
+    <pre>  <%= eval(check).source.to_s %> </pre>
+<% end %>
+
+
+<p>Policy as JSON</p>
+<pre> <%= JSON.pretty_generate(@policy.policy_hash) %></pre>

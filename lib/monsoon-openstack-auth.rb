@@ -10,6 +10,9 @@ require "monsoon_openstack_auth/session_store"
 require "monsoon_openstack_auth/session"
 require "monsoon_openstack_auth/controller"
 
+require "monsoon_openstack_auth/authorization/policy"
+require "monsoon_openstack_auth/authorization/security_violation"
+
 module MonsoonOpenstackAuth
   class << self
     attr_accessor :configuration
@@ -24,7 +27,8 @@ module MonsoonOpenstackAuth
     @api_connections = {} unless @api_connections
     @api_connections[region] ||= MonsoonOpenstackAuth::ApiClient.new(region)
     @api_connections[region]
-  end  
+  end
+
 end
 
 ActionController::Base.send(:include, MonsoonOpenstackAuth::Controller)

@@ -14,6 +14,8 @@ Rails.application.routes.draw do
       end
     end
   end
-  
+
+  get 'policy/show'
+
   root to: 'welcome#index'
 end

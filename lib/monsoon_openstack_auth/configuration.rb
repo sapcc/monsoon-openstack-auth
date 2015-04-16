@@ -1,8 +1,9 @@
 module MonsoonOpenstackAuth
   class Configuration    
     METHODS = [
-      :connection_driver, :token_auth_allowed, :basic_atuh_allowed, :sso_auth_allowed, 
-      :form_auth_allowed, :login_redirect_url, :debug
+      :connection_driver, :token_auth_allowed, :basic_auth_allowed, :sso_auth_allowed,
+      :form_auth_allowed, :login_redirect_url, :debug, :authorization_policy_file, :authorization_controller_action_map,
+      :authorization_context
     ]
     
     attr_accessor *METHODS
@@ -10,10 +11,22 @@ module MonsoonOpenstackAuth
     def initialize
       @connection_driver  = MonsoonOpenstackAuth::Driver::Default
       @token_auth_allowed = true
-      @basic_atuh_allowed = true
+      @basic_auth_allowed = true
       @sso_auth_allowed   = true
       @form_auth_allowed  = true
       @debug = false
+
+      @authorization_controller_action_map = {
+          :index   => 'read',
+          :show    => 'read',
+          :new     => 'create',
+          :create  => 'create',
+          :edit    => 'update',
+          :update  => 'update',
+          :destroy => 'delete'
+      }
+      @authorization_context = Rails.application.class.parent_name if Rails
+
     end
     
     # support old configuration format
@@ -35,7 +48,7 @@ module MonsoonOpenstackAuth
     end
     
     def token_auth_allowed?; @token_auth_allowed; end
-    def basic_atuh_allowed?; @basic_atuh_allowed; end
+    def basic_auth_allowed?; @basic_auth_allowed; end
     def sso_auth_allowed?; @sso_auth_allowed; end
     def form_auth_allowed?; @form_auth_allowed; end
     def debug?; @debug; end

@@ -199,6 +199,10 @@ describe MonsoonOpenstackAuth::User do
         end
         
         context "token contains admin role" do
+          before :each do
+            @newtoken = token.clone
+            @newtoken["roles"]
+          end
           it "should return true" do
             new_user = MonsoonOpenstackAuth::User.new(region,token.merge({"roles"=>[{"name"=>"admin"}] }))
             expect(new_user.admin?).to eq(true)

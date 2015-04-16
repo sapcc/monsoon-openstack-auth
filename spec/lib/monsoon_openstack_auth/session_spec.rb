@@ -35,7 +35,7 @@ describe MonsoonOpenstackAuth::Session do
 
       before :each do
         MonsoonOpenstackAuth.configuration.stub(:token_auth_allowed?){ true  }
-        MonsoonOpenstackAuth.configuration.stub(:basic_atuh_allowed?){ false }
+        MonsoonOpenstackAuth.configuration.stub(:basic_auth_allowed?){ false }
         MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { false }
         MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { false }
       end
@@ -83,7 +83,7 @@ describe MonsoonOpenstackAuth::Session do
     context "basic auth is allowed" do
       before :each do
         MonsoonOpenstackAuth.configuration.stub(:token_auth_allowed?){ false  }
-        MonsoonOpenstackAuth.configuration.stub(:basic_atuh_allowed?){ true }
+        MonsoonOpenstackAuth.configuration.stub(:basic_auth_allowed?){ true }
         MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { false }
         MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { false }
       end
@@ -118,7 +118,7 @@ describe MonsoonOpenstackAuth::Session do
     context "sso auth is allowed" do
       before :each do
         MonsoonOpenstackAuth.configuration.stub(:token_auth_allowed?){ false  }
-        MonsoonOpenstackAuth.configuration.stub(:basic_atuh_allowed?){ false }
+        MonsoonOpenstackAuth.configuration.stub(:basic_auth_allowed?){ false }
         MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { true }
         MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { false }
       end
@@ -146,7 +146,7 @@ describe MonsoonOpenstackAuth::Session do
     context "form auth is allowed" do
       before :each do
         MonsoonOpenstackAuth.configuration.stub(:token_auth_allowed?){ false  }
-        MonsoonOpenstackAuth.configuration.stub(:basic_atuh_allowed?){ false }
+        MonsoonOpenstackAuth.configuration.stub(:basic_auth_allowed?){ false }
         MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { false }
         MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { true }
       end
@@ -175,7 +175,7 @@ describe MonsoonOpenstackAuth::Session do
     context "all auth methods are allowed" do
       before :each do
         MonsoonOpenstackAuth.configuration.stub(:token_auth_allowed?){ true  }
-        MonsoonOpenstackAuth.configuration.stub(:basic_atuh_allowed?){ true }
+        MonsoonOpenstackAuth.configuration.stub(:basic_auth_allowed?){ true }
         MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { true }
         MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { true }
       end

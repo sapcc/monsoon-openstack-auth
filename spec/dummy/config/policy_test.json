@@ -1,0 +1,18 @@
+{
+  "p_owner" : "project_id:%(project_id)s",
+  "d_owner" : "domain_id:%(domain_id)s",
+  "admin_required": "role:admin or is_admin:True",
+  "service_role": "role:service",
+  "service_or_admin": "rule:admin_required or rule:service_role",
+  "admin_or_owner": "rule:p_owner or rule:d_owner or rule:admin_required",
+  "member": "true",
+
+  "default": "rule:admin_required",
+
+  "identity:list_organizations": "rule:member",
+  "identity:create_organization": "",
+  "identity:change_organization": "rule:admin_or_owner",
+  "identity:list_projects": "rule:member or rule:admin_or_owner",
+  "identity:create_project": "rule:admin_or_owner",
+  "identity:change_project": "rule:member or rule:admin_or_owner"
+}

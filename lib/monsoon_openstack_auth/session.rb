@@ -140,7 +140,7 @@ module MonsoonOpenstackAuth
     
     def validate_http_basic
       # return false if not allowed.
-      unless MonsoonOpenstackAuth.configuration.basic_atuh_allowed?
+      unless MonsoonOpenstackAuth.configuration.basic_auth_allowed?
         Rails.logger.info "Monsoon Openstack Auth: validate_http_basic -> not allowed." if @debug
         return false
       end
