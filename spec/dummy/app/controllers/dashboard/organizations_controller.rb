@@ -10,7 +10,7 @@ module Dashboard
   
     def show
       @organization = @service.domain(@organization_id)
-      @projects = @service.domain_projects(@organization_id)
+      @projects = @service.domain_projects(@organization_id, current_user.id)
     end
   end
 end

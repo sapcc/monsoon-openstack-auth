@@ -84,8 +84,13 @@ module MonsoonOpenstackAuth
         @fog.domains.find_by_id(domain_id)
       end
   
-      def domain_projects(domain_id)
-        @fog.projects.all(domain_id:domain_id) 
+      def domain_projects(domain_id,userid=nil)
+        return @fog.projects.all(domain_id:domain_id) if userid.nil?
+        
+        user = @fog.users.find_by_id(userid)
+        projects = []
+        user.projects.each {|project| projects<<OpenStruct.new(project) if project['domain_id']==domain_id}  
+        return projects
       end
   
       def project(project_id)
