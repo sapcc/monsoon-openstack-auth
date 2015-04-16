@@ -12,7 +12,7 @@ gemspec
 # Git. Remember to move these dependencies to your gemspec before releasing
 # your gem to rubygems.org.
 
-# To use debugger
+# To use debugger enable below
 # gem 'debugger'
 
 gem 'activerecord-session_store', '~> 0.1.0'
