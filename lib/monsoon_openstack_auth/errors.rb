@@ -1,6 +1,7 @@
 module MonsoonOpenstackAuth
   class UnknownConnectionDriver < StandardError; end
   class MalformedToken < StandardError; end
+  class MalformedApiEndpoint < StandardError; end
   class InvalidRegion < StandardError; end
   class InvalidAuthToken < StandardError; end
   class InvalidUserCredentials < StandardError; end
