@@ -59,11 +59,11 @@ module MonsoonOpenstackAuth
 
       def initialize rule
         @rule_src = rule
-        @rule = lambda {|locals, params| rule} #eval("-> locals,params { #{rule} }")
+        @rule = eval("-> locals,params { #{rule} }")
       end
 
       def call locals, params
-        eval(@rule.call(locals, params))
+        @rule.call(locals, params)
       end
 
       def method_missing(m, *args, &block)
