@@ -25,4 +25,5 @@ MonsoonOpenstackAuth.configure do |config|
 
   # authorization policy file
   config.authorization_policy_file = "config/policy_test.json"
+  config.authorization_context = "identity"
 end

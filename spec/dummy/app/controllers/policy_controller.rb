@@ -1,6 +1,6 @@
 class PolicyController < ApplicationController
 
-  authentication_required region: "europe"
+  authentication_required only: [:show], region: -> c { 'europe' }, organization: -> c {'localsmkey02'}
   authorization_required
 
   def show
@@ -10,7 +10,7 @@ class PolicyController < ApplicationController
 #    @policy = MonsoonOpenstackAuth::Policy.new (true)
 #    @policy.load("config/policy_ceilometer.json")
 #    @policy.load("config/policy_nova.json")
-#    @policy.load("config/policy_keystone.json")
+#     @policy.load("config/policy_keystone.json")
 #    @policy.load("config/policy_test.json")
 
     @policy_checks = []

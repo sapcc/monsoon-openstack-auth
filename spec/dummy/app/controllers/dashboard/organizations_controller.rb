@@ -6,9 +6,6 @@ module Dashboard
     
     def index
       @organizations = @service.user_domains(current_user.id)
-      check ["identity:create_region"], @organizations.first["id"]
-      check ["identity:get_region"], @organizations.first["id"]
-      check ["identity:list_regions"], @organizations.first["id"]
     end
   
     def show

@@ -1,5 +1,6 @@
 class DashboardController < ApplicationController
-  authentication_required region: :get_region, project: :get_project, organization: :get_organization 
+  authentication_required region: :get_region, project: :get_project, organization: :get_organization
+  authorization_required
   #example: authentication_required only: [:index], region: -> c { 'europe' }, organization: -> c {'Test'}   
   
   def index

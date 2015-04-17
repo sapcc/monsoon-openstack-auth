@@ -1,18 +1,18 @@
 {
-  "p_owner" : "project_id:%(project_id)s",
-  "d_owner" : "domain_id:%(domain_id)s",
+  "p_member" : "project_id:%(target.project_id)s",
+  "d_member" : "domain_id:%(target.domain_id)s",
   "admin_required": "role:admin or is_admin:True",
-  "service_role": "role:service",
-  "service_or_admin": "rule:admin_required or rule:service_role",
-  "admin_or_owner": "rule:p_owner or rule:d_owner or rule:admin_required",
-  "member": "true",
+  "admin_or_project_member": "rule:admin_required or rule:p_member",
+  "admin_or_domain_member": "rule:admin_required or rule:d_member",
 
   "default": "rule:admin_required",
 
-  "identity:list_organizations": "rule:member",
-  "identity:create_organization": "",
-  "identity:change_organization": "rule:admin_or_owner",
-  "identity:list_projects": "rule:member or rule:admin_or_owner",
-  "identity:create_project": "rule:admin_or_owner",
-  "identity:change_project": "rule:member or rule:admin_or_owner"
+  "identity:domain_list":     "rule:admin_required or rule:d_member",
+  "identity:domain_create":   "",
+  "identity:domain_change":   "rule:admin_required or rule:d_member",
+  "identity:domain_delete":   "rule:admin_required",
+  "identity:project_list":    "rule:admin_or_domain_member",
+  "identity:project_create":  "rule:admin_or_domain_member",
+  "identity:project_change":  "rule:admin_or_domain_member or rule:p_member"
+  /* "identity:project_delete":      NOT specidied, default should be used */
 }
