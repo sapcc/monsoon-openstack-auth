@@ -2,7 +2,7 @@ require 'json'
 require 'singleton'
 
 module MonsoonOpenstackAuth
-  class Policy
+  class PolicyEngine
     include Singleton
 
     DEFAULT_RULE = 'default'

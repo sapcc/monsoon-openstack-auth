@@ -35,9 +35,10 @@ describe DomainController, type: :controller do
   context "admin checks" do
 
     before (:each) do
-      MonsoonOpenstackAuth.configuration.stub(:debug).and_return true
-      MonsoonOpenstackAuth.configuration.stub(:authorization_policy_file).and_return 'spec/config/policy_test.json'
-      MonsoonOpenstackAuth.configuration.stub(:authorization_context).and_return 'identity'
+      MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
+      MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
+      MonsoonOpenstackAuth.configuration.debug = true
+      MonsoonOpenstackAuth.load_policy
     end
 
     before(:each) do
@@ -80,9 +81,10 @@ describe DomainController, type: :controller do
   context "member checks" do
 
     before (:each) do
-      MonsoonOpenstackAuth.configuration.stub(:debug).and_return true
-      MonsoonOpenstackAuth.configuration.stub(:authorization_policy_file).and_return 'spec/config/policy_test.json'
-      MonsoonOpenstackAuth.configuration.stub(:authorization_context).and_return 'identity'
+      MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
+      MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
+      MonsoonOpenstackAuth.configuration.debug = true
+      MonsoonOpenstackAuth.load_policy
     end
 
     before(:each) do
@@ -118,7 +120,7 @@ describe DomainController, type: :controller do
 
     it "should NOT allow destroy" do
       # get :destroy, region_id: 'europe', :target => @target
-      expect { get :destroy, region_id: 'europe', :target => @target }.to raise_exception(MonsoonOpenstackAuth::SecurityViolation)
+      expect { get :destroy, region_id: 'europe', :target => @target }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
   end
@@ -129,9 +131,10 @@ describe ProjectController, type: :controller do
   context "admin checks" do
 
     before (:each) do
-      MonsoonOpenstackAuth.configuration.stub(:debug).and_return true
-      MonsoonOpenstackAuth.configuration.stub(:authorization_policy_file).and_return 'spec/config/policy_test.json'
-      MonsoonOpenstackAuth.configuration.stub(:authorization_context).and_return 'identity'
+      MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
+      MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
+      MonsoonOpenstackAuth.configuration.debug = true
+      MonsoonOpenstackAuth.load_policy
     end
 
     before(:each) do
@@ -166,9 +169,10 @@ describe ProjectController, type: :controller do
   context "member checks" do
 
     before (:each) do
-      MonsoonOpenstackAuth.configuration.stub(:debug).and_return true
-      MonsoonOpenstackAuth.configuration.stub(:authorization_policy_file).and_return 'spec/config/policy_test.json'
-      MonsoonOpenstackAuth.configuration.stub(:authorization_context).and_return 'identity'
+      MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
+      MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
+      MonsoonOpenstackAuth.configuration.debug = true
+      MonsoonOpenstackAuth.load_policy
     end
 
     before(:each) do
@@ -205,7 +209,7 @@ describe ProjectController, type: :controller do
 
     it "should NOT allow destroy" do
       # get :destroy, region_id: 'europe', :target => @target
-      expect { get :destroy, region_id: 'europe', :target => @target }.to raise_exception(MonsoonOpenstackAuth::SecurityViolation)
+      expect { get :destroy, region_id: 'europe', :target => @target }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
   end

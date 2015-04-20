@@ -14,7 +14,11 @@ describe MonsoonOpenstackAuth::Session do
   end
   
   context "included in controller", :type => :controller do
-  
+    before do
+      controller.main_app.stub(:root_path).and_return('/')  
+      controller.monsoon_openstack_auth.stub(:new_session_path).and_return('/auth/sessions/new')
+    end
+    
     controller do # anonymous subclass of ActionController::Base
       authentication_required region: -> c {c.params[:region_id]}, organization_id: -> c {c.params[:organization_id]}, project_id: -> c {c.params[:project_id]}
   
