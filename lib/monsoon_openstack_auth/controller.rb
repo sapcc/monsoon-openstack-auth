@@ -62,6 +62,8 @@ module MonsoonOpenstackAuth
             end
           end
 
+          @policy = MonsoonOpenstackAuth.policy_engine.policy(current_user)
+          
           enforce f.params if enforce_it
         end
       end
@@ -93,7 +95,7 @@ module MonsoonOpenstackAuth
       #
       # @return [Hash] A duplicated copy of the configured controller_action_map
       def authorization_action_map
-        @authorization_action_map ||= MonsoonOpenstackAuth.configuration.authorization_controller_action_map.dup
+        @authorization_action_map ||= MonsoonOpenstackAuth.configuration.authorization.controller_action_map.dup
       end
 
       def overridden_actions(options = {})
@@ -117,10 +119,12 @@ module MonsoonOpenstackAuth
       def enforce params
         authority_action = self.class.authorization_action_map[action_name.to_sym]
         authority_context = controller_name
-        application_name = MonsoonOpenstackAuth.configuration.authorization_context
+        application_name = MonsoonOpenstackAuth.configuration.authorization.context
         os_action = "#{application_name}:#{authority_context}_#{authority_action}"
         params_mash = Hashie::Mash.new(params)
-        MonsoonOpenstackAuth::Policy.instance.enforce(current_user, [os_action], params_mash)
+        #MonsoonOpenstackAuth::Policy.instance.enforce(current_user, [os_action], params_mash)
+        result = @policy.enforce(os_action, params_mash)
+        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(current_user, os_action, params_mash) unless result
       end
       alias_method :authorize_action_for, :enforce
 

@@ -4,8 +4,8 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
 
   before :each do
     MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
-    MonsoonOpenstackAuth.configuration.stub(:debug).and_return true
-    MonsoonOpenstackAuth.configuration.stub(:authorization_policy_file).and_return "spec/config/policy_test.json"
+    MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
+    MonsoonOpenstackAuth.load_policy
   end
 
   context "authorization filter all" do
@@ -34,13 +34,17 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
     end
 
     it "should require authorization" do
-      expect(MonsoonOpenstackAuth::Policy.instance).to receive(:enforce)
-      get 'index', region_id: 'europe'
+      expect{
+        expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to receive(:enforce)
+        get 'index', region_id: 'europe'
+      }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
     it "should require authorization" do
-      expect(MonsoonOpenstackAuth::Policy.instance).to receive(:enforce)
-      get 'new', region_id: 'europe'
+      expect{
+        expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to receive(:enforce)
+        get 'new', region_id: 'europe'
+      }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
   end
@@ -70,13 +74,18 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
     end
 
     it "should NOT require authorization" do
-      expect(MonsoonOpenstackAuth::Policy.instance).to_not receive(:enforce)
-      get 'index', region_id: 'europe'
+      expect{
+        
+        expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).not_to receive(:enforce)
+        get 'index', region_id: 'europe'
+      }.not_to raise_error
     end
 
     it "should require authorization" do
-      expect(MonsoonOpenstackAuth::Policy.instance).to receive(:enforce)
-      get 'new', region_id: 'europe'
+      expect{
+        expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to receive(:enforce)
+        get 'new', region_id: 'europe'
+      }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
   end
@@ -106,13 +115,18 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
     end
 
     it "should NOT require authorization" do
-      expect(MonsoonOpenstackAuth::Policy.instance).to_not receive(:enforce)
-      get 'index', region_id: 'europe'
+      expect{
+        expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to_not receive(:enforce)
+        get 'index', region_id: 'europe'
+      }.not_to raise_error
     end
 
     it "should require authorization" do
-      expect(MonsoonOpenstackAuth::Policy.instance).to receive(:enforce)
-      get 'new', region_id: 'europe'
+      expect{
+        expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to receive(:enforce)
+        get 'new', region_id: 'europe'
+      }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
+
     end
   end
 

@@ -2,8 +2,7 @@ module MonsoonOpenstackAuth
   class Configuration    
     METHODS = [
       :connection_driver, :token_auth_allowed, :basic_auth_allowed, :sso_auth_allowed,
-      :form_auth_allowed, :login_redirect_url, :debug, :authorization_policy_file, :authorization_controller_action_map,
-      :authorization_context
+      :form_auth_allowed, :login_redirect_url, :debug, :authorization
     ]
     
     attr_accessor *METHODS
@@ -14,18 +13,19 @@ module MonsoonOpenstackAuth
       @basic_auth_allowed = true
       @sso_auth_allowed   = true
       @form_auth_allowed  = true
-      @debug = false
+      @debug              = false
+      @authorization      = AuthorizationConfig.new
 
-      @authorization_controller_action_map = {
-          :index   => 'read',
-          :show    => 'read',
-          :new     => 'create',
-          :create  => 'create',
-          :edit    => 'update',
-          :update  => 'update',
-          :destroy => 'delete'
-      }
-      @authorization_context = Rails.application.class.parent_name if Rails
+      # @authorization_controller_action_map = {
+      #     :index   => 'read',
+      #     :show    => 'read',
+      #     :new     => 'create',
+      #     :create  => 'create',
+      #     :edit    => 'update',
+      #     :update  => 'update',
+      #     :destroy => 'delete'
+      # }
+      # @authorization_context = Rails.application.class.parent_name if Rails
 
     end
     
@@ -34,11 +34,7 @@ module MonsoonOpenstackAuth
     delegate :api_userid,   to: :@connection_driver
     delegate :api_password, to: :@connection_driver 
     # end
-  
-    def check
-      raise UnknownConnectionDriver.new("Connection driver should be provided!") unless connection_driver
-    end
-    
+
     def to_hash
       METHODS.inject({}){|hash,method_name| hash[method_name]=self.send(method_name); hash}
     end
@@ -52,5 +48,23 @@ module MonsoonOpenstackAuth
     def sso_auth_allowed?; @sso_auth_allowed; end
     def form_auth_allowed?; @form_auth_allowed; end
     def debug?; @debug; end
+  end
+  
+  class AuthorizationConfig
+    METHODS = [:policy_file_path, :controller_action_map,:context]
+    attr_accessor *METHODS
+    
+    def initialize
+      @controller_action_map = {
+          :index   => 'read',
+          :show    => 'read',
+          :new     => 'create',
+          :create  => 'create',
+          :edit    => 'update',
+          :update  => 'update',
+          :destroy => 'delete'
+      }
+      @context = Rails.application.class.parent_name if Rails
+    end
   end
 end
