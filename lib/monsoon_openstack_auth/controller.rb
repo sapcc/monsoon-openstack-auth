@@ -15,6 +15,12 @@ module MonsoonOpenstackAuth
           @_skip_authentication=true
         end
       end
+      
+      def skip_authorization(options={})
+        prepend_before_filter options do
+          @_skip_authorization=true
+        end
+      end
 
       def authentication_required(options={})
         reg = options.delete(:region)
@@ -48,23 +54,9 @@ module MonsoonOpenstackAuth
       end
 
       def authorization_required(options={})
-        before_filter do |f|
-          enforce_it = true
-          authority_action = f.action_name.to_sym
-          if options[:except]
-            if options[:except].include?(authority_action)
-              enforce_it = false
-            end
-          end
-          if options[:only] && enforce_it
-            unless options[:only].include?(authority_action)
-              enforce_it = false
-            end
-          end
-
+        before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authorization") }) do
           @policy = MonsoonOpenstackAuth.policy_engine.policy(current_user)
-          
-          enforce f.params if enforce_it
+          enforce(params)
         end
       end
 
@@ -115,14 +107,17 @@ module MonsoonOpenstackAuth
       def logged_in?
         @monsoon_openstack_auth.nil? ? false : @monsoon_openstack_auth.logged_in?
       end
+      
+      def policy
+        @policy
+      end
 
-      def enforce params
+      def enforce(params) 
         authority_action = self.class.authorization_action_map[action_name.to_sym]
         authority_context = controller_name
         application_name = MonsoonOpenstackAuth.configuration.authorization.context
         os_action = "#{application_name}:#{authority_context}_#{authority_action}"
         params_mash = Hashie::Mash.new(params)
-        #MonsoonOpenstackAuth::Policy.instance.enforce(current_user, [os_action], params_mash)
         result = @policy.enforce(os_action, params_mash)
         raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(current_user, os_action, params_mash) unless result
       end
