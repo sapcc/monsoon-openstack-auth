@@ -20,7 +20,7 @@
     </div>
     <div class="userinfo">
       <% if logged_in?%>
-        <h2>Hello <%=current_user.name %> <%= link_to 'Logout', monsoon_openstack_auth.logout_path %></h2>
+        <h2>Hello <%=current_user.description %> <%= link_to 'Logout', monsoon_openstack_auth.logout_path %></h2>
       <% else %>
         <h2><%=link_to "Login", monsoon_openstack_auth.new_session_path(@region) if @region %>  
       <% end %>
@@ -35,6 +35,12 @@
     <% if logged_in?%><p class="token">Token: <%=current_user.token%></p><%end%>
     
     <%= yield %>
+  </div>
+  
+  <div class="token">
+    <% if logged_in? %>
+      <pre><%= JSON.pretty_generate(user: current_user.context["user"], domain: current_user.context["domain"], project: current_user.context["project"], roles: current_user.context["roles"]) %></pre>
+    <% end %>
   </div>
 
 </body>
