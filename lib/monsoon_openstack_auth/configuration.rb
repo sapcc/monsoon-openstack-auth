@@ -2,7 +2,8 @@ module MonsoonOpenstackAuth
   class Configuration    
     METHODS = [
       :connection_driver, :token_auth_allowed, :basic_auth_allowed, :sso_auth_allowed,
-      :form_auth_allowed, :login_redirect_url, :debug, :authorization
+      :form_auth_allowed, :login_redirect_url, :debug, :logger,
+      :authorization
     ]
     
     attr_accessor *METHODS
@@ -14,18 +15,11 @@ module MonsoonOpenstackAuth
       @sso_auth_allowed   = true
       @form_auth_allowed  = true
       @debug              = false
+      @logger             = Logger.new(STDERR)
+
       @authorization      = AuthorizationConfig.new
 
-      # @authorization_controller_action_map = {
-      #     :index   => 'read',
-      #     :show    => 'read',
-      #     :new     => 'create',
-      #     :create  => 'create',
-      #     :edit    => 'update',
-      #     :update  => 'update',
-      #     :destroy => 'delete'
-      # }
-      # @authorization_context = Rails.application.class.parent_name if Rails
+
 
     end
     
@@ -51,7 +45,7 @@ module MonsoonOpenstackAuth
   end
   
   class AuthorizationConfig
-    METHODS = [:policy_file_path, :controller_action_map,:context]
+    METHODS = [:policy_file_path, :controller_action_map, :context, :user_method, :security_violation_handler]
     attr_accessor *METHODS
     
     def initialize
@@ -65,6 +59,9 @@ module MonsoonOpenstackAuth
           :destroy => 'delete'
       }
       @context = Rails.application.class.parent_name if Rails
+      @user_method = :current_user
+      @security_violation_handler = :authorization_forbidden
+
     end
   end
 end

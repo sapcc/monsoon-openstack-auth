@@ -7,7 +7,7 @@ module MonsoonOpenstackAuth
 
     DEFAULT_RULE = 'default'
 
-    attr_accessor :policy_hash, :rules, :rules_src, :debug
+    attr_accessor :policy_hash, :rules, :debug
 
     def initialize
       @debug = MonsoonOpenstackAuth.configuration.debug
@@ -38,7 +38,6 @@ module MonsoonOpenstackAuth
           rule = rule.gsub(/%\(/, '').gsub(/\)s/, '')
 
           @rules[rule_name] = Rule.new(rule) #eval("-> locals,params { #{rule} }"))
-          @rules_src[rule_name] = rule if @debug
         rescue => e
           raise e
         end
@@ -77,7 +76,6 @@ module MonsoonOpenstackAuth
       def initialize(rules, roles, current_user, rules_src, debug=false)
         @current_user = current_user
         @rules = rules
-        @rules_src = rules_src
         @debug = debug
       end
 
@@ -91,20 +89,18 @@ module MonsoonOpenstackAuth
             'user_id' => @current_user.id
         }
         res = false
-        src = "no debug"
+        rule = nil
         check_rules.each do |k|
           begin
-            if @debug
-              src = "#{@rules_src[k]}"
-            end
-            res |= @rules[k].call(locals, params) # @rules[k].call(locals, params)
+            rule = @rules[k]
+            res |= rule.call(locals, params) # @rules[k].call(locals, params)
           rescue NoMethodError => nme
             # Exception happens when a NON existent rule is checked
             # Use default rule if available, otherwise false
             if nme.message.match(/^undefined method `call'/)
-              default_rule = @rules[DEFAULT_RULE]
-              if default_rule
-                res |= default_rule.call(locals, params) #call(locals, params)
+              rule = @rules[DEFAULT_RULE]
+              if rule
+                res |= rule.call(locals, params) #call(locals, params)
               else
                 res |= false
               end
@@ -113,23 +109,22 @@ module MonsoonOpenstackAuth
               res |= false
             end
           rescue NameError => ne
-            raise PolicyInvalid.new "Undefined object in rule \"#{k}\" which processes #{src}. #{ne.message}"
+            raise PolicyInvalid.new "Undefined object in rule \"#{k}\" which processes #{rule.rule_src}. #{ne.message}"
           rescue Exception => e
-            raise PolicyInvalid.new "Undefined object in rule \"#{k}\" which processes #{src}. #{e.message}"
+            raise PolicyInvalid.new "Undefined object in rule \"#{k}\" which processes #{rule.rule_src}. #{e.message}"
           end
         end
-        PolicyCheckResult.new res, src
-        #res
+        PolicyCheckResult.new res, rule
       end
     end
   end
 
   class PolicyCheckResult
-    attr_reader :result, :source
+    attr_reader :result, :rule
 
-    def initialize result, source
+    def initialize result, rule
       @result = result
-      @source = source
+      @rule = rule
     end
   end
 

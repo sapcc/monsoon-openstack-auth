@@ -24,7 +24,11 @@ module MonsoonOpenstackAuth
     yield(configuration)
     load_policy
   end
-  
+
+  def self.logger
+    @logger ||= configuration.logger
+  end
+
   def self.api_client(region)
     @api_connections = {} unless @api_connections
     @api_connections[region] ||= MonsoonOpenstackAuth::ApiClient.new(region)

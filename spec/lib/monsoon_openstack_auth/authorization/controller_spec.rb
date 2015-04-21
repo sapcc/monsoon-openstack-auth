@@ -12,7 +12,7 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
     #before { skip }
     controller do # anonymous subclass of ActionController::Base
       authentication_required region: -> c { c.params[:region_id] }, organization_id: -> c { c.params[:organization_id] }, project_id: -> c { c.params[:project_id] }
-      authorization_required
+      authorization_actions_for :get_domain
       authorization_actions :change => 'update', :index => 'list'
 
       def index
@@ -26,11 +26,18 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
       def change
         head :ok
       end
+
+      def authorization_forbidden error
+        raise error
+      end
+
     end
 
     before :each do
       @current_user = FactoryGirl.build_stubbed(:user, :admin)
       ActionController::Base.any_instance.stub(:current_user).and_return @current_user
+      @domain = FactoryGirl.build_stubbed(:domain)
+      ActionController::Base.any_instance.stub(:get_domain).and_return @domain
     end
 
     it "should require authorization" do
@@ -50,10 +57,11 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
   end
 
   context "authorization filter except" do
+    #before { skip }
 
     controller do # anonymous subclass of ActionController::Base
       authentication_required region: -> c { c.params[:region_id] }, organization_id: -> c { c.params[:organization_id] }, project_id: -> c { c.params[:project_id] }
-      authorization_required :except => [:index, :show]
+      authorization_actions_for :get_domain, :except => [:index, :show]
 
       def index
         head :ok
@@ -66,16 +74,22 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
       def change
         head :ok
       end
+
+      def authorization_forbidden error
+        raise error
+      end
+
     end
 
     before :each do
       @current_user = FactoryGirl.build_stubbed(:user, :admin)
       ActionController::Base.any_instance.stub(:current_user).and_return @current_user
+      @domain = FactoryGirl.build_stubbed(:domain)
+      ActionController::Base.any_instance.stub(:get_domain).and_return @domain
     end
 
     it "should NOT require authorization" do
       expect{
-        
         expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).not_to receive(:enforce)
         get 'index', region_id: 'europe'
       }.not_to raise_error
@@ -92,9 +106,10 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
 
   context "authorization filter only" do
     #before { skip }
+
     controller  do # anonymous subclass of ActionController::Base
       authentication_required region: -> c { c.params[:region_id] }, organization_id: -> c { c.params[:organization_id] }, project_id: -> c { c.params[:project_id] }
-      authorization_required :only => [:new]
+      authorization_actions_for :get_domain, :only => [:new]
 
       def index
         head :ok
@@ -107,11 +122,18 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
       def change
         head :ok
       end
+
+      def authorization_forbidden error
+        raise error
+      end
+
     end
 
     before :each do
       @current_user = FactoryGirl.build_stubbed(:user, :admin)
       ActionController::Base.any_instance.stub(:current_user).and_return @current_user
+      @domain = FactoryGirl.build_stubbed(:domain)
+      ActionController::Base.any_instance.stub(:get_domain).and_return @domain
     end
 
     it "should NOT require authorization" do
