@@ -36,6 +36,12 @@
     
     <%= yield %>
   </div>
+  
+  <div class="token">
+    <% if logged_in? %>
+      <pre><%= JSON.pretty_generate(user: current_user.context["user"], domain: current_user.context["domain"], project: current_user.context["project"], roles: current_user.context["roles"]) %></pre>
+    <% end %>
+  </div>
 
 </body>
 </html>

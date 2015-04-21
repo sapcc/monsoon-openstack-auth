@@ -33,6 +33,12 @@ module MonsoonOpenstackAuth
         end
       end
 
+      def skip_authorization(options={})
+        prepend_before_filter options do
+          @_skip_authorization=true
+        end
+      end
+
       def authentication_required(options={})
         reg = options.delete(:region)
         org = options.delete(:organization)
@@ -226,6 +232,10 @@ module MonsoonOpenstackAuth
         #  r[:name] = "member"
         end
         user
+      end
+
+      def policy
+        @policy
       end
 
       class MissingAction < StandardError;
