@@ -74,7 +74,23 @@ module MonsoonOpenstackAuth
           return if domain && domain["id"]==@scope[:organization]
           scope = {domain:{id:@scope[:organization]}}
         else
-          return
+
+          # scope is empty -> no organization and project provided
+          # return if token scope is also empty
+          return if (domain.nil? and project.nil?)
+                        
+          # user has a default domain. If the default domain is equal to the token domain then do not rescope and return
+          default_domain_id = token.fetch(:user,{}).fetch("domain",{}).fetch("id",nil)
+          if default_domain_id
+            token_domain = ( (project || {})["domain"] || domain)
+            if (token_domain and token_domain["id"]==default_domain_id)
+              return
+            end
+          end            
+
+          # did not returned -> get new unscoped token  
+          # replace with scope="unscoped" after update to kilo release                      
+          scope=nil
         end
         
         begin

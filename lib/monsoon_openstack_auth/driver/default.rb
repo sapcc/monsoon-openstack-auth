@@ -47,6 +47,20 @@ module MonsoonOpenstackAuth
       def authenticate_with_credentials(username,password, scope=nil)
         auth = {auth:{identity: {methods: ["password"],password:{user:{id: username,password: password}}}}}
         auth[:auth][:scope]=scope if scope
+        
+        
+        
+        
+        p ">>>>>>>>>>>>>>>>>>>>>>>authenticate_with_credentials"
+        p auth
+        
+        
+        
+        
+        
+        
+        
+        
         #Rails.logger.info "Monsoon Openstack Auth: authenticate_with_credentials -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
       end
