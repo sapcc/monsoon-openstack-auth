@@ -1,6 +1,7 @@
 .bundle/
 pkg/
 /vendor/bundle
+.env
 
 # Ignore all logfiles and tempfiles.
 log/*.log
