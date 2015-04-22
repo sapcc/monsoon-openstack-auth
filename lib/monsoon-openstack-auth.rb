@@ -10,8 +10,6 @@ require "monsoon_openstack_auth/session_store"
 require "monsoon_openstack_auth/session"
 require "monsoon_openstack_auth/controller"
 
-# require "monsoon_openstack_auth/authorization/policy"
-# require "monsoon_openstack_auth/authorization/security_violation"
 require "monsoon_openstack_auth/authorization"
 
 module MonsoonOpenstackAuth

@@ -143,8 +143,13 @@ module MonsoonOpenstackAuth
         @regions.uniq!
       end
       @regions
-    end  
-     
+    end
+
+    def is_allowed?(actions, params={})
+      @policy ||= MonsoonOpenstackAuth.policy_engine.policy(self)
+      @policy.enforce(actions,params)
+    end
+
     protected
     
     # Returns a value from context for given key.
