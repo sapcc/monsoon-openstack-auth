@@ -104,7 +104,9 @@ module MonsoonOpenstackAuth
       end
     end
    
-
+    def services
+      @services ||= ServiceProvider.new(@region,@user)
+    end
     
     def validate_auth_token
       unless MonsoonOpenstackAuth.configuration.token_auth_allowed?   

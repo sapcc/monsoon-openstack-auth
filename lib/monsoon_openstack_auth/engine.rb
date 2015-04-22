@@ -12,5 +12,9 @@ module MonsoonOpenstackAuth
     initializer "monsoon_openstack_auth.assets.precompile" do |app|
       app.config.assets.precompile += %w(application.css)
     end
+      
+    config.after_initialize do 
+      # TODO: load policy here 
+    end
   end
 end

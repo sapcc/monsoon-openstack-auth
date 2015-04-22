@@ -3,6 +3,7 @@ class DashboardController < ApplicationController
   #example: authentication_required only: [:index], region: -> c { 'europe' }, organization: -> c {'Test'}   
   
   def index
+    services
   end
   
   def get_region

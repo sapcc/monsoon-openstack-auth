@@ -2,7 +2,7 @@ module MonsoonOpenstackAuth
   module Controller
     def self.included(base)
       base.send :extend, ClassMethods
-      base.helper_method :current_user, :logged_in?
+      base.helper_method :current_user, :logged_in?, :services
       base.send :include, MonsoonOpenstackAuth::Controller::InstanceMethods
     end
  
@@ -54,6 +54,10 @@ module MonsoonOpenstackAuth
       
       def logged_in?
         @monsoon_openstack_auth.nil? ? false : @monsoon_openstack_auth.logged_in?
+      end
+      
+      def services
+        @monsoon_openstack_auth.nil? ? nil : @monsoon_openstack_auth.services
       end
     end
   end
