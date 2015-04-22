@@ -16,13 +16,13 @@ module Dashboard
 
     def get_org
       domain = Domain.new
-      domain.domain_id = "o-7052f82e0"
+      domain.id = "o-7052f82e0"
       return domain
     end
   end
 end
 
 class Domain
-  attr_accessor :domain_id
+  attr_accessor :id
 end
 

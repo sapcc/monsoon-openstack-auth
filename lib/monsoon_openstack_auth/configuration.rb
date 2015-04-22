@@ -15,11 +15,9 @@ module MonsoonOpenstackAuth
       @sso_auth_allowed   = true
       @form_auth_allowed  = true
       @debug              = false
-      @logger             = Logger.new(STDERR)
+      @logger             = Rails ? Rails.logger : Logger.new(STDERR)
 
       @authorization      = AuthorizationConfig.new
-
-
 
     end
     

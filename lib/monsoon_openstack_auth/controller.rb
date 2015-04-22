@@ -95,7 +95,7 @@ module MonsoonOpenstackAuth
       end
 
       def authorization_action(action_map)
-        authorization.logger.warn "authorization's `authorization_action` method has been renamed \
+        MonsoonOpenstackAuth.logger.warn "authorization's `authorization_action` method has been renamed \
         to `authorization_actions` (plural) to reflect the fact that you can \
         set multiple actions in one shot. Please update your controllers \
         accordingly. (called from #{caller.first})".squeeze(' ')
@@ -175,13 +175,12 @@ module MonsoonOpenstackAuth
         if authorization_action.nil?
           raise MissingAction.new("No authorization action defined for #{action_name}")
         end
+        self.authorization_performed = true
         application_name = MonsoonOpenstackAuth.configuration.authorization.context
         authorization_resouce_name = options[:name] ? options[:name] : authorization_resource.class
         os_action = ("#{application_name}:#{authorization_resouce_name}_#{authorization_action}").downcase
-        policy = MonsoonOpenstackAuth.policy_engine.policy(current_user)
         result = policy.enforce([os_action], hashed_resource)
-        self.authorization_performed = true
-        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(current_user, os_action, authorization_resource) unless result
+        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(authorization_user, os_action, authorization_resource) unless result
       end
 
 =begin
@@ -226,20 +225,20 @@ module MonsoonOpenstackAuth
               )
       end
 
+      def policy
+        @policy ||= MonsoonOpenstackAuth.policy_engine.policy(authorization_user)
+      end
+
       # Convenience wrapper for sending configured `user_method` to extract the
       # request's current user
       #
       # @return [Object] the user object returned from sending the user_method
       def authorization_user
         user = send(MonsoonOpenstackAuth.configuration.authorization.user_method)
-        user.roles.each do |r|
-        #  r[:name] = "member"
-        end
+#        user.roles.each do |r|
+#          r[:name] = "member"
+#        end
         user
-      end
-
-      def policy
-        @policy
       end
 
       class MissingAction < StandardError;

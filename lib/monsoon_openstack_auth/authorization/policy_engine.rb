@@ -88,7 +88,9 @@ module MonsoonOpenstackAuth
           result = true
           rule_names = [rule_names] unless rule_names.is_a?(Array)
           rule_names.each do |name|
-            result &= @rules.get(name).execute(@locals,params)
+            res = @rules.get(name).execute(@locals,params)
+            result &= res
+            MonsoonOpenstackAuth.logger.info("Rule enforced [#{name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params.to_json if params}")
           end
           result
         end
