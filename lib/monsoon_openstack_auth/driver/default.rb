@@ -40,6 +40,10 @@ module MonsoonOpenstackAuth
         self
       end  
       
+      def connection
+        @fog
+      end
+      
       def validate_token(auth_token)
         HashWithIndifferentAccess.new(@fog.tokens.validate(auth_token).attributes)
       end
@@ -47,20 +51,6 @@ module MonsoonOpenstackAuth
       def authenticate_with_credentials(username,password, scope=nil)
         auth = {auth:{identity: {methods: ["password"],password:{user:{id: username,password: password}}}}}
         auth[:auth][:scope]=scope if scope
-        
-        
-        
-        
-        p ">>>>>>>>>>>>>>>>>>>>>>>authenticate_with_credentials"
-        p auth
-        
-        
-        
-        
-        
-        
-        
-        
         #Rails.logger.info "Monsoon Openstack Auth: authenticate_with_credentials -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
       end
@@ -84,32 +74,32 @@ module MonsoonOpenstackAuth
       end
       
       ################## Not part of interface ################
-      def user_domains(userid,options={per_page: 30, page: 1})    
-        user = @fog.users.find_by_id(userid)
-        projects = user.projects if user
-        if projects
-          projects.collect{|project| project["domain"] || { "name" => project["domain_id"], "id" => project["domain_id"] }  }.uniq
-        else
-          []
-        end
-      end
-  
-      def domain(domain_id)
-        @fog.domains.find_by_id(domain_id)
-      end
-  
-      def domain_projects(domain_id,userid=nil)
-        return @fog.projects.all(domain_id:domain_id) if userid.nil?
-        
-        user = @fog.users.find_by_id(userid)
-        projects = []
-        user.projects.each {|project| projects<<OpenStruct.new(project) if project['domain_id']==domain_id}  
-        return projects
-      end
-  
-      def project(project_id)
-        @fog.projects.find_by_id(project_id) 
-      end
+      # def user_domains(userid,options={per_page: 30, page: 1})
+      #   user = @fog.users.find_by_id(userid)
+      #   projects = user.projects if user
+      #   if projects
+      #     projects.collect{|project| project["domain"] || { "name" => project["domain_id"], "id" => project["domain_id"] }  }.uniq
+      #   else
+      #     []
+      #   end
+      # end
+      #
+      # def domain(domain_id)
+      #   @fog.domains.find_by_id(domain_id)
+      # end
+      #
+      # def domain_projects(domain_id,userid=nil)
+      #   return @fog.projects.all(domain_id:domain_id) if userid.nil?
+      #
+      #   user = @fog.users.find_by_id(userid)
+      #   projects = []
+      #   user.projects.each {|project| projects<<OpenStruct.new(project) if project['domain_id']==domain_id}
+      #   return projects
+      # end
+      #
+      # def project(project_id)
+      #   @fog.projects.find_by_id(project_id)
+      # end
       ##########################################################
       
     end
