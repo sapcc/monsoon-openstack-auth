@@ -10,23 +10,22 @@ module MonsoonOpenstackAuth
       Proc.new do |exception|
         # Through the magic of `instance_exec` `ActionController::Base#rescue_from`
         # can call this proc and make `self` the actual controller instance
+        # default: authorization_forbidden
         self.send(MonsoonOpenstackAuth.configuration.authorization.security_violation_handler, exception)
       end
     end
 
     included do
+      extend ClassMethods
+      include InstanceMethods
+      
+      helper_method :current_user, :logged_in?, :services
       rescue_from(MonsoonOpenstackAuth::Authorization::SecurityViolation, :with => MonsoonOpenstackAuth::Controller.security_violation_callback)
-      class_attribute :authorization_resource, :instance_reader => false
-    end
-
-    def self.included(base)
-      base.send :extend, ClassMethods
-      base.helper_method :current_user, :logged_in?, :services
-      base.send :include, MonsoonOpenstackAuth::Controller::InstanceMethods
+      class_attribute :authorization_resource, :instance_reader => false      
     end
 
     module ClassMethods
-
+            
       def skip_authentication(options={})
         prepend_before_filter options do
           @_skip_authentication=true
@@ -126,6 +125,7 @@ module MonsoonOpenstackAuth
     end
 
     module InstanceMethods
+            
       def current_user
         @monsoon_openstack_auth.nil? ? nil : @monsoon_openstack_auth.user
       end
@@ -181,21 +181,6 @@ module MonsoonOpenstackAuth
         result = policy.enforce([os_action], hashed_resource)
         raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(authorization_user, os_action, authorization_resource) unless result
       end
-
-=begin
-      def enforce params
-        authority_action = self.class.authorization_action_map[action_name.to_sym]
-        authority_context = controller_name
-        application_name = MonsoonOpenstackAuth.configuration.authorization.context
-        os_action = "#{application_name}:#{authority_context}_#{authority_action}"
-        params_mash = Hashie::Mash.new(params)
-        #MonsoonOpenstackAuth::Policy.instance.enforce(current_user, [os_action], params_mash)
-        result = @policy.enforce(os_action, params_mash)
-        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(current_user, os_action, params_mash) unless result
-      end
-      alias_method :authorize_action_for, :enforce
-=end
-
 
       # Renders a static file to minimize the chances of further errors.
       #
