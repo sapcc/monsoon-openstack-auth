@@ -48,25 +48,21 @@ module MonsoonOpenstackAuth
 
         before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") }) do
           region = reg.kind_of?(Proc) ? reg.call(self) : self.send(reg.to_sym)
-         
-          get_value = lambda {||}        
-          organization = if org
-            if org.kind_of?(Proc)
-              org.call(self)
-            elsif self.respond_to?(org.to_sym)
-              result = self.send(org.to_sym)
-              result.is_a?(String) and result.empty? ? nil : result
+
+          get_value = lambda do |method_name| 
+            result = nil
+            if method_name
+              if method_name.kind_of?(Proc)
+                result = method_name.call(self)
+              elsif self.respond_to?(method_name.to_sym)
+                result = self.send(method_name.to_sym)
+              end
             end
-          end
-          
-          project = if prj
-            if prj.kind_of?(Proc)
-              prj.call(self)
-            elsif self.respond_to?(prj.to_sym)
-              result = self.send(prj.to_sym)
-              result.is_a?(String) and result.empty? ? nil : result
-            end
-          end
+            (result.is_a?(String) and result.empty?) ? nil : result
+          end    
+              
+          organization = get_value.call(org)
+          project = get_value.call(prj)
 
           raise MonsoonOpenstackAuth::InvalidRegion.new("A region should be provided") unless region
           @monsoon_openstack_auth = MonsoonOpenstackAuth::Session.check_authentication(self, region, organization: organization, project: project)
