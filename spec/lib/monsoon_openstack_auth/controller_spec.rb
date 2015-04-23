@@ -54,4 +54,24 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
       get 'new'
     end
   end
+  
+  context "ignore empty scope" do
+    controller do # anonymous subclass of ActionController::Base
+      authentication_required region: -> c {c.params[:region_id]}, organization_id: -> c {nil}, project_id: -> c {""}
+    
+      def index
+        head :ok
+      end
+    
+      def new
+        head :ok
+      end
+    end
+    
+    it "authentication should ignore empty organization and project" do
+      expect(MonsoonOpenstackAuth::Session).to receive(:check_authentication).with(controller,'europe', organization: nil, project: nil)
+      get 'index', region_id: 'europe'
+    end
+      
+  end
 end
