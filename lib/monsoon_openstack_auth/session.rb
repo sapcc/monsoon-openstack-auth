@@ -86,11 +86,11 @@ module MonsoonOpenstackAuth
             if (token_domain and token_domain["id"]==default_domain_id)
               return
             end
-          end            
+          end          
 
           # did not returned -> get new unscoped token  
           # replace with scope="unscoped" after update to kilo release                      
-          scope=nil
+          scope="unscoped"
         end
         
         begin
@@ -99,7 +99,12 @@ module MonsoonOpenstackAuth
           create_user_from_token(token)
           save_token_in_session_store(token)
         rescue => e
-          raise MonsoonOpenstackAuth::NotAuthorized.new("User has no access to the requested organization: #{e}")
+          if scope=="unscoped"
+            scope=nil
+            retry
+          else
+            raise MonsoonOpenstackAuth::NotAuthorized.new("User has no access to the requested organization: #{e}")
+          end
         end
       end
     end
