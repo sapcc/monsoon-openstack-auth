@@ -23,7 +23,6 @@ module MonsoonOpenstackAuth
   def self.configure
     self.configuration ||= MonsoonOpenstackAuth::Configuration.new
     yield(configuration)
-    load_policy
   end
 
   def self.logger
