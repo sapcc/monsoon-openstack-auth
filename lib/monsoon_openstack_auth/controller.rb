@@ -23,20 +23,23 @@ module MonsoonOpenstackAuth
 
         before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") } ) do
           region = reg.kind_of?(Proc) ? reg.call(self) : self.send(reg.to_sym)
-          
-          if org
+                  
+          get_value = lambda {||}        
+          organization = if org
             if org.kind_of?(Proc)
-              organization = org.call(self)
-            else 
-              organization = self.send(org.to_sym) if self.respond_to?(org.to_sym)
+              org.call(self)
+            elsif self.respond_to?(org.to_sym)
+              result = self.send(org.to_sym)
+              result.is_a?(String) and result.empty? ? nil : result
             end
           end
           
-          if prj
+          project = if prj
             if prj.kind_of?(Proc)
-              project = prj.call(self)
-            else 
-              project = self.send(prj.to_sym) if self.respond_to?(prj.to_sym)
+              prj.call(self)
+            elsif self.respond_to?(prj.to_sym)
+              result = self.send(prj.to_sym)
+              result.is_a?(String) and result.empty? ? nil : result
             end
           end
           
