@@ -9,7 +9,7 @@ GIT
 PATH
   remote: .
   specs:
-    monsoon-openstack-auth (0.2.0)
+    monsoon-openstack-auth (0.3.0)
       hashie
       monsoon-fog
       rails

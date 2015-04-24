@@ -115,14 +115,14 @@ module MonsoonOpenstackAuth
     
     def validate_auth_token
       unless MonsoonOpenstackAuth.configuration.token_auth_allowed?   
-        Rails.logger.info "Monsoon Openstack Auth: validate_auth_token -> not allowed." if @debug
+        MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_auth_token -> not allowed." if @debug
         return false   
       end
 
       auth_token = @controller.request.headers['HTTP_X_AUTH_TOKEN']
 
       unless auth_token
-        Rails.logger.info "Monsoon Openstack Auth: validate_auth_token -> auth token not presented." if @debug
+        MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_auth_token -> auth token not presented." if @debug
         return false
       end
        
@@ -134,7 +134,7 @@ module MonsoonOpenstackAuth
           create_user_from_session
           
           if logged_in?
-            Rails.logger.info "Monsoon Openstack Auth: validate_auth_token -> successful (session token is equal to auth token)." if @debug
+            MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_auth_token -> successful (session token is equal to auth token)." if @debug
             return true
           end
         end
@@ -148,23 +148,23 @@ module MonsoonOpenstackAuth
             save_token_in_session_store(token)
             
             if logged_in?
-              Rails.logger.info("Monsoon Openstack Auth: validate_auth_token -> successful (username=#{@user.name}).") if @debug
+              MonsoonOpenstackAuth.logger.info("Monsoon Openstack Auth: validate_auth_token -> successful (username=#{@user.name}).") if @debug
               return true
             end
           end
         rescue Fog::Identity::OpenStack::NotFound => e
-          Rails.logger.error "Monsoon Openstack Auth: token validation failed #{e}."
+          MonsoonOpenstackAuth.logger.error "Monsoon Openstack Auth: token validation failed #{e}."
         end  
       end
 
-      Rails.logger.info "Monsoon Openstack Auth: validate_auth_token -> failed." if @debug
+      MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_auth_token -> failed." if @debug
       return false      
     end
     
     def validate_http_basic
       # return false if not allowed.
       unless MonsoonOpenstackAuth.configuration.basic_auth_allowed?
-        Rails.logger.info "Monsoon Openstack Auth: validate_http_basic -> not allowed." if @debug
+        MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_http_basic -> not allowed." if @debug
         return false
       end
 
@@ -175,39 +175,39 @@ module MonsoonOpenstackAuth
         @controller.authenticate_with_http_basic do |username, password|
           # basic auth is presented
           basic_auth_presented=true
-          Rails.logger.info "Monsoon Openstack Auth: validate_http_basic -> username=#{username}." if @debug
+          MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_http_basic -> username=#{username}." if @debug
           token = @api_client.authenticate_with_credentials(username,password)
           create_user_from_token(token)
           save_token_in_session_store(token)
         end
         
         unless basic_auth_presented
-          Rails.logger.info "Monsoon Openstack Auth: validate_http_basic -> basic auth header not presented." if @debug
+          MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_http_basic -> basic auth header not presented." if @debug
           return false
         end
         
         if logged_in?
-          Rails.logger.info "Monsoon Openstack Auth: validate_http_basic -> successful (username=#{@user.name})." if @debug
+          MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_http_basic -> successful (username=#{@user.name})." if @debug
           return true
         end
       rescue => e
-        Rails.logger.error "Monsoon Openstack Auth: basic auth failed: #{e}."
+        MonsoonOpenstackAuth.logger.error "Monsoon Openstack Auth: basic auth failed: #{e}."
       end
       # basic auth authentication failed
-      Rails.logger.info "Monsoon Openstack Auth: validate_http_basic -> failed." if @debug
+      MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_http_basic -> failed." if @debug
       return false
     end
     
     def validate_sso_certificate
       # return false if not allowed.
       unless MonsoonOpenstackAuth.configuration.sso_auth_allowed? 
-        Rails.logger.info "Monsoon Openstack Auth: validate_sso_certificate -> not allowed." if @debug
+        MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_sso_certificate -> not allowed." if @debug
         return false
       end
       
       # return false if invalid sso certificate. 
       unless @controller.request.env['HTTP_SSL_CLIENT_VERIFY'] == 'SUCCESS'
-        Rails.logger.info "Monsoon Openstack Auth: validate_sso_certificate -> certificate not presented." if @debug
+        MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_sso_certificate -> certificate not presented." if @debug
         return false
       end
 
@@ -217,7 +217,7 @@ module MonsoonOpenstackAuth
       
       # return false if no username given.
       if username.nil? or username.empty?
-        Rails.logger.info "Monsoon Openstack Auth: validate_sso_certificate -> user not presented." if @debug
+        MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_sso_certificate -> user not presented." if @debug
         return false
       end
       
@@ -228,32 +228,32 @@ module MonsoonOpenstackAuth
         create_user_from_token(token)
         save_token_in_session_store(token)
       rescue => e
-        Rails.logger.error "Monsoon Openstack Auth: external user authentication failed #{e}."
+        MonsoonOpenstackAuth.logger.error "Monsoon Openstack Auth: external user authentication failed #{e}."
       end
 
       if logged_in?
-        Rails.logger.info "Monsoon Openstack Auth: validate_sso_certificate -> successful (username=#{@user.name})." if @debug
+        MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_sso_certificate -> successful (username=#{@user.name})." if @debug
         return true
       end
 
-      Rails.logger.info "Monsoon Openstack Auth: validate_sso_certificate -> failed." if @debug
+      MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_sso_certificate -> failed." if @debug
       return false
     end
     
     def validate_session_token
       unless @session_store
-        Rails.logger.info "Monsoon Openstack Auth: validate_session_token -> session store not presented." if @debug
+        MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_session_token -> session store not presented." if @debug
         return false  
       end
 
       if @session_store.token_valid?
         create_user_from_session_store
         if logged_in?
-          Rails.logger.info "Monsoon Openstack Auth: validate_session_token -> successful (username=#{@user.name})." if @debug
+          MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_session_token -> successful (username=#{@user.name})." if @debug
           return true
         end
       end
-      Rails.logger.info "Monsoon Openstack Auth: validate_session_token -> failed." if @debug
+      MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_session_token -> failed." if @debug
       return false
     end
 
@@ -280,7 +280,7 @@ module MonsoonOpenstackAuth
     ############ LOGIN FORM FUCNTIONALITY ##################
     def login_form_user(username,password)
       unless @session_store
-        Rails.logger.info "Monsoon Openstack Auth: login_form_user -> session store not presented." if @debug
+        MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: login_form_user -> session store not presented." if @debug
         return nil
       end
       
@@ -292,8 +292,8 @@ module MonsoonOpenstackAuth
         create_user_from_token(token)
         return redirect_to_url
       rescue => e
-        Rails.logger.error "Monsoon Openstack Auth: login_form_user -> failed. #{e}"
-        Rails.logger.error e.backtrace.join("\n") if @debug
+        MonsoonOpenstackAuth.logger.error "Monsoon Openstack Auth: login_form_user -> failed. #{e}"
+        MonsoonOpenstackAuth.logger.error e.backtrace.join("\n") if @debug
         return nil
       end
     end

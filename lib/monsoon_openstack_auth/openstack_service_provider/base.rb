@@ -10,7 +10,7 @@ module MonsoonOpenstackAuth
         @current_user = current_user
         
         if MonsoonOpenstackAuth.configuration.debug
-          Rails.logger.info "MonsoonOpenstackAuth::OpenstackServiceProvider::Base: service #{self.class.name} initialized" 
+          MonsoonOpenstackAuth.logger.info "MonsoonOpenstackAuth::OpenstackServiceProvider::Base: service #{self.class.name} initialized" 
         end
       end
       

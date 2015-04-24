@@ -16,7 +16,7 @@ module MonsoonOpenstackAuth
             log += "token: #{@current_user.token} "
             log += "endpoint: #{MonsoonOpenstackAuth::Driver::Default.endpoint} "
             log += "region: #{@region}"
-            Rails.logger.info log
+            MonsoonOpenstackAuth.logger.info log
           end
         end
         
