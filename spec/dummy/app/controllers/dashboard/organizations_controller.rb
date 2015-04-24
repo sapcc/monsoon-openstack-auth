@@ -1,7 +1,7 @@
 module Dashboard
   class OrganizationsController < DashboardController
-    authorization_actions_for :get_org, :only => [:show]
-    authorization_actions :show => 'list'
+    before_filter :load_and_authorize_domain, :only => [:show]
+    authorization_actions :show => 'show', :index => 'list'
 
     def index
       @organizations = services.identity.user_domains
@@ -14,10 +14,10 @@ module Dashboard
 
     private
 
-    def get_org
-      domain = Domain.new
-      domain.id = "o-7052f82e0"
-      return domain
+    def load_and_authorize_domain
+      @domain = Domain.new
+      @domain.id = params[:id]
+      authorize_action_for @domain
     end
   end
 end

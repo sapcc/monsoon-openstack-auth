@@ -90,7 +90,7 @@ module MonsoonOpenstackAuth
           rule_names.each do |name|
             res = @rules.get(name).execute(@locals,params)
             result &= res
-            MonsoonOpenstackAuth.logger.info("Rule enforced [#{name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params.to_json if params}")
+            MonsoonOpenstackAuth.logger.info("Rule enforced [#{@rules.get(name).name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params.to_json if params}")
           end
           result
         end

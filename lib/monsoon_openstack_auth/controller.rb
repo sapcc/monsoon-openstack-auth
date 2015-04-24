@@ -92,13 +92,13 @@ module MonsoonOpenstackAuth
         authorization_action_map.merge!(action_map.symbolize_keys)
       end
 
-      def authorization_action(action_map)
-        MonsoonOpenstackAuth.logger.warn "authorization's `authorization_action` method has been renamed \
-        to `authorization_actions` (plural) to reflect the fact that you can \
-        set multiple actions in one shot. Please update your controllers \
-        accordingly. (called from #{caller.first})".squeeze(' ')
-        authorization_actions(action_map)
-      end
+      #def authorization_action(action_map)
+      #  MonsoonOpenstackAuth.logger.warn "authorization's `authorization_action` method has been renamed \
+      #  to `authorization_actions` (plural) to reflect the fact that you can \
+      #  set multiple actions in one shot. Please update your controllers \
+      #  accordingly. (called from #{caller.first})".squeeze(' ')
+      #  authorization_actions(action_map)
+      #end
 
       # Convenience wrapper for instance method
       def ensure_authorization_performed(options = {})
@@ -160,7 +160,7 @@ module MonsoonOpenstackAuth
       # @param [Class] authorization_resource, the model class associated with this controller
       # @param [Hash] options, arbitrary options hash to forward up the chain to the authorizer
       # @raise [MissingAction] if controller action isn't a key in `config.controller_action_map`
-      def authorize_action_for(authorization_resource, options)
+      def authorization_action_for(authorization_resource, options={})
 
         # create a hash for non hash authorization objects
         unless authorization_resource.is_a? Hash
@@ -195,7 +195,7 @@ module MonsoonOpenstackAuth
       # The `before_filter` that will be setup to run when the class method
       # `authorize_actions_for` is called
       def run_authorization_check options
-        authorize_action_for instance_authorization_resource, options
+        authorization_action_for instance_authorization_resource, options
       end
 
       def instance_authorization_resource

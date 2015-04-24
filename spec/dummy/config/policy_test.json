@@ -7,7 +7,8 @@
 
   "default": "rule:admin_required",
 
-  "identity:domain_list":     "rule:admin_required or rule:d_member",
+  "identity:domain_show":     "rule:admin_required or rule:d_member",
+  "identity:domain_list":     "@",
   "identity:domain_create":   "",
   "identity:domain_change":   "rule:admin_required or rule:d_member",
   "identity:domain_delete":   "rule:admin_required",
