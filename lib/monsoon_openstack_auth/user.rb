@@ -99,7 +99,7 @@ module MonsoonOpenstackAuth
     end
     
     def role_names
-      @role_names ||= roles.collect{|r| r["name"]}  
+      @role_names ||= roles.nil? ? [] : roles.collect{|r| r.is_a?(Hash) ? r["name"] : r}  
     end
     
     def has_role?(name)
