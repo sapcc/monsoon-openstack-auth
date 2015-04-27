@@ -64,7 +64,7 @@ module MonsoonOpenstackAuth
 
       class Policy
         LOCALS = {
-          'roles'       => lambda { |current_user| current_user.roles||[] } ,
+          'roles'       => lambda { |current_user| current_user.role_names } ,
           'domain_id'   => lambda { |current_user| current_user.domain_id },
           'is_admin'    => lambda { |current_user| current_user.admin? },
           'project_id'  => lambda { |current_user| current_user.project_id },
@@ -84,6 +84,20 @@ module MonsoonOpenstackAuth
           @locals = Policy.locals(current_user)
         end
     
+        def enforce_with_trace(rule_names=[], params = {})
+          trace = ExecutionTrace.new
+          
+          result = true
+          rule_names = [rule_names] unless rule_names.is_a?(Array)
+          rule_names.each do |name|
+            res = @rules.get(name).execute(@locals,params,trace)
+            result &= res
+            MonsoonOpenstackAuth.logger.info("Rule enforced [#{name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params.to_json if params}")
+          end
+
+          trace
+        end
+        
         def enforce(rule_names=[], params = {})
           result = true
           rule_names = [rule_names] unless rule_names.is_a?(Array)
@@ -93,6 +107,44 @@ module MonsoonOpenstackAuth
             MonsoonOpenstackAuth.logger.info("Rule enforced [#{name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params.to_json if params}")
           end
           result
+        end
+      end
+      
+      class ExecutionTrace
+        attr_reader :next
+        attr_accessor :rule, :result, :locals, :params
+        def initialize(rule=nil,result=nil)
+          @rule=rule
+          @result = result
+          @next=[]
+        end
+        
+        def root?
+          @rule.nil?
+        end
+        
+        def to_s(pre="\t",after="")
+          out = "#{pre}locals: #{self.locals}#{after}"
+          out += "#{pre}params: #{(self.params||{})}#{after}"
+          out += to_s_recursive(self,pre,after)
+          out
+        end
+        
+        def print
+          MonsoonOpenstackAuth.logger.info "===============TRACE============="
+          MonsoonOpenstackAuth.logger.info "locals: #{self.locals}"
+          MonsoonOpenstackAuth.logger.info "params: #{(self.params||{}).to_s}"
+          MonsoonOpenstackAuth.logger.info self.to_s("\t","\n")
+          MonsoonOpenstackAuth.logger.info "================================="
+        end
+        
+        protected
+        def to_s_recursive(trace,pre,after,level=0)
+          prefix = ""
+          level.times{prefix+=pre}
+          out = "#{prefix}#{trace.rule.name}: #{trace.rule.rule} -> #{trace.result}#{after}" if trace.rule  
+          trace.next.each{|t| out += to_s_recursive(t,pre,after,level+1)}
+          out
         end
       end
       
@@ -122,7 +174,7 @@ module MonsoonOpenstackAuth
             # replace "False" and "!" with "false"
             parsed_rule = parsed_rule.gsub(/False|!/i, 'false')
             # replace rule:name with @rules["name"].execute(locals,params)
-            parsed_rule = parsed_rule.gsub(/rule:(?<rule>[^\s]+)/,'@rules.get("\k<rule>").execute(locals,params)')
+            parsed_rule = parsed_rule.gsub(/rule:(?<rule>[^\s]+)/,'@rules.get("\k<rule>").execute(locals,params,trace)')
             # replace role:name with locals["roles"].include?("name")
             parsed_rule = parsed_rule.gsub(/role:(?<role>[^\s]+)/,'locals["roles"].include?("\k<role>")')
             # replace name:value with locals["name"]=="value"
@@ -143,16 +195,39 @@ module MonsoonOpenstackAuth
           @parsed_rule      = parsed_rule
           @required_locals  = extract_required_locals
           @required_params  = extract_required_params
-          @executable       = eval("lambda {|locals={},params={}| #{@parsed_rule} }")
+          @executable       = eval("lambda {|locals={},params={},trace=nil| #{@parsed_rule} }")
         end
     
         def to_s
           "name: #{@name} \nrule: #{@rule} \nparsed rule: #{@parsed_rule}"
         end
 
-        def execute(locals,params)
+        def execute(locals,params,trace=nil)            
           begin
-            @executable.call(locals,params)
+            
+            # add to trace if given
+            next_trace = ExecutionTrace.new
+            
+            if trace 
+              if trace.root?
+                trace.rule = self
+                next_trace=trace
+              else
+                next_trace.rule=self
+                trace.next << next_trace
+              end
+            end
+            
+            result = @executable.call(locals,params,next_trace)
+            
+            if trace
+              next_trace.locals=locals
+              next_trace.params=params
+              next_trace.result=result
+            end
+            
+            return result
+            
           rescue NoMethodError => nme
             false
           rescue NameError => ne

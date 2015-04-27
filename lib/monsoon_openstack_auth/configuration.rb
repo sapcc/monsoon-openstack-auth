@@ -18,7 +18,6 @@ module MonsoonOpenstackAuth
       @logger             = Rails ? Rails.logger : Logger.new(STDERR)
 
       @authorization      = AuthorizationConfig.new
-
     end
     
     # support old configuration format
@@ -57,7 +56,6 @@ module MonsoonOpenstackAuth
           :destroy => 'delete'
       }
       @context = Rails.application.class.parent_name if Rails
-      @user_method = :current_user
       @security_violation_handler = :authorization_forbidden
 
     end

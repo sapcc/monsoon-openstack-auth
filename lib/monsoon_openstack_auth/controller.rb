@@ -92,14 +92,6 @@ module MonsoonOpenstackAuth
         authorization_action_map.merge!(action_map.symbolize_keys)
       end
 
-      def authorization_action(action_map)
-        MonsoonOpenstackAuth.logger.warn "authorization's `authorization_action` method has been renamed \
-        to `authorization_actions` (plural) to reflect the fact that you can \
-        set multiple actions in one shot. Please update your controllers \
-        accordingly. (called from #{caller.first})".squeeze(' ')
-        authorization_actions(action_map)
-      end
-
       # Convenience wrapper for instance method
       def ensure_authorization_performed(options = {})
         after_filter(options.slice(:only, :except)) do |controller_instance|
@@ -178,8 +170,17 @@ module MonsoonOpenstackAuth
         application_name = MonsoonOpenstackAuth.configuration.authorization.context
         authorization_resouce_name = options[:name] ? options[:name] : authorization_resource.class
         os_action = ("#{application_name}:#{authorization_resouce_name}_#{authorization_action}").downcase
-        result = policy.enforce([os_action], hashed_resource)
-        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(authorization_user, os_action, authorization_resource) unless result
+
+        result = if params[:policy_trace]
+          @trace = policy.enforce_with_trace([os_action], hashed_resource) 
+          @trace.print
+          
+          render template: 'monsoon_openstack_auth/shared/policy_trace' and return        
+        else
+          policy.enforce([os_action], hashed_resource)
+        end
+        
+        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(current_user, os_action, authorization_resource) unless result
       end
 
       # Renders a static file to minimize the chances of further errors.
@@ -210,19 +211,7 @@ module MonsoonOpenstackAuth
       end
 
       def policy
-        @policy ||= MonsoonOpenstackAuth.policy_engine.policy(authorization_user)
-      end
-
-      # Convenience wrapper for sending configured `user_method` to extract the
-      # request's current user
-      #
-      # @return [Object] the user object returned from sending the user_method
-      def authorization_user
-        user = send(MonsoonOpenstackAuth.configuration.authorization.user_method)
-#        user.roles.each do |r|
-#          r[:name] = "member"
-#        end
-        user
+        @policy ||= MonsoonOpenstackAuth.policy_engine.policy(current_user)
       end
 
       class MissingAction < StandardError;

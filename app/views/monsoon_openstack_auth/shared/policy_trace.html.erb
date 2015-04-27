@@ -1,0 +1,28 @@
+<style>
+  trace{ display:block; margin-left: 25px;}
+  trace rule { display: block;}
+  trace rule.red {color:red;}
+  trace rule.green {color:green;}
+  trace rule rule{ margin-left: 20px;}
+</style>
+<%
+def print_trace(trace,level=0)
+  content_tag(:rule, class: "#{trace.result ? 'green' : 'red'}") do 
+    concat(content_tag(:strong, "#{trace.rule.name}: ")) 
+    concat(content_tag(:span, "#{trace.rule.rule}"))
+    trace.next.each{|t| concat(print_trace(t,level+1))}
+  end
+end 
+  
+%>
+<h2>Policy Rule Trace</h2>
+<ul>
+  <li>given: <%=@trace.locals%></li>
+  <li>params: <%=@trace.params%></li>
+</ul>
+
+<trace>
+  <%= print_trace(@trace)%>
+</trace>  
+
+  

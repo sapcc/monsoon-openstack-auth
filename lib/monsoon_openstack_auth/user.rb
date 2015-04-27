@@ -98,6 +98,10 @@ module MonsoonOpenstackAuth
       @roles ||= (@context["roles"] || read_value("user.roles") || [])
     end
     
+    def role_names
+      @role_names ||= roles.collect{|r| r["name"]}  
+    end
+    
     def has_role?(name)
       catch(:found) do 
         roles.each { |role| throw(:found, true) if role["name"]==name }

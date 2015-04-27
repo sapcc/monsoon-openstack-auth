@@ -16,7 +16,7 @@ module Dashboard
 
     def get_org
       domain = Domain.new
-      domain.id = "o-7052f82e0"
+      domain.id = params[:id]
       return domain
     end
   end

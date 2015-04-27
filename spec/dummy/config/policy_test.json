@@ -4,15 +4,16 @@
   "admin_required": "role:admin or is_admin:True",
   "admin_or_project_member": "rule:admin_required or rule:p_member",
   "admin_or_domain_member": "rule:admin_required or rule:d_member",
-
+  "test": "!",
+  
   "default": "rule:admin_required",
-
-  "identity:domain_list":     "rule:admin_required or rule:d_member",
+  
+  "is_service": "role:service or rule:d_member",
+  "identity:domain_list":     "rule:test or rule:admin_required or rule:is_service or rule:admin_or_domain_member",
   "identity:domain_create":   "",
   "identity:domain_change":   "rule:admin_required or rule:d_member",
   "identity:domain_delete":   "rule:admin_required",
   "identity:project_list":    "rule:admin_or_domain_member",
   "identity:project_create":  "rule:admin_or_domain_member",
   "identity:project_change":  "rule:admin_or_domain_member or rule:p_member"
-  /* "identity:project_delete":      NOT specidied, default should be used */
 }
