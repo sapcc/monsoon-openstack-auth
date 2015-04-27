@@ -3,6 +3,8 @@ Monsoon Openstack Auth
 
 Implements the authentication functionality using Keystone API.
 
+[![Build Status](https://travis-ci.mo.sap.corp/monsoon/monsoon-openstack-auth.svg?token=zmx4pwNHg8RYRGSuWuM2&branch=authorization)](https://travis-ci.mo.sap.corp/monsoon/monsoon-openstack-auth)
+
 Install
 -------
 
