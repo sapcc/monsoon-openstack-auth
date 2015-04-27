@@ -2,9 +2,9 @@ language: ruby
 bundler_args: --without development --deployment --jobs=3 --retry=3
 cache: bundler
 rvm:
-  - 1.9.3
+#  - 1.9.3
   - 2.1.4
-  - 2.2.1
+#  - 2.2.1
 env:
   global:
     - MONSOON_OPENSTACK_AUTH_API_ENDPOINT=http://localhost:5000/v3
@@ -21,8 +21,11 @@ branches:
     #- master
     - authorization
 notifications:
+  email:
+    on_success: [always] # default: change
+    on_failure: [always] # default: always
   irc:
     channels:
-      - "irc.sap.corp#monsoon"
-    on_success: [change] # default: always
-    on_failure: [change] # default: always
+      - "irc.sap.corp:6667#monsoon"
+    on_success: [always] # default: always
+    on_failure: [always] # default: always
