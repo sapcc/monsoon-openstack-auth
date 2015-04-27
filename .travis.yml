@@ -4,25 +4,26 @@ cache: bundler
 rvm:
   - 1.9.3
   - 2.1.4
-  - 2.2.1
+  - 2.2.0
+
 env:
   global:
-    - MONSOON_OPENSTACK_AUTH_API_ENDPOINT=http://localhost:5000/v3
-    - MONSOON_OPENSTACK_AUTH_API_USERID=admin
-    - MONSOON_OPENSTACK_AUTH_API_PASSWORD=secret
+    - MONSOON_OPENSTACK_AUTH_API_ENDPOINT=http://dummy:5000
     - HTTP_PROXY=http://proxy.wdf.sap.corp:8080
-    - HTTP_PROXY=http://proxy.wdf.sap.corp:8080
+    - http_proxy=http://proxy.wdf.sap.corp:8080
+    - https_proxy=http://proxy.wdf.sap.corp:8080
     - HTTPS_PROXY=http://proxy.wdf.sap.corp:8080
-    - NO_PROXY=.sap.corp,localhost
+    - no_proxy=*.local,169.254/16,*.sap.corp,*.corp.sap,.sap.corp,localhost
+    - NO_PROXY=*.local,169.254/16,*.sap.corp,*.corp.sap,.sap.corp,localhost
 script:
   - bundle exec rspec
-branches:
-  only:
-    #- master
-    - authorization
 notifications:
+  email:
+    on_success: [always] # default: change
+    on_failure: [always] # default: always
   irc:
     channels:
+      - "irc.sap.corp:6667#monsoon"
       - "irc.sap.corp#monsoon"
-    on_success: [change] # default: always
-    on_failure: [change] # default: always
+    on_success: [always] # default: always
+    on_failure: [always] # default: always
