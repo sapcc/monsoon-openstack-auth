@@ -28,6 +28,8 @@
   </div>  
 
   <div class="content">
+    <%= render template: '/monsoon_openstack_auth/shared/policy_trace'%>
+    
     <% flash.each do |name, msg| -%>
       <%= content_tag :div, msg, class: name %>
     <% end -%>
