@@ -33,6 +33,8 @@ Usage
 File: config/initializers/monsoon_openstack_auth.rb
 ```ruby
 MonsoonOpenstackAuth.configure do |config|
+
+  ############# Authentication ################
   # connection driver, default MonsoonOpenstackAuth::Driver::Default (Fog)
   # config.connection_driver = DriverClass
   
@@ -55,6 +57,31 @@ MonsoonOpenstackAuth.configure do |config|
   # optional, default= last url before redirected to form
   #config.login_redirect_url = '/'
   
+  ########## Authorization #########  
+  # path to policy file
+  # config.authorization.policy_file_path = "config/policy.json"
+  
+  # context, default is name of main app, e.g. dashboard. 
+  # If you overwrite context so the rules in policy file should begin with that context. 
+  # config.authorization.context = "identity"
+  
+  # action mapping. Default: {
+  #        :index   => 'read',
+  #        :show    => 'read',
+  #        :new     => 'create',
+  #        :create  => 'create',
+  #        :edit    => 'update',
+  #        :update  => 'update',
+  #        :destroy => 'delete'
+  #    }
+  # controller_action_map = {index: 'list'}
+  
+  # optional, error handler is a controller method which is called on MonsoonOpenstackAuth::Authorization::SecurityViolation. 
+  # Default is :authorization_forbidden.
+  # You can specify another handler or overwrite "authorization_forbidden" method in controller.
+  # security_violation_handler = :authorization_forbidden
+  
+  ########## Plugin ##########
   # optional, default=false
   config.debug=false
 end
@@ -79,10 +106,11 @@ File: config/initializers/session_store.rb
 Rails.application.config.session_store :active_record_store, :key => '_monsoon_app_session'
 ```
 
+### Authentication
 
-### Controller
+#### Controller
 
-#### authentication_required
+##### authentication_required
 
 Class method which is called in controllers. 
 ```ruby
@@ -132,7 +160,7 @@ end
 
 Example: https://github.com/sapcc/monsoon/monsoon-openstack-auth/blob/master/spec/dummy/app/controllers/dashboard_controller.rb
 
-#### skip_authentication
+##### skip_authentication
 
 Class method which is called in controllers.
 ```ruby
@@ -145,21 +173,22 @@ options:
 * **if**, optional. Example if: -> c {c.params[:region_id].nil?}
 * **unless**, optional
 
-#### current_user
+
+##### current_user
 
 Instance method, available in controller instances and views. Returns current logged in user or nil.
 ```ruby
 current_user
 ```
 
-#### logged_in?
+##### logged_in?
 
 Instance method, available in controller instances and views. Returns true if current logged in user is presented.
 ```ruby
 logged_in?
 ```
 
-### User Class (current_user)
+#### User Class (current_user)
 
 Instance methods:
 
@@ -189,6 +218,11 @@ Instance methods:
 * **admin?**, true if user is a superuser (can do anything)    
 * **default_services_region**, returns the first endpoint region for first non-identity service in the service catalog
 * **available_services_regions**, returns list of unique region name values found in service catalog 
+
+
+### Authorization
+
+#### Controller
 
 
 Develop

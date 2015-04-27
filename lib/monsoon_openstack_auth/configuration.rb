@@ -42,7 +42,7 @@ module MonsoonOpenstackAuth
   end
   
   class AuthorizationConfig
-    METHODS = [:policy_file_path, :controller_action_map, :context, :user_method, :security_violation_handler]
+    METHODS = [:policy_file_path, :controller_action_map, :context, :security_violation_handler]
     attr_accessor *METHODS
     
     def initialize
