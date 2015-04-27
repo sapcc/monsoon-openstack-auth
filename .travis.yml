@@ -1,0 +1,17 @@
+language: ruby
+rvm:
+#  - 1.9.3
+  - 2.1.4
+#  - 2.2.1
+env:
+  global:
+    - HTTP_PROXY=http://proxy.wdf.sap.corp:8080
+    - HTTPS_PROXY=http://proxy.wdf.sap.corp:8080
+    - NO_PROXY=.sap.corp,localhost
+script:
+  - bundle exec rspec
+branches:
+  only:
+    #- master
+    - authorization
+
