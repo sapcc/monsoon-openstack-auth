@@ -2,9 +2,9 @@ language: ruby
 bundler_args: --without development --deployment --jobs=3 --retry=3
 cache: bundler
 rvm:
-#  - 1.9.3
+  - 1.9.3
   - 2.1.4
-#  - 2.2.1
+  - 2.2.0
 
 env:
   global:
@@ -17,10 +17,6 @@ env:
     - NO_PROXY=*.local,169.254/16,*.sap.corp,*.corp.sap,.sap.corp,localhost
 script:
   - bundle exec rspec
-branches:
-  only:
-    #- master
-    - authorization
 notifications:
   email:
     on_success: [always] # default: change
@@ -28,5 +24,6 @@ notifications:
   irc:
     channels:
       - "irc.sap.corp:6667#monsoon"
+      - "irc.sap.corp#monsoon"
     on_success: [always] # default: always
     on_failure: [always] # default: always
