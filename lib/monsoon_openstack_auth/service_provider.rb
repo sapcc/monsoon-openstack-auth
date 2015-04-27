@@ -16,7 +16,7 @@ module MonsoonOpenstackAuth
         service_class_name = "MonsoonOpenstackAuth::#{method_sym.to_s.classify}Service"
       
         klazz = begin
-          Object.const_get(service_class_name)
+          eval(service_class_name)
         rescue
           raise "service #{service_class_name} not found!"
         end
