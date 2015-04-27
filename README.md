@@ -59,7 +59,7 @@ MonsoonOpenstackAuth.configure do |config|
   
   ########## Authorization #########  
   # path to policy file
-  # config.authorization.policy_file_path = "config/policy.json"
+  config.authorization.policy_file_path = "config/policy.json"
   
   # context, default is name of main app, e.g. dashboard. 
   # If you overwrite context so the rules in policy file should begin with that context. 
@@ -111,6 +111,8 @@ Rails.application.config.session_store :active_record_store, :key => '_monsoon_a
 #### Controller
 
 ##### authentication_required
+
+##### skip_authorization
 
 Class method which is called in controllers. 
 ```ruby
@@ -214,6 +216,7 @@ Instance methods:
 * **service_catalog**, returns an array of hashes (services)
 * **has_service?(type)**, returns true if service_catalog contains the given type
 * **roles**, returns an array of hashes
+* **role_names**, returns an array of roles
 * **has_role?(name)**, returns true if user has the given role
 * **admin?**, true if user is a superuser (can do anything)    
 * **default_services_region**, returns the first endpoint region for first non-identity service in the service catalog
