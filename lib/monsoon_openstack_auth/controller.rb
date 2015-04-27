@@ -152,7 +152,7 @@ module MonsoonOpenstackAuth
       # @param [Class] authorization_resource, the model class associated with this controller
       # @param [Hash] options, arbitrary options hash to forward up the chain to the authorizer
       # @raise [MissingAction] if controller action isn't a key in `config.controller_action_map`
-      def authorize_action_for(authorization_resource, options)
+      def authorization_action_for(authorization_resource, options={})
 
         # create a hash for non hash authorization objects
         unless authorization_resource.is_a? Hash
@@ -196,7 +196,7 @@ module MonsoonOpenstackAuth
       # The `before_filter` that will be setup to run when the class method
       # `authorize_actions_for` is called
       def run_authorization_check options
-        authorize_action_for instance_authorization_resource, options
+        authorization_action_for instance_authorization_resource, options
       end
 
       def instance_authorization_resource

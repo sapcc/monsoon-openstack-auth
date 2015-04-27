@@ -36,13 +36,13 @@ class ProjectController < AuthorizeController
 
   def index
     @domain = FactoryGirl.build_stubbed(:domain, :member_domain)
-    authorize_action_for @domain , params
+    authorization_action_for @domain , params
     head :ok
   end
 
   def new
     @domain = FactoryGirl.build_stubbed(:domain, :member_domain)
-    authorize_action_for @domain, params
+    authorization_action_for @domain, params
     head :ok
   end
 

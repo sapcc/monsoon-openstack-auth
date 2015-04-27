@@ -1,15 +1,14 @@
 {
+  "default": "rule:admin_required",
   "p_member" : "project_id:%(project.id)s",
   "d_member" : "domain_id:%(domain.id)s",
   "admin_required": "role:admin or is_admin:True",
   "admin_or_project_member": "rule:admin_required or rule:p_member",
-  "admin_or_domain_member": "rule:admin_required or rule:d_member",
-  "test": "!",
-  
-  "default": "rule:admin_required",
+  "admin_or_domain_member": "rule:admin_required or rule:d_member",  
   
   "is_service": "role:service or rule:d_member",
-  "identity:domain_list":     "rule:test or rule:admin_required or rule:is_service or rule:admin_or_domain_member",
+  "identity:domain_list":    "rule:test or rule:admin_required or rule:is_service or rule:admin_or_domain_member",
+  "identity:domain_show":     "rule:admin_required or rule:d_member",
   "identity:domain_create":   "",
   "identity:domain_change":   "rule:admin_required or rule:d_member",
   "identity:domain_delete":   "rule:admin_required",
