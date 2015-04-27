@@ -20,4 +20,9 @@ branches:
   only:
     #- master
     - authorization
-
+notifications:
+  irc:
+    channels:
+      - "irc.sap.corp#monsoon"
+    on_success: [change] # default: always
+    on_failure: [change] # default: always
