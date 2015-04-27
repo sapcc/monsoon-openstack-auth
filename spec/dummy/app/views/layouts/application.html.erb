@@ -11,7 +11,7 @@
   <div class="header">
     <div class="title">
       <h2>
-        <%=yield :title %> 
+        <%=yield :title %>
         <% if @region %>
           <%= select_tag "region", options_for_select({"Europe" => "europe", "US" => "us"}, @region), onchange: raw("window.location.href='/regions/'+this.value+'/dashboard'") %> 
         <% end %>
@@ -34,6 +34,7 @@
         
     <% if logged_in?%><p class="token">Token: <%=current_user.token%></p><%end%>
     
+    <h1><%= "#{controller_name} / #{action_name}" %></h1>
     <%= yield %>
   </div>
   

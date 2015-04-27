@@ -9,11 +9,10 @@
 
   "identity:domain_show":     "rule:admin_required or rule:d_member",
   "identity:domain_list":     "@",
-  "identity:domain_create":   "",
-  "identity:domain_change":   "rule:admin_required or rule:d_member",
+  "identity:domain_create":   "@",
+  "identity:domain_change":   "rule:admin_or_domain_member",
   "identity:domain_delete":   "rule:admin_required",
   "identity:project_list":    "rule:admin_or_domain_member",
   "identity:project_create":  "rule:admin_or_domain_member",
-  "identity:project_change":  "rule:admin_or_domain_member or rule:p_member"
-  /* "identity:project_delete":      NOT specidied, default should be used */
+  "identity:project_delete":  "rule:admin_required"
 }
