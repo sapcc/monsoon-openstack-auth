@@ -6,4 +6,8 @@ class ApplicationController < ActionController::Base
   def get_region
     @region = params[:region_id]
   end
+  
+  def authorization_forbidden(error)
+    render template: '/layouts/forbidden'
+  end
 end
