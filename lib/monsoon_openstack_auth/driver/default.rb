@@ -26,7 +26,7 @@ module MonsoonOpenstackAuth
         if self.class.api_endpoint.nil? and self.class.api_userid.nil? and self.class.api_password.nil?
           raise ConfigurationError.new("Api credentials not provided! Please provide 
             connection_driver.api_endpoint, connection_driver.api_userid and 
-            connection_driver.api_password (in initializer).")
+            connection_driver.api_password (in initializer).") 
         end    
         
         MonsoonOpenstackAuth.logger.info("Monsoon Openstack Auth -> api_endpoint: #{MonsoonOpenstackAuth::Driver::Default.endpoint}")
