@@ -17,6 +17,7 @@ gemspec
 
 gem 'monsoon-fog', git: 'git://github.com/sapcc/monsoon/monsoon-fog.git'
 
+gem'activerecord-session_store', '~> 0.1.0'
 gem 'dotenv-rails', :groups => [:development, :test]
 gem 'sqlite3', :groups => [:development, :test]
 
@@ -25,5 +26,4 @@ group :test do
   gem "rspec-rails", "~> 2.99.0"
   gem "factory_girl_rails", "~> 4.0"
   gem 'guard-rspec'
-  gem 'sqlite3'
 end
