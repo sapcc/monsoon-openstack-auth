@@ -172,10 +172,10 @@ module MonsoonOpenstackAuth
         os_action = ("#{application_name}:#{authorization_resouce_name}_#{authorization_action}").downcase
 
         result = if params[:policy_trace]
-          @trace = policy.enforce_with_trace([os_action], hashed_resource) 
-          @trace.print
-          
-          render template: 'monsoon_openstack_auth/shared/policy_trace' and return        
+          @policy_trace = policy.enforce_with_trace([os_action], hashed_resource) 
+          @policy_trace.print
+          @policy_trace.result
+          #render template: 'monsoon_openstack_auth/shared/policy_trace' and return        
         else
           policy.enforce([os_action], hashed_resource)
         end
