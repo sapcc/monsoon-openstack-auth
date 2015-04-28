@@ -1,4 +1,4 @@
-module MonsoonOpenstackAuth
+module MonsoonOpenstackAuth  
   class Configuration    
     METHODS = [
       :connection_driver, :token_auth_allowed, :basic_auth_allowed,:access_key_auth_allowed, :sso_auth_allowed,
@@ -16,7 +16,7 @@ module MonsoonOpenstackAuth
       @form_auth_allowed        = true
       @access_key_auth_allowed  = false
       @debug                    = false
-      @logger                   = Rails ? Rails.logger : Logger.new(STDERR)
+      @logger                   = MonsoonOpenstackAuth::LoggerWrapper.new(Rails ? Rails.logger : Logger.new(STDERR))
       @authorization            = AuthorizationConfig.new
     end
     
@@ -58,7 +58,7 @@ module MonsoonOpenstackAuth
       }
       @context = Rails.application.class.parent_name if Rails
       @security_violation_handler = :authorization_forbidden
-
+      @policy_file_path = 'config/policy.json'
     end
   end
 end

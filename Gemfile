@@ -20,6 +20,7 @@ gem 'monsoon-fog', git: 'git://github.com/sapcc/monsoon/monsoon-fog.git'
 gem'activerecord-session_store', '~> 0.1.0'
 gem 'dotenv-rails', :groups => [:development, :test]
 gem 'sqlite3', :groups => [:development, :test]
+gem 'byebug', group: [:development,:test]
 
 group :test do
   gem 'webmock'
