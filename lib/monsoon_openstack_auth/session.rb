@@ -57,6 +57,7 @@ module MonsoonOpenstackAuth
     def authenticated?
       return true if validate_session_token
       return true if validate_auth_token
+      return true if validate_access_key
       return true if validate_sso_certificate
       return true if validate_http_basic
     end
@@ -257,6 +258,26 @@ module MonsoonOpenstackAuth
       return false
     end
 
+    def validate_access_key
+      user = nil
+
+      access_key = params[:access_key] || params[:rails_auth_token]
+      if(access_key)
+        token = @api_client.authenticate_with_access_key(access_key)
+        return false unless token
+        create_user_from_token(token)
+        save_token_in_session_store(token)
+
+        if logged_in?
+          MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_access_key -> successful (username=#{@user.name})." if @debug
+          return true
+        end
+
+      end
+      return false
+    end
+
+
     def save_token_in_session_store(token)
       @session_store.token=token if @session_store  
     end
@@ -302,6 +323,11 @@ module MonsoonOpenstackAuth
       @session_store.redirect_to = @controller.request.env['REQUEST_URI'] if @session_store
       @controller.redirect_to @controller.monsoon_openstack_auth.new_session_path(@region)
     end
-    
+
+
+    def params
+        @controller.params
+    end
+
   end
 end

@@ -1,7 +1,7 @@
 module MonsoonOpenstackAuth
   class Configuration    
     METHODS = [
-      :connection_driver, :token_auth_allowed, :basic_auth_allowed, :sso_auth_allowed,
+      :connection_driver, :token_auth_allowed, :basic_auth_allowed,:access_key_auth_allowed, :sso_auth_allowed,
       :form_auth_allowed, :login_redirect_url, :debug, :logger,
       :authorization
     ]
@@ -14,6 +14,7 @@ module MonsoonOpenstackAuth
       @basic_auth_allowed = true
       @sso_auth_allowed   = true
       @form_auth_allowed  = true
+      @access_key_auth_allowed  = false
       @debug              = false
       @logger             = Rails ? Rails.logger : Logger.new(STDERR)
 
@@ -36,6 +37,7 @@ module MonsoonOpenstackAuth
     
     def token_auth_allowed?; @token_auth_allowed; end
     def basic_auth_allowed?; @basic_auth_allowed; end
+    def access_key_auth_allowed?; @access_key_auth_allowed; end
     def sso_auth_allowed?; @sso_auth_allowed; end
     def form_auth_allowed?; @form_auth_allowed; end
     def debug?; @debug; end
