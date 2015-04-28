@@ -14,7 +14,6 @@ module MonsoonOpenstackAuth
     end
       
     config.after_initialize do 
-      # TODO: load policy here 
       MonsoonOpenstackAuth.load_policy
     end
   end
