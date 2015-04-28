@@ -1,5 +1,5 @@
-module MonsoonOpenstackAuth
-  class IdentityService < MonsoonOpenstackAuth::OpenstackServiceProvider::Fog
+module OpenstackService
+  class Identity < OpenstackServiceProvider::FogProvider
     
     def driver(auth_params)
       Fog::IdentityV3::OpenStack.new(auth_params)

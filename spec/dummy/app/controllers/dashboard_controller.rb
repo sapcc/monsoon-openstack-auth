@@ -1,6 +1,7 @@
 class DashboardController < ApplicationController
   authentication_required region: :get_region, project: :get_project, organization: :get_organization
   #example: authentication_required only: [:index], region: -> c { 'europe' }, organization: -> c {'Test'}
+  include OpenstackServiceProvider::Services
   
   def index
     services
