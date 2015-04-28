@@ -89,8 +89,7 @@ module MonsoonOpenstackAuth
             end
           end          
 
-          # did not returned -> get new unscoped token  
-          # replace with scope="unscoped" after update to kilo release                      
+          # did not returned -> get new unscoped token                       
           scope="unscoped"
         end
         
@@ -109,54 +108,50 @@ module MonsoonOpenstackAuth
         end
       end
     end
-   
-    # def services
-    #   @services ||= ServiceProvider.new(@region,@user)
-    # end
     
     def validate_auth_token
+      # return false if not allowed.
       unless MonsoonOpenstackAuth.configuration.token_auth_allowed?   
         MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_auth_token -> not allowed." if @debug
         return false   
       end
-
+      
+      # didn't return -> token auth is allowed!
       auth_token = @controller.request.headers['HTTP_X_AUTH_TOKEN']
 
       unless auth_token
         MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_auth_token -> auth token not presented." if @debug
         return false
       end
-       
-      if MonsoonOpenstackAuth.configuration.token_auth_allowed?
-        # auth token is presented
-        if @session_store and @session_store.token_valid? and @session_store.token_eql?(auth_token)
-          # session token is valid and equal to the auth token
-          # create user from session store
-          create_user_from_session
+
+      # didn't return -> auth token is presented
+      if @session_store and @session_store.token_valid? and @session_store.token_eql?(auth_token)
+        # session token is valid and equal to the auth token
+        # create user from session store
+        create_user_from_session
+        
+        if logged_in?
+          MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_auth_token -> successful (session token is equal to auth token)." if @debug
+          return true
+        end
+      end
+      
+      # didn't returned -> validate auth token
+      begin
+        token = @api_client.validate_token(auth_token) #self.class.keystone_connection(@region).tokens.validate(auth_token)
+        if token
+          # token is valid -> create user from token and save token in session store
+          create_user_from_token(token)
+          save_token_in_session_store(token)
           
           if logged_in?
-            MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_auth_token -> successful (session token is equal to auth token)." if @debug
+            MonsoonOpenstackAuth.logger.info("Monsoon Openstack Auth: validate_auth_token -> successful (username=#{@user.name}).") if @debug
             return true
           end
         end
-        
-        # didn't returned -> validate auth token
-        begin
-          token = @api_client.validate_token(auth_token) #self.class.keystone_connection(@region).tokens.validate(auth_token)
-          if token
-            # token is valid -> create user from token and save token in session store
-            create_user_from_token(token)
-            save_token_in_session_store(token)
-            
-            if logged_in?
-              MonsoonOpenstackAuth.logger.info("Monsoon Openstack Auth: validate_auth_token -> successful (username=#{@user.name}).") if @debug
-              return true
-            end
-          end
-        rescue Fog::Identity::OpenStack::NotFound => e
-          MonsoonOpenstackAuth.logger.error "Monsoon Openstack Auth: token validation failed #{e}."
-        end  
-      end
+      rescue Fog::Identity::OpenStack::NotFound => e
+        MonsoonOpenstackAuth.logger.error "Monsoon Openstack Auth: token validation failed #{e}."
+      end  
 
       MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_auth_token -> failed." if @debug
       return false      
@@ -259,6 +254,11 @@ module MonsoonOpenstackAuth
     end
 
     def validate_access_key
+      unless MonsoonOpenstackAuth.configuration.access_key_auth_allowed?
+        MonsoonOpenstackAuth.logger.info "Monsoon Openstack Auth: validate_access_key -> not allowed." if @debug
+        return false
+      end
+      
       user = nil
 
       access_key = params[:access_key] || params[:rails_auth_token]
