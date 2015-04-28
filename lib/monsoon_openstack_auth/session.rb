@@ -1,6 +1,6 @@
 module MonsoonOpenstackAuth
   class Session
-    attr_reader :session_store
+    attr_reader :session_store, :region
     
     class << self
       
@@ -109,9 +109,9 @@ module MonsoonOpenstackAuth
       end
     end
    
-    def services
-      @services ||= ServiceProvider.new(@region,@user)
-    end
+    # def services
+    #   @services ||= ServiceProvider.new(@region,@user)
+    # end
     
     def validate_auth_token
       unless MonsoonOpenstackAuth.configuration.token_auth_allowed?   

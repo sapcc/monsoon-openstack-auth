@@ -126,9 +126,9 @@ module MonsoonOpenstackAuth
         @monsoon_openstack_auth.nil? ? false : @monsoon_openstack_auth.logged_in?
       end
 
-      def services
-        @monsoon_openstack_auth.nil? ? nil : @monsoon_openstack_auth.services
-      end
+      # def services
+      #   @monsoon_openstack_auth.nil? ? nil : @monsoon_openstack_auth.services
+      # end
       
       attr_writer :authorization_performed
 

@@ -35,32 +35,32 @@ describe MonsoonOpenstackAuth::Session do
       end
     end
     
-    context "get services" do
-      before :each do
-        Fog::Compute::OpenStack.stub(:new)
-        Fog::Volume::OpenStack.stub(:new)
-        Fog::IdentityV3::OpenStack.stub(:new)
-        
-        request.headers["X-Auth-Token"]=test_token[:value]
-        get "index", { region_id: 'europe' }
-      end
-      
-      it "should respond to services method" do
-        expect(controller.respond_to? :services).to eq(true)
-      end
-        
-      it "should return identity service" do
-        expect(controller.services.identity.is_a? MonsoonOpenstackAuth::IdentityService).to eq(true)
-      end
-      
-      it "should return identity service" do
-        expect(controller.services.compute.is_a? MonsoonOpenstackAuth::ComputeService).to eq(true)
-      end
-      
-      it "should return identity service" do
-        expect(controller.services.volume.is_a? MonsoonOpenstackAuth::VolumeService).to eq(true)
-      end
-    end
+    # context "get services" do
+    #   before :each do
+    #     Fog::Compute::OpenStack.stub(:new)
+    #     Fog::Volume::OpenStack.stub(:new)
+    #     Fog::IdentityV3::OpenStack.stub(:new)
+    #
+    #     request.headers["X-Auth-Token"]=test_token[:value]
+    #     get "index", { region_id: 'europe' }
+    #   end
+    #
+    #   it "should respond to services method" do
+    #     expect(controller.respond_to? :services).to eq(true)
+    #   end
+    #
+    #   it "should return identity service" do
+    #     expect(controller.services.identity.is_a? MonsoonOpenstackAuth::IdentityService).to eq(true)
+    #   end
+    #
+    #   it "should return identity service" do
+    #     expect(controller.services.compute.is_a? MonsoonOpenstackAuth::ComputeService).to eq(true)
+    #   end
+    #
+    #   it "should return identity service" do
+    #     expect(controller.services.volume.is_a? MonsoonOpenstackAuth::VolumeService).to eq(true)
+    #   end
+    # end
     
     context "token auth is allowed" do
 
