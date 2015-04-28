@@ -5,12 +5,23 @@ describe MonsoonOpenstackAuth::Session do
 
   before :each do    
     Fog::IdentityV3::OpenStack.stub(:new)
+
+    MonsoonOpenstackAuth.configure do |config|
+      # connection driver, default MonsoonOpenstackAuth::Driver::Default (Fog)
+      # config.connection_driver = DriverClass
+      config.connection_driver.api_endpoint = "http://localhost:8183/v3/auth/tokens"
+      config.connection_driver.api_userid   = "u-admin"
+      config.connection_driver.api_password = "secret"
+    end
+
     MonsoonOpenstackAuth::ApiClient.any_instance.stub(:validate_token).with(test_token[:value]) { test_token } 
     MonsoonOpenstackAuth::ApiClient.any_instance.stub(:validate_token).with("INVALID_TOKEN") { raise Fog::Identity::OpenStack::NotFound.new } 
     MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_credentials).with("test","secret").and_return(test_token)
     MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_credentials).with("me","me") { raise Fog::Identity::OpenStack::NotFound.new } 
     MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_token).and_return(test_token)
     MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_external_user).and_return(test_token)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_access_key).with("good_key").and_return(test_token)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_access_key).with("bad_key").and_return(nil)
   end
   
   context "included in controller", :type => :controller do
@@ -69,6 +80,7 @@ describe MonsoonOpenstackAuth::Session do
         MonsoonOpenstackAuth.configuration.stub(:basic_auth_allowed?){ false }
         MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { false }
         MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { false }
+        MonsoonOpenstackAuth.configuration.stub(:access_key_auth_allowed?)  { false }
       end
     
       context "no auth token presented" do
@@ -117,6 +129,7 @@ describe MonsoonOpenstackAuth::Session do
         MonsoonOpenstackAuth.configuration.stub(:basic_auth_allowed?){ true }
         MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { false }
         MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { false }
+        MonsoonOpenstackAuth.configuration.stub(:access_key_auth_allowed?)  { false }
       end
 
       context "no basic auth presented" do
@@ -152,6 +165,7 @@ describe MonsoonOpenstackAuth::Session do
         MonsoonOpenstackAuth.configuration.stub(:basic_auth_allowed?){ false }
         MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { true }
         MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { false }
+        MonsoonOpenstackAuth.configuration.stub(:access_key_auth_allowed?)  { false }
       end
 
       context "no sso header presented" do
@@ -174,12 +188,67 @@ describe MonsoonOpenstackAuth::Session do
       end
     end
 
+    context "acccess_key auth is allowed" do
+      before :each do
+        MonsoonOpenstackAuth.configuration.stub(:token_auth_allowed?){ false  }
+        MonsoonOpenstackAuth.configuration.stub(:basic_auth_allowed?){ false }
+        MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { false }
+        MonsoonOpenstackAuth.configuration.stub(:access_key_auth_allowed?)  { true }
+        MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { false }
+      end
+
+      context "no access key param presented" do
+        it "should redirect to main app's root path" do
+          get "index", region_id: 'europe'
+          expect(response).to redirect_to(controller.main_app.root_path)
+          expect(flash[:notice]).to eq "User is not authenticated!"
+        end
+      end
+
+      context "valid access key  presented" do
+        it "should authenticate user" do
+          expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_access_key).and_return({})
+
+          get "index", region_id: 'europe',access_key:'good_key'
+          expect(controller.current_user).not_to be(nil)
+        end
+      end
+
+      context "valid rails_auth_token  presented" do
+        it "should authenticate user" do
+          expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_access_key).and_return({})
+
+          get "index", region_id: 'europe',access_key:'good_key'
+          expect(controller.current_user).not_to be(nil)
+        end
+      end
+
+      context "invalid access key param presented" do
+        it "should redirect to main app's root path" do
+          get "index", region_id: 'europe',access_key:'bad_key'
+          expect(response).to redirect_to(controller.main_app.root_path)
+          expect(flash[:notice]).to eq "User is not authenticated!"
+        end
+      end
+
+      context "invalid rails_auth_token  param presented" do
+        it "should redirect to main app's root path" do
+          get "index", region_id: 'europe',access_key:'bad_key'
+          expect(response).to redirect_to(controller.main_app.root_path)
+          expect(flash[:notice]).to eq "User is not authenticated!"
+        end
+      end
+
+
+    end
+
     context "form auth is allowed" do
       before :each do
         MonsoonOpenstackAuth.configuration.stub(:token_auth_allowed?){ false  }
         MonsoonOpenstackAuth.configuration.stub(:basic_auth_allowed?){ false }
         MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { false }
         MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { true }
+        MonsoonOpenstackAuth.configuration.stub(:access_key_auth_allowed?)  { false }
       end
 
       context "session token not presented" do
@@ -209,6 +278,7 @@ describe MonsoonOpenstackAuth::Session do
         MonsoonOpenstackAuth.configuration.stub(:basic_auth_allowed?){ true }
         MonsoonOpenstackAuth.configuration.stub(:sso_auth_allowed?)  { true }
         MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { true }
+        MonsoonOpenstackAuth.configuration.stub(:access_key_auth_allowed?)  { true }
       end
 
 
@@ -263,6 +333,20 @@ describe MonsoonOpenstackAuth::Session do
         expect(controller.current_user.token).to eq(test_token[:value])
         expect(MonsoonOpenstackAuth.api_client('europe')).to have_received(:authenticate_external_user)
       end
+
+      it "authenticates from access_key" do
+        allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_access_key).and_return(test_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_external_user)
+
+        get "index", { region_id: 'europe',access_key:"good_key" }
+        expect(controller.current_user).not_to be(nil)
+        expect(controller.current_user.token).to eq(test_token[:value])
+        expect(MonsoonOpenstackAuth.api_client('europe')).to have_received(:authenticate_with_access_key)
+      end
+
     end
   end
 end
