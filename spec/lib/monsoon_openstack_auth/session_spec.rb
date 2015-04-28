@@ -46,33 +46,6 @@ describe MonsoonOpenstackAuth::Session do
       end
     end
     
-    # context "get services" do
-    #   before :each do
-    #     Fog::Compute::OpenStack.stub(:new)
-    #     Fog::Volume::OpenStack.stub(:new)
-    #     Fog::IdentityV3::OpenStack.stub(:new)
-    #
-    #     request.headers["X-Auth-Token"]=test_token[:value]
-    #     get "index", { region_id: 'europe' }
-    #   end
-    #
-    #   it "should respond to services method" do
-    #     expect(controller.respond_to? :services).to eq(true)
-    #   end
-    #
-    #   it "should return identity service" do
-    #     expect(controller.services.identity.is_a? MonsoonOpenstackAuth::IdentityService).to eq(true)
-    #   end
-    #
-    #   it "should return identity service" do
-    #     expect(controller.services.compute.is_a? MonsoonOpenstackAuth::ComputeService).to eq(true)
-    #   end
-    #
-    #   it "should return identity service" do
-    #     expect(controller.services.volume.is_a? MonsoonOpenstackAuth::VolumeService).to eq(true)
-    #   end
-    # end
-    
     context "token auth is allowed" do
 
       before :each do
@@ -218,7 +191,7 @@ describe MonsoonOpenstackAuth::Session do
         it "should authenticate user" do
           expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_access_key).and_return({})
 
-          get "index", region_id: 'europe',access_key:'good_key'
+          get "index", region_id: 'europe', rails_auth_token: 'good_key'
           expect(controller.current_user).not_to be(nil)
         end
       end
@@ -233,13 +206,11 @@ describe MonsoonOpenstackAuth::Session do
 
       context "invalid rails_auth_token  param presented" do
         it "should redirect to main app's root path" do
-          get "index", region_id: 'europe',access_key:'bad_key'
+          get "index", region_id: 'europe', rails_auth_token: 'bad_key'
           expect(response).to redirect_to(controller.main_app.root_path)
           expect(flash[:notice]).to eq "User is not authenticated!"
         end
       end
-
-
     end
 
     context "form auth is allowed" do

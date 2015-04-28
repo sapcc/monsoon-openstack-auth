@@ -9,16 +9,15 @@ module MonsoonOpenstackAuth
     attr_accessor *METHODS
 
     def initialize
-      @connection_driver  = MonsoonOpenstackAuth::Driver::Default
-      @token_auth_allowed = true
-      @basic_auth_allowed = true
-      @sso_auth_allowed   = true
-      @form_auth_allowed  = true
+      @connection_driver        = MonsoonOpenstackAuth::Driver::Default
+      @token_auth_allowed       = true
+      @basic_auth_allowed       = true
+      @sso_auth_allowed         = true
+      @form_auth_allowed        = true
       @access_key_auth_allowed  = false
-      @debug              = false
-      @logger             = Rails ? Rails.logger : Logger.new(STDERR)
-
-      @authorization      = AuthorizationConfig.new
+      @debug                    = false
+      @logger                   = Rails ? Rails.logger : Logger.new(STDERR)
+      @authorization            = AuthorizationConfig.new
     end
     
     # support old configuration format
