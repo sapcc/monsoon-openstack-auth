@@ -8,18 +8,18 @@ module Dashboard
     end
   
     def show
-      @organization = services.identity.domain(@organization_id)
-      @projects = services.identity.domain_projects(@organization_id)
+      @organization = services.identity.user_domain(@organization_id)
+      @projects = services.identity.user_domain_projects(@organization_id)
     end
 
     def update
-      @organization = services.identity.domain(@organization_id)
-      @projects = services.identity.domain_projects(@organization_id)
+      @organization = services.identity.user_domain(@organization_id)
+      @projects = services.identity.user_domain_projects(@organization_id)
     end
 
     def destroy
-      @organization = services.identity.domain(@organization_id)
-      @projects = services.identity.domain_projects(@organization_id)
+      @organization = services.identity.user_domain(@organization_id)
+      @projects = services.identity.user_domain_projects(@organization_id)
     end
 
     private

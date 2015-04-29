@@ -6,6 +6,6 @@
 
 <ul>
   <% @organizations.each do |organization| %>
-    <li><%=link_to organization["name"], organization_path(@region,organization["id"])%></li>
+    <li><%=link_to organization.name, organization_path(@region,organization.id)%></li>
   <%end %>
 </ul>

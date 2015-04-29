@@ -3,15 +3,15 @@ module Dashboard
     authorization_actions_for :get_project, :only => [:update, :destroy]
 
     def show
-      @project = services.identity.project(@project_id)
+      @project = services.identity.user_project(@project_id)
     end
 
     def update
-      @project = services.identity.project(@project_id)
+      @project = services.identity.user_project(@project_id)
     end
 
     def destroy
-      @project = services.identity.project(@project_id)
+      @project = services.identity.user_project(@project_id)
     end
   end
 

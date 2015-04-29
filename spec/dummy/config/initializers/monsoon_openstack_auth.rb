@@ -13,6 +13,8 @@ MonsoonOpenstackAuth.configure do |config|
   config.sso_auth_allowed   = true
   # optional, default=true
   config.form_auth_allowed  = true
+  # optional, default=false
+  config.access_key_auth_allowed = false
   
   # optional, default= last url before redirected to form
   #config.login_redirect_url = '/'

@@ -4,7 +4,6 @@ class DashboardController < ApplicationController
   include OpenstackServiceProvider::Services
   
   def index
-    services
   end
   
   def get_region
