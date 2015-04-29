@@ -9,7 +9,7 @@ GIT
 PATH
   remote: .
   specs:
-    monsoon-openstack-auth (0.5.1)
+    monsoon-openstack-auth (0.5.4)
       hashie
       rails
       uglifier (>= 1.3.0)

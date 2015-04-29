@@ -23,7 +23,7 @@ class AuthorizeController < ApplicationController
 
 end
 
-class DomainController < AuthorizeController
+class DomainXController < AuthorizeController
   authentication_required region: -> c { 'europe' }
   authorization_actions_for :Domain, :except => [:create], :actions => { :update => 'list' }
   authorization_actions :index => 'list' #, :update => 'change'
@@ -48,7 +48,7 @@ end
 #
 # end
 
-describe DomainController, type: :controller do
+describe DomainXController, type: :controller do
 
 
   context "member checks" do
@@ -58,21 +58,16 @@ describe DomainController, type: :controller do
       MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
       MonsoonOpenstackAuth.configuration.debug = true
       MonsoonOpenstackAuth.load_policy
-    end
 
-    before(:each) do
       MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
-      @current_user = FactoryGirl.build_stubbed(:user, :member)
-      ActionController::Base.any_instance.stub(:current_user).and_return @current_user
-
-      @domain = FactoryGirl.build_stubbed(:domain, :member_domain)
-      ActionController::Base.any_instance.stub(:get_domain).and_return @domain
+      controller.stub(:current_user).and_return(FactoryGirl.build_stubbed(:user, :member))
+      controller.stub(:get_domain).and_return(FactoryGirl.build_stubbed(:domain, :member_domain))
 
       routes.draw do
-        get "index" => "domain#index"
-        post "new" => "domain#new"
-        put "update" => "domain#update"
-        delete "destroy" => "domain#destroy"
+        get "index" => "domain_x#index"
+        post "new" => "domain_x#new"
+        put "update" => "domain_x#update"
+        delete "destroy" => "domain_x#destroy"
       end
     end
 
