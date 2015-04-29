@@ -117,8 +117,6 @@ Rails.application.config.session_store :active_record_store, :key => '_monsoon_a
 
 ##### authentication_required
 
-##### skip_authorization
-
 Class method which is called in controllers.
 
 ```ruby
@@ -331,6 +329,12 @@ Authorizations for a user can be checked by the `is_allowed?` method. So you can
 action = "identity:project_list"
 @current_user.is_allowed?(action, params)
 ``` 
+
+Example:
+```ruby
+  @current_user.is_allowed?("identity:project_create", {domain_id: 1}) 
+  @current_user.is_allowed?(["identity:project_create","identity:project_change"], {domain_id: 1})
+```
 
 
 Develop
