@@ -17,10 +17,10 @@ gemspec
 
 gem 'monsoon-fog', git: 'git://github.com/sapcc/monsoon/monsoon-fog.git'
 
-gem'activerecord-session_store', '~> 0.1.0'
+gem 'rails', '>=4.0.0', :groups => [:development, :test]
 gem 'dotenv-rails', :groups => [:development, :test]
 gem 'sqlite3', :groups => [:development, :test]
-gem 'byebug', group: [:development,:test]
+gem'activerecord-session_store', '~> 0.1.0'
 
 group :test do
   gem 'webmock'
