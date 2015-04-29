@@ -15,6 +15,7 @@ module OpenstackService
       user = api_connection.users.find_by_id(@current_user.id)
       projects = user.projects if user
       if projects
+        p projects
         projects.collect{|project| project["domain"] || { "name" => project["domain_id"], "id" => project["domain_id"] }  }.uniq
       else
         []

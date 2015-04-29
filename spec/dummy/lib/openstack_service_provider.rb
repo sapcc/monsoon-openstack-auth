@@ -3,6 +3,7 @@ module OpenstackServiceProvider
   module Services
     def self.included(base)
       base.send :include, InstanceMethods
+      base.send :helper_method, :services
     end
 
     module InstanceMethods
