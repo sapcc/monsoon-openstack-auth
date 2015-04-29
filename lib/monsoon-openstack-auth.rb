@@ -52,11 +52,13 @@ module MonsoonOpenstackAuth
     begin 
       policy_json = File.read(Rails.root.join(configuration.authorization.policy_file_path))
       @policy_engine = MonsoonOpenstackAuth::Authorization::PolicyEngine.new(policy_json)
-      puts "[Monsoon Openstack Auth]: policy loaded!"
-      MonsoonOpenstackAuth.logger.info "policy loaded!" 
+      if !Rails or Rails.env!='test'
+        puts "[Monsoon Openstack Auth]: policy loaded!" 
+        MonsoonOpenstackAuth.logger.info "policy loaded!" 
+      end
     rescue => e
       puts "[Monsoon Openstack Auth] Could not load policy file. #{e.message}"
-      MonsoonOpenstackAuth.logger.info "Could not load policy file. #{e.message}"
+      MonsoonOpenstackAuth.logger.info "Could not load policy file. #{e.message}" 
       return false
     end
   end

@@ -12,28 +12,28 @@ describe OpenstackServiceProvider::ServicesManager do
   end
   
   it "should return default identity service" do
-    expect(@service_provider.identity.is_a? OpenstackService::Identity).to eq(true)
+    expect(@service_provider.identity.is_a? Openstack::IdentityService).to eq(true)
   end
   
   it "should return default compute service" do
-    expect(@service_provider.compute.is_a? OpenstackService::Compute).to eq(true)
+    expect(@service_provider.compute.is_a? Openstack::ComputeService).to eq(true)
   end
   
   it "should return default volume service" do
-    expect(@service_provider.volume.is_a? OpenstackService::Volume).to eq(true)
+    expect(@service_provider.volume.is_a? Openstack::VolumeService).to eq(true)
   end
   
   context "add new service" do
-    class OpenstackService::MyNew < OpenstackServiceProvider::BaseProvider
+    class Openstack::MyNewService < OpenstackServiceProvider::BaseProvider
     end
     
     it "should provide my new service" do
-      expect(@service_provider.my_new.is_a? OpenstackService::MyNew).to eq(true)
+      expect(@service_provider.my_new.is_a? Openstack::MyNewService).to eq(true)
     end
   end
   
   context "service does not extend OpenstackService::BaseProvider" do
-    class OpenstackService::Test 
+    class Openstack::TestService 
     end
     
     it "should not provide the test service" do
@@ -82,15 +82,15 @@ describe OpenstackServiceProvider::Services, type: :controller do
     end
       
     it "should return identity service" do
-      expect(controller.services.identity.is_a? OpenstackService::Identity).to eq(true)
+      expect(controller.services.identity.is_a? Openstack::IdentityService).to eq(true)
     end
     
     it "should return identity service" do
-      expect(controller.services.compute.is_a? OpenstackService::Compute).to eq(true)
+      expect(controller.services.compute.is_a? Openstack::ComputeService).to eq(true)
     end
     
     it "should return identity service" do
-      expect(controller.services.volume.is_a? OpenstackService::Volume).to eq(true)
+      expect(controller.services.volume.is_a? Openstack::VolumeService).to eq(true)
     end
   end
 end

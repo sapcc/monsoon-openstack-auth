@@ -1,5 +1,5 @@
-module OpenstackService
-  class Volume < OpenstackServiceProvider::FogProvider
+module Openstack
+  class VolumeService < OpenstackServiceProvider::FogProvider
     
     def driver(auth_params)
       Fog::Volume::OpenStack.new(auth_params)
