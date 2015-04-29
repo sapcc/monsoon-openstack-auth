@@ -154,12 +154,25 @@ module MonsoonOpenstackAuth
       # @raise [MissingAction] if controller action isn't a key in `config.controller_action_map`
       def authorization_action_for(authorization_resource, options={})
 
-        # create a hash for non hash authorization objects
-        unless authorization_resource.is_a? Hash
-          hashed_resource =  Hashie::Mash.new({ authorization_resource.class.name.downcase.to_sym => authorization_resource.instance_values.symbolize_keys })
+        # determine object name and create a hash for non hash authorization objects in case of an instance
+        if authorization_resource.is_a? Class
+          hashed_resource = Hashie::Mash.new
+          authorization_resouce_name = authorization_resource.name
+        elsif authorization_resource.is_a? String
+          hashed_resource = Hashie::Mash.new
+          authorization_resouce_name = authorization_resource
+        elsif authorization_resource.is_a? Symbol
+          hashed_resource = Hashie::Mash.new
+          authorization_resouce_name = authorization_resource.to_s
         else
-          hashed_resource = authorization_resource
+          unless authorization_resource.is_a? Hash
+            hashed_resource =  Hashie::Mash.new({ authorization_resource.class.name.downcase.to_sym => authorization_resource.instance_values.symbolize_keys })
+          else
+            hashed_resource = authorization_resource
+          end
+          authorization_resouce_name = authorization_resource.class.name
         end
+        authorization_resouce_name = options[:name] if options[:name]
 
         # `action_name` comes from ActionController
         authorization_action = self.class.authorization_action_map[action_name.to_sym]
@@ -168,7 +181,6 @@ module MonsoonOpenstackAuth
         end
         self.authorization_performed = true
         application_name = MonsoonOpenstackAuth.configuration.authorization.context
-        authorization_resouce_name = options[:name] ? options[:name] : authorization_resource.class
         os_action = ("#{application_name}:#{authorization_resouce_name}_#{authorization_action}").downcase
 
         result = if params[:policy_trace]
@@ -202,6 +214,7 @@ module MonsoonOpenstackAuth
         return self.class.authorization_resource if self.class.authorization_resource.is_a?(Class)
         send(self.class.authorization_resource)
       rescue NoMethodError
+        return self.class.authorization_resource
         raise MissingResource.new(
                   "Trying to authorize actions for '#{self.class.authorization_resource}', but can't. \
           Must be either a resource class OR the name of a controller instance method that \
