@@ -8,7 +8,7 @@ describe MonsoonOpenstackAuth::Authorization::PolicyEngine do
       MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
       MonsoonOpenstackAuth.load_policy
       @policy_engine = MonsoonOpenstackAuth.policy_engine
-      
+
     end
 
     context "policy gets enforced when user is admin" do

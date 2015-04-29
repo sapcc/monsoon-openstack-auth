@@ -4,7 +4,6 @@ module MonsoonOpenstackAuth
 
     def initialize(region)
       @connection_driver = MonsoonOpenstackAuth.configuration.connection_driver.new(region)
-      self
     end
     
     delegate :validate_token,                 to: :@connection_driver

@@ -35,9 +35,9 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
 
     before :each do
       @current_user = FactoryGirl.build_stubbed(:user, :admin)
-      ActionController::Base.any_instance.stub(:current_user).and_return @current_user
+      controller.stub(:current_user).and_return @current_user
       @domain = FactoryGirl.build_stubbed(:domain)
-      ActionController::Base.any_instance.stub(:get_domain).and_return @domain
+      controller.stub(:get_domain).and_return @domain
     end
 
     it "should require authorization" do
@@ -83,9 +83,9 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
 
     before :each do
       @current_user = FactoryGirl.build_stubbed(:user, :admin)
-      ActionController::Base.any_instance.stub(:current_user).and_return @current_user
+      controller.stub(:current_user).and_return @current_user
       @domain = FactoryGirl.build_stubbed(:domain)
-      ActionController::Base.any_instance.stub(:get_domain).and_return @domain
+      controller.stub(:get_domain).and_return @domain
     end
 
     it "should NOT require authorization" do
@@ -131,9 +131,9 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
 
     before :each do
       @current_user = FactoryGirl.build_stubbed(:user, :admin)
-      ActionController::Base.any_instance.stub(:current_user).and_return @current_user
+      controller.stub(:current_user).and_return @current_user
       @domain = FactoryGirl.build_stubbed(:domain)
-      ActionController::Base.any_instance.stub(:get_domain).and_return @domain
+      controller.stub(:get_domain).and_return @domain
     end
 
     it "should NOT require authorization" do

@@ -67,31 +67,31 @@ class ProjectController < AuthorizeController
 end
 
 describe DomainController, type: :controller do
+  let(:member){FactoryGirl.build_stubbed(:user, :member)}
+  let(:admin){FactoryGirl.build_stubbed(:user, :admin)}
+  
+  before (:each) do
+    MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
+    MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
+    MonsoonOpenstackAuth.configuration.debug = true
+    MonsoonOpenstackAuth.load_policy
+    
+    MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
+    
+    routes.draw do
+      get "index" => "domain#index"
+      post "new" => "domain#new"
+      put "update" => "domain#update"
+      delete "destroy" => "domain#destroy"
+    end
+  end
 
   context "admin checks without domain instance" do
 
-    before (:each) do
-      MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
-      MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
-      MonsoonOpenstackAuth.configuration.debug = true
-      MonsoonOpenstackAuth.load_policy
-    end
-
-    before(:each) do
-      MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
-      @current_user = FactoryGirl.build_stubbed(:user, :admin)
-      ActionController::Base.any_instance.stub(:current_user).and_return @current_user
-
-      @domain = FactoryGirl.build_stubbed(:domain)
-      ActionController::Base.any_instance.stub(:get_domain).and_return nil
-      ActionController::Base.any_instance.stub(:get_object).and_return :Domain
-
-      routes.draw do
-        get "index" => "domain#index"
-        post "new" => "domain#new"
-        put "update" => "domain#update"
-        delete "destroy" => "domain#destroy"
-      end
+    before (:each) do      
+      controller.stub(:current_user).and_return(admin)
+      controller.stub(:get_domain).and_return nil
+      controller.stub(:get_object).and_return :Domain
     end
 
     it "should allow index" do
@@ -118,27 +118,10 @@ describe DomainController, type: :controller do
   context "admin checks where user does NOT own domain" do
 
     before (:each) do
-      MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
-      MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
-      MonsoonOpenstackAuth.configuration.debug = true
-      MonsoonOpenstackAuth.load_policy
-    end
-
-    before(:each) do
-      MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
-      @current_user = FactoryGirl.build_stubbed(:user, :admin)
-      ActionController::Base.any_instance.stub(:current_user).and_return @current_user
-
-      @domain = FactoryGirl.build_stubbed(:domain)
-      ActionController::Base.any_instance.stub(:get_domain).and_return @domain
-      ActionController::Base.any_instance.stub(:get_object).and_return Domain
-
-      routes.draw do
-        get "index" => "domain#index"
-        post "new" => "domain#new"
-        put "update" => "domain#update"
-        delete "destroy" => "domain#destroy"
-      end
+      controller.stub(:current_user).and_return(admin)
+      domain = FactoryGirl.build_stubbed(:domain)
+      controller.stub(:get_domain).and_return domain
+      controller.stub(:get_object).and_return Domain
     end
 
     it "should allow index" do
@@ -165,27 +148,9 @@ describe DomainController, type: :controller do
   context "member checks without domain instance" do
 
     before (:each) do
-      MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
-      MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
-      MonsoonOpenstackAuth.configuration.debug = true
-      MonsoonOpenstackAuth.load_policy
-    end
-
-    before(:each) do
-      MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
-      @current_user = FactoryGirl.build_stubbed(:user, :member)
-      ActionController::Base.any_instance.stub(:current_user).and_return @current_user
-
-      @domain = FactoryGirl.build_stubbed(:domain)
-      ActionController::Base.any_instance.stub(:get_domain).and_return nil
-      ActionController::Base.any_instance.stub(:get_object).and_return 'Domain'
-
-      routes.draw do
-        get "index" => "domain#index"
-        post "new" => "domain#new"
-        put "update" => "domain#update"
-        delete "destroy" => "domain#destroy"
-      end
+      controller.stub(:current_user).and_return(member)
+      controller.stub(:get_domain).and_return nil
+      controller.stub(:get_object).and_return 'Domain'
     end
 
     it "should allow index" do
@@ -212,27 +177,9 @@ describe DomainController, type: :controller do
   context "member checks where user does NOT own domain" do
 
     before (:each) do
-      MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
-      MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
-      MonsoonOpenstackAuth.configuration.debug = true
-      MonsoonOpenstackAuth.load_policy
-    end
-
-    before(:each) do
-      MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
-      @current_user = FactoryGirl.build_stubbed(:user, :member)
-      ActionController::Base.any_instance.stub(:current_user).and_return @current_user
-
-      @domain = FactoryGirl.build_stubbed(:domain)
-      ActionController::Base.any_instance.stub(:get_domain).and_return @domain
-      ActionController::Base.any_instance.stub(:get_object).and_return 'Domain'
-
-      routes.draw do
-        get "index" => "domain#index"
-        post "new" => "domain#new"
-        put "update" => "domain#update"
-        delete "destroy" => "domain#destroy"
-      end
+      controller.stub(:current_user).and_return(member)
+      controller.stub(:get_domain).and_return(FactoryGirl.build_stubbed(:domain))
+      controller.stub(:get_object).and_return 'Domain'
     end
 
     it "should allow index" do
@@ -259,27 +206,9 @@ describe DomainController, type: :controller do
   context "member checks where user owns domain" do
 
     before (:each) do
-      MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
-      MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
-      MonsoonOpenstackAuth.configuration.debug = true
-      MonsoonOpenstackAuth.load_policy
-    end
-
-    before(:each) do
-      MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
-      @current_user = FactoryGirl.build_stubbed(:user, :member)
-      ActionController::Base.any_instance.stub(:current_user).and_return @current_user
-
-      @domain = FactoryGirl.build_stubbed(:domain, :member_domain)
-      ActionController::Base.any_instance.stub(:get_domain).and_return @domain
-      ActionController::Base.any_instance.stub(:get_object).and_return 'Domain'
-
-      routes.draw do
-        get "index" => "domain#index"
-        post "new" => "domain#new"
-        put "update" => "domain#update"
-        delete "destroy" => "domain#destroy"
-      end
+      controller.stub(:current_user).and_return(member)
+      controller.stub(:get_domain).and_return(FactoryGirl.build_stubbed(:domain, :member_domain))
+      controller.stub(:get_object).and_return 'Domain'
     end
 
     it "should allow index" do
@@ -307,32 +236,29 @@ end
 
 
 describe ProjectController, type: :controller do
+  let(:member){FactoryGirl.build_stubbed(:user, :member)}
+  let(:admin){FactoryGirl.build_stubbed(:user, :admin)}
+  
+  before (:each) do
+    MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
+    MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
+    MonsoonOpenstackAuth.configuration.debug = true
+    MonsoonOpenstackAuth.load_policy
+    
+    MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
+    
+    routes.draw do
+      get "index" => "project#index"
+      post "new" => "project#new"
+      put "update" => "project#update"
+      delete "destroy" => "project#destroy"
+    end
+  end
 
   context "admin check without project instance" do
-
-    before (:each) do
-      MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
-      MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
-      MonsoonOpenstackAuth.configuration.debug = true
-      MonsoonOpenstackAuth.load_policy
-    end
-
     before(:each) do
-      MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
-
-      @current_user = FactoryGirl.build_stubbed(:user, :admin)
-      ActionController::Base.any_instance.stub(:current_user).and_return @current_user
-
-      @domain = FactoryGirl.build_stubbed(:domain)
-      ActionController::Base.any_instance.stub(:get_domain).and_return @domain
-
-
-      routes.draw do
-        get "index" => "project#index"
-        post "new" => "project#new"
-        put "update" => "project#update"
-        delete "destroy" => "project#destroy"
-      end
+      controller.stub(:current_user).and_return(admin)
+      controller.stub(:get_domain).and_return(FactoryGirl.build_stubbed(:domain))
     end
 
     it "should allow index" do
@@ -348,30 +274,9 @@ describe ProjectController, type: :controller do
   context "member check when user owns domain" do
 
     before (:each) do
-      MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
-      MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
-      MonsoonOpenstackAuth.configuration.debug = true
-      MonsoonOpenstackAuth.load_policy
-    end
-
-    before(:each) do
-      MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
-
-      @current_user = FactoryGirl.build_stubbed(:user, :member)
-      ActionController::Base.any_instance.stub(:current_user).and_return @current_user
-
-      ActionController::Base.any_instance.stub(:get_object).and_return Project
-
-      @domain = FactoryGirl.build_stubbed(:domain, :member_domain)
-      ActionController::Base.any_instance.stub(:get_domain).and_return @domain
-
-
-      routes.draw do
-        get "index" => "project#index"
-        post "new" => "project#new"
-        put "update" => "project#update"
-        delete "destroy" => "project#destroy"
-      end
+      controller.stub(:current_user).and_return member
+      controller.stub(:get_object).and_return Project
+      controller.stub(:get_domain).and_return(FactoryGirl.build_stubbed(:domain, :member_domain))
     end
 
     it "should allow index" do
@@ -387,28 +292,9 @@ describe ProjectController, type: :controller do
   context "member checks where user owns project" do
 
     before (:each) do
-      MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
-      MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
-      MonsoonOpenstackAuth.configuration.debug = true
-      MonsoonOpenstackAuth.load_policy
-    end
-
-    before(:each) do
-      MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
-      @current_user = FactoryGirl.build_stubbed(:user, :member)
-      ActionController::Base.any_instance.stub(:current_user).and_return @current_user
-
-      @project = FactoryGirl.build_stubbed(:project, :member_project)
-      ActionController::Base.any_instance.stub(:get_project).and_return @project
-      ActionController::Base.any_instance.stub(:get_object).and_return 'Project'
-
-
-      routes.draw do
-        get "index" => "project#index"
-        post "new" => "project#new"
-        put "update" => "project#update"
-        delete "destroy" => "project#destroy"
-      end
+      controller.stub(:current_user).and_return member
+      controller.stub(:get_project).and_return FactoryGirl.build_stubbed(:project, :member_project)
+      controller.stub(:get_object).and_return 'Project'
     end
 
     it "should allow update" do
@@ -424,28 +310,9 @@ describe ProjectController, type: :controller do
   context "member checks where user does NOT own project" do
 
     before (:each) do
-      MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
-      MonsoonOpenstackAuth.configuration.authorization.context = 'identity'
-      MonsoonOpenstackAuth.configuration.debug = true
-      MonsoonOpenstackAuth.load_policy
-    end
-
-    before(:each) do
-      MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
-      @current_user = FactoryGirl.build_stubbed(:user, :member)
-      ActionController::Base.any_instance.stub(:current_user).and_return @current_user
-
-      @project = FactoryGirl.build_stubbed(:project)
-      ActionController::Base.any_instance.stub(:get_project).and_return @project
-      ActionController::Base.any_instance.stub(:get_object).and_return 'Project'
-
-
-      routes.draw do
-        get "index" => "project#index"
-        post "new" => "project#new"
-        put "update" => "project#update"
-        delete "destroy" => "project#destroy"
-      end
+      controller.stub(:current_user).and_return member
+      controller.stub(:get_project).and_return FactoryGirl.build_stubbed(:project)
+      controller.stub(:get_object).and_return 'Project'
     end
 
     it "should allow update" do
