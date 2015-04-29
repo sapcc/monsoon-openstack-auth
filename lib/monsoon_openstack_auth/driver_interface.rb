@@ -23,5 +23,9 @@ module MonsoonOpenstackAuth
     def authenticate_external_user(username, scope=nil)
       raise MonsoonOpenstackAuth::InterfaceNotImplementedError.new("authenticate_external_user is not implemented yet!")
     end
+    
+    def authenticate_with_access_key(access_key, scope=nil)
+      raise MonsoonOpenstackAuth::InterfaceNotImplementedError.new("authenticate_with_access_key is not implemented yet!")
+    end
   end
 end
