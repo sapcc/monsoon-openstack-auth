@@ -38,10 +38,18 @@ module MonsoonOpenstackAuth
         end
       end
 
+      def api_authentication_required(options={})
+        authentication_required options.merge raise_error:true
+      end
+
       def authentication_required(options={})
+        raise_error = options[:raise_error]
+
         reg = options.delete(:region)
         org = options.delete(:organization)
         prj = options.delete(:project)
+
+        Rails.logger.debug "authentication_required region 1 #{reg}"
 
         raise MonsoonOpenstackAuth::InvalidRegion.new("A region should be provided") unless reg
 
@@ -64,7 +72,7 @@ module MonsoonOpenstackAuth
           project = get_value.call(prj)
 
           raise MonsoonOpenstackAuth::InvalidRegion.new("A region should be provided") unless region
-          @monsoon_openstack_auth = MonsoonOpenstackAuth::Session.check_authentication(self, region, organization: organization, project: project)
+          @monsoon_openstack_auth = MonsoonOpenstackAuth::Session.check_authentication(self, region, organization: organization, project: project,raise_error:raise_error)
         end
       end
 

@@ -5,9 +5,13 @@ module MonsoonOpenstackAuth
     class << self
       
       # check if valid token, basic auth, sso or session token is presented      
-      def check_authentication(controller, region, scope={})
-        session = Session.new(controller,region,scope)
-        session.authenticate_or_redirect
+      def check_authentication(controller, region, scope_and_options={})
+        session = Session.new(controller,region,scope_and_options)
+        if(scope_and_options.delete :raise_error)
+          session.authenticate
+        else
+          session.authenticate_or_redirect
+        end
       end
       
       # create user from form and authenticate
@@ -42,12 +46,21 @@ module MonsoonOpenstackAuth
       
       @debug = MonsoonOpenstackAuth.configuration.debug?
     end
-    
-    def authenticate_or_redirect
+
+    def authenticate
       if authenticated?
         get_scoped_token if @session_store and !@scope.empty?
         return self
-      elsif MonsoonOpenstackAuth.configuration.form_auth_allowed? and @session_store
+      end
+
+      raise MonsoonOpenstackAuth::NotAuthorized
+
+    end
+
+    def authenticate_or_redirect
+      authenticate
+    rescue MonsoonOpenstackAuth::NotAuthorized
+      if MonsoonOpenstackAuth.configuration.form_auth_allowed? and @session_store
         redirect_to_login_form and return
       else
         @controller.redirect_to @controller.main_app.root_path, notice: 'User is not authenticated!'      
