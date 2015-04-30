@@ -29,7 +29,7 @@ FactoryGirl.define do
       after(:stub) do |user|
         user.stub(:admin?).and_return false
         user.stub(:roles).and_return nil
-        user.stub(:role_names).and_return nil
+        user.stub(:role_names).and_return []
         user.stub(:project_id).and_return nil
         user.stub(:domain_id).and_return nil
       end

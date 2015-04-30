@@ -11,6 +11,19 @@ describe MonsoonOpenstackAuth::Authorization::PolicyEngine do
 
     end
 
+    context "missing rule params" do
+      before :each do |x|
+        @current_user = FactoryGirl.build_stubbed(:user, :admin)
+        @policy = @policy_engine.policy(@current_user)
+      end
+
+      it "raises error if empty params" do
+        expect{
+          @policy.enforce(["owner"],{})
+        }.to raise_error(MonsoonOpenstackAuth::Authorization::RuleExecutionError)
+      end
+    end
+    
     context "policy gets enforced when user is admin" do
       before :each do |x|
         @current_user = FactoryGirl.build_stubbed(:user, :admin)

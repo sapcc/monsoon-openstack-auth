@@ -26,8 +26,7 @@ module MonsoonOpenstackAuth
       end
       
       def message
-        m = "rule name: #{@rule.name} \n"
-        m += "rule: #{@rule.rule} \n"
+        m = "\"#{@rule.name}\":\"#{@rule.rule}\" \n"
         m += "parsed rule: #{@rule.parsed_rule} \n"
         m += "required_locals: #{@rule.required_locals} \n"
         m += "required_params: #{@rule.required_params} \n"
@@ -36,8 +35,9 @@ module MonsoonOpenstackAuth
         
         if @origin_error
           m += @origin_error.message
-          m += @origin_error.backtrace.join("\n") 
+          # m += @origin_error.backtrace.join("\n")
         end
+        m += "\n"
         m
       end
     end
