@@ -202,7 +202,7 @@ module MonsoonOpenstackAuth
           "name: #{@name} \nrule: #{@rule} \nparsed rule: #{@parsed_rule}"
         end
 
-        def execute(locals,params,trace=nil)            
+        def execute(locals,params,trace=nil)       
           begin
             
             # add to trace if given
@@ -227,13 +227,16 @@ module MonsoonOpenstackAuth
             end
             
             return result
-            
+          
+          # catch no method error and raise rule execution error  
           rescue NoMethodError => nme
-            false
+            raise RuleExecutionError.new(self,locals,params,nme)
+          # catch name error and raise rule execution error    
           rescue NameError => ne
-            false
-          rescue Exception => e
-            raise RuleExecutionError.new(self,locals,params,e)
+            raise RuleExecutionError.new(self,locals,params,nme)
+          # catch rule execution error from nested rules and raise it up to next 
+          rescue RuleExecutionError => ree
+            raise ree
           end
         end
     
