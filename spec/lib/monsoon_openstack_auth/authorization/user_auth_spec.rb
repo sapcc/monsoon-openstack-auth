@@ -37,7 +37,7 @@ describe MonsoonOpenstackAuth::Authorization::PolicyEngine do
         expect(@current_user.is_allowed?(@action)).to eq(true)
       end
       it "identity:project_change" do
-        expect(@current_user.is_allowed?(@action)).to eq(true)
+        expect(@current_user.is_allowed?(@action,project:OpenStruct.new(id:1))).to eq(true)
       end
       it "identity:project_default_check" do
         expect(@current_user.is_allowed?(@action)).to eq(true)

@@ -8,9 +8,9 @@ require "monsoon_openstack_auth/errors"
 require "monsoon_openstack_auth/user"
 require "monsoon_openstack_auth/session_store"
 require "monsoon_openstack_auth/session"
+require 'monsoon_openstack_auth/authorization/errors'
+require 'monsoon_openstack_auth/authorization/policy_engine'
 require "monsoon_openstack_auth/controller"
-
-require "monsoon_openstack_auth/authorization"
 
 module MonsoonOpenstackAuth
   class LoggerWrapper
