@@ -28,6 +28,11 @@ module Openstack
     def domain_projects
       api_connection.projects.all(domain_id: domain_id)  
     end
+
+    # returns all domain projects
+    def projects
+      api_connection.projects.all
+    end
     
     protected
     # admin connection to identity

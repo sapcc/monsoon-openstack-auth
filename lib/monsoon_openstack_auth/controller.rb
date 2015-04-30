@@ -176,7 +176,7 @@ module MonsoonOpenstackAuth
           unless authorization_resource.is_a? Hash
             hashed_resource =  Hashie::Mash.new({ authorization_resource.class.name.downcase.to_sym => authorization_resource.instance_values.symbolize_keys })
           else
-            hashed_resource = authorization_resource
+            hashed_resource = Hashie::Mash.new(authorization_resource)
           end
           authorization_resouce_name = authorization_resource.class.name
         end
@@ -191,7 +191,13 @@ module MonsoonOpenstackAuth
         application_name = MonsoonOpenstackAuth.configuration.authorization.context
         os_action = ("#{application_name}:#{authorization_resouce_name}_#{authorization_action}").downcase
 
-        result = if params[:policy_trace]
+        if params[:policy_trace] && params[:policy_trace] == "1" && !session[:policy_trace]
+          session[:policy_trace] = 1
+        elsif params[:policy_trace] && session[:policy_trace]
+            session.delete(:policy_trace)
+        end
+
+        result = if session[:policy_trace]
           @policy_trace = policy.enforce_with_trace([os_action], hashed_resource) 
           @policy_trace.print
           @policy_trace.result     
@@ -200,6 +206,38 @@ module MonsoonOpenstackAuth
         end
         
         raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(current_user, os_action, authorization_resource) unless result
+      end
+
+
+      def if_allowed?(policy_rules, options={})
+
+        unless options.is_a? Hash
+          raise InvalidResource
+        else
+          mashed_resource = Hashie::Mash.new(options)
+        end
+
+        unless policy_rules.is_a? Array
+          policy_rules = [policy_rules]
+        end
+
+        self.authorization_performed = true
+
+        if params[:policy_trace] && params[:policy_trace] == "1" && !session[:policy_trace]
+          session[:policy_trace] = 1
+        elsif params[:policy_trace] && session[:policy_trace]
+            session.delete(:policy_trace)
+        end
+
+        result = if session[:policy_trace]
+          @policy_trace = policy.enforce_with_trace(policy_rules, mashed_resource)
+          @policy_trace.print
+          @policy_trace.result
+        else
+          policy.enforce(policy_rules, mashed_resource)
+        end
+
+        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(current_user, policy_rules, mashed_resource) unless result
       end
 
       # Renders a static file to minimize the chances of further errors.
@@ -223,11 +261,11 @@ module MonsoonOpenstackAuth
         send(self.class.authorization_resource)
       rescue NoMethodError
         return self.class.authorization_resource
-        raise MissingResource.new(
-                  "Trying to authorize actions for '#{self.class.authorization_resource}', but can't. \
-          Must be either a resource class OR the name of a controller instance method that \
-          returns one.".squeeze(' ')
-              )
+        # raise MissingResource.new(
+        #           "Trying to authorize actions for '#{self.class.authorization_resource}', but can't. \
+        #   Must be either a resource class OR the name of a controller instance method that \
+        #   returns one.".squeeze(' ')
+        #       )
       end
 
       def policy
@@ -236,8 +274,10 @@ module MonsoonOpenstackAuth
 
       class MissingAction < StandardError;
       end
-      class MissingResource < StandardError;
+
+      class InvalidResource < StandardError;
       end
+
       class AuthorizationNotPerformed < StandardError;
       end
 
