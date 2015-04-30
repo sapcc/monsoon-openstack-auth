@@ -42,25 +42,25 @@ class ProjectController < AuthorizeController
 
   def index
     domain = get_domain
-    authorization_action_for domain, params
+    authorization_action_for domain
     head :ok
   end
 
   def new
     domain = get_domain
-    authorization_action_for domain, params
+    authorization_action_for domain
     head :ok
   end
 
   def update
     project = get_project
-    authorization_action_for project, params
+    authorization_action_for project
     head :ok
   end
 
   def destroy
     project = get_project
-    authorization_action_for project, params
+    authorization_action_for project
     head :ok
   end
 
@@ -311,7 +311,7 @@ describe ProjectController, type: :controller do
 
     before (:each) do
       controller.stub(:current_user).and_return member
-      controller.stub(:get_project).and_return FactoryGirl.build_stubbed(:project)
+      controller.stub(:get_project).and_return(domain: OpenStruct.new(id:1)) #FactoryGirl.build_stubbed(:project)
       controller.stub(:get_object).and_return 'Project'
     end
 
@@ -320,7 +320,9 @@ describe ProjectController, type: :controller do
     end
 
     it "should NOT allow destroy" do
-      expect { get :destroy, region_id: 'europe' }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
+      expect { 
+        get :destroy, region_id: 'europe' 
+      }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
   end

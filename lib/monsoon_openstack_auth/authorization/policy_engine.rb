@@ -237,6 +237,9 @@ module MonsoonOpenstackAuth
           # catch rule execution error from nested rules and raise it up to next 
           rescue RuleExecutionError => ree
             raise ree
+          # catch other exceptions and raise rule execution error    
+          rescue NameError => ne
+            raise RuleExecutionError.new(self,locals,params,nme)
           end
         end
     
