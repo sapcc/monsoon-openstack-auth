@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe MonsoonOpenstackAuth::Authorization::Controller, :type => :controller do
+describe MonsoonOpenstackAuth::Authorization, :type => :controller do
 
   before :each do
     MonsoonOpenstackAuth::Authentication::Session.stub(:check_authentication) { true }

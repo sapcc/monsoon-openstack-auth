@@ -1,5 +1,9 @@
 require "monsoon_fog"
 
+require "monsoon_openstack_auth/connection_driver/interface"
+require "monsoon_openstack_auth/connection_driver/default"
+require "monsoon_openstack_auth/api_client"
+
 require "monsoon_openstack_auth/engine"
 require "monsoon_openstack_auth/authentication"
 require 'monsoon_openstack_auth/authorization'
@@ -33,7 +37,7 @@ module MonsoonOpenstackAuth
 
   def self.api_client(region)
     @api_connections = {} unless @api_connections
-    @api_connections[region] ||= MonsoonOpenstackAuth::Authentication::ApiClient.new(region)
+    @api_connections[region] ||= MonsoonOpenstackAuth::ApiClient.new(region)
     @api_connections[region]
   end
   
@@ -58,5 +62,5 @@ module MonsoonOpenstackAuth
 
 end
 
-ActionController::Base.send(:include, MonsoonOpenstackAuth::Authentication::Controller)
-ActionController::Base.send(:include, MonsoonOpenstackAuth::Authorization::Controller)
+ActionController::Base.send(:include, MonsoonOpenstackAuth::Authentication)
+ActionController::Base.send(:include, MonsoonOpenstackAuth::Authorization)

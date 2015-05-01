@@ -14,14 +14,14 @@ describe MonsoonOpenstackAuth::Authentication::Session do
       config.connection_driver.api_password = "secret"
     end
 
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:validate_token).with(test_token[:value]) { test_token } 
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:validate_token).with("INVALID_TOKEN") { raise Fog::Identity::OpenStack::NotFound.new } 
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:authenticate_with_credentials).with("test","secret").and_return(test_token)
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:authenticate_with_credentials).with("me","me") { raise Fog::Identity::OpenStack::NotFound.new } 
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:authenticate_with_token).and_return(test_token)
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:authenticate_external_user).and_return(test_token)
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:authenticate_with_access_key).with("good_key").and_return(test_token)
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:authenticate_with_access_key).with("bad_key").and_return(nil)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:validate_token).with(test_token[:value]) { test_token } 
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:validate_token).with("INVALID_TOKEN") { raise Fog::Identity::OpenStack::NotFound.new } 
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_credentials).with("test","secret").and_return(test_token)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_credentials).with("me","me") { raise Fog::Identity::OpenStack::NotFound.new } 
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_token).and_return(test_token)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_external_user).and_return(test_token)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_access_key).with("good_key").and_return(test_token)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_access_key).with("bad_key").and_return(nil)
   end
   
   context "included in controller", :type => :controller do
@@ -91,7 +91,7 @@ describe MonsoonOpenstackAuth::Authentication::Session do
         it "should authenticate user from session token" do
           request.headers["X-Auth-Token"]=test_token[:value]
           get "index", { region_id: 'europe' }
-          expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:validate_token)
+          expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
         end
       end
     end
@@ -124,7 +124,7 @@ describe MonsoonOpenstackAuth::Authentication::Session do
 
       context "valid basic auth presented" do
         it "should authenticate user" do
-          expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).to receive(:authenticate_with_credentials).and_return({})
+          expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_credentials).and_return({})
           request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
           get "index", region_id: 'europe'
           expect(controller.current_user).not_to be(nil)
@@ -151,7 +151,7 @@ describe MonsoonOpenstackAuth::Authentication::Session do
 
       context "valid sso header presented" do
         it "should authenticate user" do
-          expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).to receive(:authenticate_external_user).and_return({})
+          expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_external_user).and_return({})
           request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
           request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=test"
 
@@ -180,7 +180,7 @@ describe MonsoonOpenstackAuth::Authentication::Session do
 
       context "valid access key  presented" do
         it "should authenticate user" do
-          expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).to receive(:authenticate_with_access_key).and_return({})
+          expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_access_key).and_return({})
 
           get "index", region_id: 'europe',access_key:'good_key'
           expect(controller.current_user).not_to be(nil)
@@ -189,7 +189,7 @@ describe MonsoonOpenstackAuth::Authentication::Session do
 
       context "valid rails_auth_token  presented" do
         it "should authenticate user" do
-          expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).to receive(:authenticate_with_access_key).and_return({})
+          expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_access_key).and_return({})
 
           get "index", region_id: 'europe', rails_auth_token: 'good_key'
           expect(controller.current_user).not_to be(nil)
@@ -262,10 +262,10 @@ describe MonsoonOpenstackAuth::Authentication::Session do
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
         request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=test"
 
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:validate_token)
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:authenticate_with_credentials)
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:authenticate_with_token)
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:authenticate_external_user)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_external_user)
 
         get "index", { region_id: 'europe' }
         expect(controller.current_user).not_to be(nil)
@@ -278,10 +278,10 @@ describe MonsoonOpenstackAuth::Authentication::Session do
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
         request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=test"
 
-        allow_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).to receive(:validate_token).and_return(test_token)
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:authenticate_with_credentials)
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:authenticate_with_token)
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:authenticate_external_user)
+        allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).and_return(test_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_external_user)
 
         get "index", { region_id: 'europe' }
         expect(controller.current_user).not_to be(nil)
@@ -294,10 +294,10 @@ describe MonsoonOpenstackAuth::Authentication::Session do
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
         request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=test"
 
-        allow_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).to receive(:authenticate_external_user).and_return(test_token)
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:validate_token)
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:authenticate_with_token)
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:authenticate_with_credentials)
+        allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_external_user).and_return(test_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
 
         get "index", { region_id: 'europe' }
         expect(controller.current_user).not_to be(nil)
@@ -306,11 +306,11 @@ describe MonsoonOpenstackAuth::Authentication::Session do
       end
 
       it "authenticates from access_key" do
-        allow_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).to receive(:authenticate_with_access_key).and_return(test_token)
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:validate_token)
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:authenticate_with_token)
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:authenticate_with_credentials)
-        expect_any_instance_of(MonsoonOpenstackAuth::Authentication::ApiClient).not_to receive(:authenticate_external_user)
+        allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_access_key).and_return(test_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_external_user)
 
         get "index", { region_id: 'europe',access_key:"good_key" }
         expect(controller.current_user).not_to be(nil)
