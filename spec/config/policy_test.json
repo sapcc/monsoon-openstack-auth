@@ -26,8 +26,8 @@
     "identity:domain_x_delete":   "rule:admin_required",
     "identity:project_list":    "rule:admin_or_domain_owner",
     "identity:project_create":  "rule:admin_or_domain_owner",
-    "identity:project_change":  "rule:p_owner or rule:admin_or_domain_owner",
-    "identity:project_delete":  "rule:p_owner or rule:admin_or_domain_owner",
+    "identity:project_change":  "rule:member or rule:admin_required or rule:p_owner",
+    "identity:project_delete":  "rule:member or rule:admin_required or rule:p_owner",
 
     "identity:get_region": "",
     "identity:list_regions": "",

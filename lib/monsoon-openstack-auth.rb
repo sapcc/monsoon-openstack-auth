@@ -1,16 +1,9 @@
 require "monsoon_fog"
-require "monsoon_openstack_auth/driver_interface"
-require "monsoon_openstack_auth/driver/default"
-require "monsoon_openstack_auth/configuration"
-require "monsoon_openstack_auth/api_client"
+
 require "monsoon_openstack_auth/engine"
-require "monsoon_openstack_auth/errors"
-require "monsoon_openstack_auth/user"
-require "monsoon_openstack_auth/session_store"
-require "monsoon_openstack_auth/session"
-require 'monsoon_openstack_auth/authorization/errors'
-require 'monsoon_openstack_auth/authorization/policy_engine'
-require "monsoon_openstack_auth/controller"
+require "monsoon_openstack_auth/authentication"
+require 'monsoon_openstack_auth/authorization'
+require "monsoon_openstack_auth/configuration"
 
 module MonsoonOpenstackAuth
   class LoggerWrapper
@@ -40,7 +33,7 @@ module MonsoonOpenstackAuth
 
   def self.api_client(region)
     @api_connections = {} unless @api_connections
-    @api_connections[region] ||= MonsoonOpenstackAuth::ApiClient.new(region)
+    @api_connections[region] ||= MonsoonOpenstackAuth::Authentication::ApiClient.new(region)
     @api_connections[region]
   end
   
@@ -65,4 +58,5 @@ module MonsoonOpenstackAuth
 
 end
 
-ActionController::Base.send(:include, MonsoonOpenstackAuth::Controller)
+ActionController::Base.send(:include, MonsoonOpenstackAuth::Authentication::Controller)
+ActionController::Base.send(:include, MonsoonOpenstackAuth::Authorization::Controller)

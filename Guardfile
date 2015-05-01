@@ -27,5 +27,6 @@ guard :rspec, cmd: 'rspec' do
   watch(%r{^spec/.+_spec\.rb$})
   watch(%r{^lib/(.+)\.rb$})     { |m| "spec/lib/#{m[1]}_spec.rb" }
   watch('spec/spec_helper.rb')  { "spec" }
-  watch('lib/monsoon_openstack_auth/controller.rb') {['spec/lib/monsoon_openstack_auth/authorization/controller_spec.rb','spec/lib/monsoon_openstack_auth/authorization/controller_auth_spec.rb']}
+  watch('lib/monsoon_openstack_auth/authorization/controller.rb') {['spec/lib/monsoon_openstack_auth/authorization/controller_spec.rb','spec/lib/monsoon_openstack_auth/authorization/controller_auth_spec.rb']}
+  watch(['lib/monsoon-openstack-auth.rb','lib/monsoon_openstack_auth/configuration.rb']) {'spec/lib/monsoon_openstack_auth_spec.rb'}
 end

@@ -32,7 +32,7 @@ module MonsoonOpenstackAuth
 
           Rails.logger.debug "authentication_required region 1 #{reg}"
 
-          raise MonsoonOpenstackAuth::InvalidRegion.new("A region should be provided") unless reg
+          raise MonsoonOpenstackAuth::Authentication::InvalidRegion.new("A region should be provided") unless reg
 
           before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") }) do
             region = reg.kind_of?(Proc) ? reg.call(self) : self.send(reg.to_sym)
@@ -52,8 +52,8 @@ module MonsoonOpenstackAuth
             organization = get_value.call(org)
             project = get_value.call(prj)
 
-            raise MonsoonOpenstackAuth::InvalidRegion.new("A region should be provided") unless region
-            @monsoon_openstack_auth = MonsoonOpenstackAuth::Session.check_authentication(self, region, organization: organization, project: project,raise_error:raise_error)
+            raise MonsoonOpenstackAuth::Authentication::InvalidRegion.new("A region should be provided") unless region
+            @monsoon_openstack_auth = MonsoonOpenstackAuth::Authentication::Session.check_authentication(self, region, organization: organization, project: project,raise_error:raise_error)
           end
         end
       end
