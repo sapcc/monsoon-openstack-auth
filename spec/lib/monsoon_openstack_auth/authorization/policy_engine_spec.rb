@@ -51,7 +51,7 @@ describe MonsoonOpenstackAuth::Authorization::PolicyEngine do
         expect(@policy.enforce(@action)).to eq(true)
       end
       it "identity:project_change" do
-        expect(@policy.enforce(@action, project: OpenStruct.new(id:1))).to eq(true)
+        expect(@policy.enforce(@action)).to eq(true)
       end
       it "identity:enforce_default_needs_admin_role" do
         expect(@policy.enforce(@action)).to eq(true)

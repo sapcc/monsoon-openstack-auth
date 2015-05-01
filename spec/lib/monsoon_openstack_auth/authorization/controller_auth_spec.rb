@@ -76,7 +76,7 @@ describe DomainController, type: :controller do
     MonsoonOpenstackAuth.configuration.debug = true
     MonsoonOpenstackAuth.load_policy
     
-    MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
+    MonsoonOpenstackAuth::Authentication::Session.stub(:check_authentication) { true }
     
     routes.draw do
       get "index" => "domain#index"
@@ -245,7 +245,7 @@ describe ProjectController, type: :controller do
     MonsoonOpenstackAuth.configuration.debug = true
     MonsoonOpenstackAuth.load_policy
     
-    MonsoonOpenstackAuth::Session.stub(:check_authentication) { true }
+    MonsoonOpenstackAuth::Authentication::Session.stub(:check_authentication) { true }
     
     routes.draw do
       get "index" => "project#index"
@@ -311,7 +311,7 @@ describe ProjectController, type: :controller do
 
     before (:each) do
       controller.stub(:current_user).and_return member
-      controller.stub(:get_project).and_return(domain: OpenStruct.new(id:1)) #FactoryGirl.build_stubbed(:project)
+      controller.stub(:get_project).and_return FactoryGirl.build_stubbed(:project)
       controller.stub(:get_object).and_return 'Project'
     end
 
@@ -320,9 +320,7 @@ describe ProjectController, type: :controller do
     end
 
     it "should NOT allow destroy" do
-      expect { 
-        get :destroy, region_id: 'europe' 
-      }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
+      expect { get :destroy, region_id: 'europe' }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
   end

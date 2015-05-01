@@ -1,5 +1,5 @@
 FactoryGirl.define do
-  factory :user, class: MonsoonOpenstackAuth::User do
+  factory :user, class: MonsoonOpenstackAuth::Authentication::User do
 
     token = ApiStub.keystone_token
     region = 'europe'

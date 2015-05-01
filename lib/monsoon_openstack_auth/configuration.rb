@@ -9,7 +9,7 @@ module MonsoonOpenstackAuth
     attr_accessor *METHODS
 
     def initialize
-      @connection_driver        = MonsoonOpenstackAuth::Driver::Default
+      @connection_driver        = MonsoonOpenstackAuth::Authentication::Driver::Default
       @token_auth_allowed       = true
       @basic_auth_allowed       = true
       @sso_auth_allowed         = true

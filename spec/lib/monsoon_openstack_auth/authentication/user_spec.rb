@@ -1,16 +1,16 @@
 require 'spec_helper'
 
-describe MonsoonOpenstackAuth::User do
+describe MonsoonOpenstackAuth::Authentication::User do
   shared_examples_for "an user" do
     describe "initialize" do
       it "should create a new user object from token" do
-        user = MonsoonOpenstackAuth::User.new(region,token)
+        user = MonsoonOpenstackAuth::Authentication::User.new(region,token)
         expect(user).not_to be(nil)
       end
     end
     
     context "User initialized" do
-      let(:user) {user = MonsoonOpenstackAuth::User.new(region,token)}
+      let(:user) {user = MonsoonOpenstackAuth::Authentication::User.new(region,token)}
 
       describe "id" do
         it "should return id" do
@@ -43,7 +43,7 @@ describe MonsoonOpenstackAuth::User do
           if user_domain_id
             expect(user.user_domain_id).to eq(user_domain_id)
           else
-            new_user = MonsoonOpenstackAuth::User.new(region,token.merge({"user"=>{"domain"=>{"id" => "test"} } }))
+            new_user = MonsoonOpenstackAuth::Authentication::User.new(region,token.merge({"user"=>{"domain"=>{"id" => "test"} } }))
             expect(new_user.user_domain_id).to eq("test")
           end
         end       
@@ -56,7 +56,7 @@ describe MonsoonOpenstackAuth::User do
           if user_domain_name
             expect(user.user_domain_name).to eq(user_domain_name)
           else
-            new_user = MonsoonOpenstackAuth::User.new(region,token.merge({"user"=>{"domain"=>{"name" => "test"} } }))
+            new_user = MonsoonOpenstackAuth::Authentication::User.new(region,token.merge({"user"=>{"domain"=>{"name" => "test"} } }))
             expect(new_user.user_domain_name).to eq("test")
           end
         end       
@@ -69,7 +69,7 @@ describe MonsoonOpenstackAuth::User do
           if domain_id
             expect(user.domain_id).to eq(domain_id)
           else
-            new_user = MonsoonOpenstackAuth::User.new(region,token.merge({"domain"=>{"id" => "test"} } ))
+            new_user = MonsoonOpenstackAuth::Authentication::User.new(region,token.merge({"domain"=>{"id" => "test"} } ))
             expect(new_user.domain_id).to eq("test")
           end
         end
@@ -82,7 +82,7 @@ describe MonsoonOpenstackAuth::User do
           if domain_name
             expect(user.domain_name).to eq(domain_name)
           else
-            new_user = MonsoonOpenstackAuth::User.new(region,token.merge({"domain"=>{"name" => "test"} } ))
+            new_user = MonsoonOpenstackAuth::Authentication::User.new(region,token.merge({"domain"=>{"name" => "test"} } ))
             expect(new_user.domain_name).to eq("test")
           end
         end
@@ -95,7 +95,7 @@ describe MonsoonOpenstackAuth::User do
           if project_id
             expect(user.project_id).to eq(project_id)
           else
-            new_user = MonsoonOpenstackAuth::User.new(region,token.merge({"project"=>{"id" => "test"} } ))
+            new_user = MonsoonOpenstackAuth::Authentication::User.new(region,token.merge({"project"=>{"id" => "test"} } ))
             expect(new_user.project_id).to eq("test")
           end
         end
@@ -108,7 +108,7 @@ describe MonsoonOpenstackAuth::User do
           if project_name
             expect(user.project_name).to eq(project_name)
           else
-            new_user = MonsoonOpenstackAuth::User.new(region,token.merge({"project"=>{"name" => "test"} } ))
+            new_user = MonsoonOpenstackAuth::Authentication::User.new(region,token.merge({"project"=>{"name" => "test"} } ))
             expect(new_user.project_name).to eq("test")
           end
         end
@@ -121,7 +121,7 @@ describe MonsoonOpenstackAuth::User do
           if project_domain_id
             expect(user.project_domain_id).to eq(project_domain_id)
           else
-            new_user = MonsoonOpenstackAuth::User.new(region,token.merge({"project"=>{"id" => "test", "domain"=> {"id"=>"test"} } } ))
+            new_user = MonsoonOpenstackAuth::Authentication::User.new(region,token.merge({"project"=>{"id" => "test", "domain"=> {"id"=>"test"} } } ))
             expect(new_user.project_domain_id).to eq("test")
           end
         end
@@ -134,7 +134,7 @@ describe MonsoonOpenstackAuth::User do
           if project_domain_name
             expect(user.project_domain_name).to eq(project_domain_name)
           else
-            new_user = MonsoonOpenstackAuth::User.new(region,token.merge({"project"=>{"name" => "test", "domain"=> {"name"=>"test"} } } ))
+            new_user = MonsoonOpenstackAuth::Authentication::User.new(region,token.merge({"project"=>{"name" => "test", "domain"=> {"name"=>"test"} } } ))
             expect(new_user.project_domain_name).to eq("test")
           end
         end
@@ -147,7 +147,7 @@ describe MonsoonOpenstackAuth::User do
           if project_scoped
             expect(user.project_scoped).to eq(project_scoped)
           else
-            new_user = MonsoonOpenstackAuth::User.new(region,token.merge({"project"=>{"name" => "test", "domain"=> {"name"=>"test"} } } ))
+            new_user = MonsoonOpenstackAuth::Authentication::User.new(region,token.merge({"project"=>{"name" => "test", "domain"=> {"name"=>"test"} } } ))
             expect(new_user.project_scoped).to eq({"name" => "test", "domain"=> {"name"=>"test"} })
           end
         end
@@ -160,7 +160,7 @@ describe MonsoonOpenstackAuth::User do
           if domain_scoped
             expect(user.domain_scoped).to eq(domain_scoped)
           else
-            new_user = MonsoonOpenstackAuth::User.new(region,token.merge({"domain"=>{"name" => "test" } } ))
+            new_user = MonsoonOpenstackAuth::Authentication::User.new(region,token.merge({"domain"=>{"name" => "test" } } ))
             expect(new_user.domain_scoped).to eq({"name"=>"test"} )
           end
         end
@@ -204,7 +204,7 @@ describe MonsoonOpenstackAuth::User do
             @newtoken["roles"]
           end
           it "should return true" do
-            new_user = MonsoonOpenstackAuth::User.new(region,token.merge({"roles"=>[{"name"=>"admin"}] }))
+            new_user = MonsoonOpenstackAuth::Authentication::User.new(region,token.merge({"roles"=>[{"name"=>"admin"}] }))
             expect(new_user.admin?).to eq(true)
           end
         end
@@ -213,7 +213,7 @@ describe MonsoonOpenstackAuth::User do
           it "should return false" do
             new_token = token.clone
             new_token["roles"]=[{"name"=>"member"}] 
-            new_user = MonsoonOpenstackAuth::User.new(region,new_token)
+            new_user = MonsoonOpenstackAuth::Authentication::User.new(region,new_token)
             expect(new_user.admin?).to eq(false)
           end
         end
@@ -233,7 +233,7 @@ describe MonsoonOpenstackAuth::User do
         end
         
         it "should return europe" do
-          new_user = MonsoonOpenstackAuth::User.new('europe',token)
+          new_user = MonsoonOpenstackAuth::Authentication::User.new('europe',token)
           expect(new_user.default_services_region).to eq('europe')
         end
       end
@@ -277,7 +277,7 @@ describe MonsoonOpenstackAuth::User do
               "name"=>"identity_v3"
             }, 
           ]
-          new_user = MonsoonOpenstackAuth::User.new('europe',new_token)
+          new_user = MonsoonOpenstackAuth::Authentication::User.new('europe',new_token)
           expect(new_user.available_services_regions.sort).to eq(['europe','us'].sort)
         end
       end
@@ -287,7 +287,7 @@ describe MonsoonOpenstackAuth::User do
           if token['roles'].nil?
             @token = token.clone
             @token['roles'] = [{"name"=>"admin", "id"=>"test"},{"name"=>"member", "id"=>"test"}]
-            @user = MonsoonOpenstackAuth::User.new(region,@token)
+            @user = MonsoonOpenstackAuth::Authentication::User.new(region,@token)
             @role = 'admin'
           else
             @token = token
@@ -331,7 +331,7 @@ describe MonsoonOpenstackAuth::User do
                 "name"=>"glance"
               }, 
             ]
-            @user = MonsoonOpenstackAuth::User.new(region,@token)
+            @user = MonsoonOpenstackAuth::Authentication::User.new(region,@token)
             @type = 'glance'
           else
             @token = token

@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe MonsoonOpenstackAuth::Controller, :type => :controller do
+describe MonsoonOpenstackAuth::Authentication::Controller, :type => :controller do
   before :each do
-    MonsoonOpenstackAuth::Session.stub(:check_authentication) {true}
+    MonsoonOpenstackAuth::Authentication::Session.stub(:check_authentication) {true}
   end
   
   context "skip authentication for an action" do
@@ -20,12 +20,12 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
     end
 
     it "should require authentication" do
-      expect(MonsoonOpenstackAuth::Session).to receive(:check_authentication)
+      expect(MonsoonOpenstackAuth::Authentication::Session).to receive(:check_authentication)
       get 'index', region_id: 'europe'
     end
       
     it "should skip authentication" do
-      expect(MonsoonOpenstackAuth::Session).not_to receive(:check_authentication)
+      expect(MonsoonOpenstackAuth::Authentication::Session).not_to receive(:check_authentication)
       get 'new'
     end
   end
@@ -45,12 +45,12 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
     end
 
     it "should require authentication" do
-      expect(MonsoonOpenstackAuth::Session).not_to receive(:check_authentication)
+      expect(MonsoonOpenstackAuth::Authentication::Session).not_to receive(:check_authentication)
       get 'index', region_id: 'europe'
     end
       
     it "should skip authentication" do
-      expect(MonsoonOpenstackAuth::Session).not_to receive(:check_authentication)
+      expect(MonsoonOpenstackAuth::Authentication::Session).not_to receive(:check_authentication)
       get 'new'
     end
   end
@@ -66,7 +66,7 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
     end
     
     it "authentication should ignore empty organization and project" do
-      expect(MonsoonOpenstackAuth::Session).to receive(:check_authentication).with(controller,'europe', organization: nil, project: nil, raise_error:nil)
+      expect(MonsoonOpenstackAuth::Authentication::Session).to receive(:check_authentication).with(controller,'europe', organization: nil, project: nil, raise_error:nil)
       get 'index', region_id: 'europe'
     end
       
@@ -86,12 +86,12 @@ describe MonsoonOpenstackAuth::Controller, :type => :controller do
     end
     
     it "authenticate with scope 0-12345 and p-12345" do
-      expect(MonsoonOpenstackAuth::Session).to receive(:check_authentication).with(controller,'europe', organization: "o-12345", project: "p-12345", raise_error:nil)
+      expect(MonsoonOpenstackAuth::Authentication::Session).to receive(:check_authentication).with(controller,'europe', organization: "o-12345", project: "p-12345", raise_error:nil)
       get 'index', region_id: 'europe', organization_id: 'o-12345', project_id: 'p-12345'
     end
     
     it "authenticate with empty scope" do
-      expect(MonsoonOpenstackAuth::Session).to receive(:check_authentication).with(controller,'europe', organization: nil, project: nil, raise_error:nil)
+      expect(MonsoonOpenstackAuth::Authentication::Session).to receive(:check_authentication).with(controller,'europe', organization: nil, project: nil, raise_error:nil)
       get 'index', region_id: 'europe', organization_id: '', project_id: ''
     end
       
