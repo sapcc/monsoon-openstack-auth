@@ -1,6 +1,6 @@
 module MonsoonOpenstackAuth
-  module Authentication
-    class DriverInterface
+  module ConnectionDriver
+    class Interface
       def initialize(region)
         raise MonsoonOpenstackAuth::InvalidRegion.new("region not provided!") unless region
       end

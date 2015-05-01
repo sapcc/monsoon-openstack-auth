@@ -50,12 +50,12 @@ describe OpenstackServiceProvider::Services, type: :controller do
   
   before :each do    
     Fog::IdentityV3::OpenStack.stub(:new)
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:validate_token).with(test_token[:value]) { test_token } 
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:validate_token).with("INVALID_TOKEN") { raise Fog::Identity::OpenStack::NotFound.new } 
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:authenticate_with_credentials).with("test","secret").and_return(test_token)
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:authenticate_with_credentials).with("me","me") { raise Fog::Identity::OpenStack::NotFound.new } 
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:authenticate_with_token).and_return(test_token)
-    MonsoonOpenstackAuth::Authentication::ApiClient.any_instance.stub(:authenticate_external_user).and_return(test_token)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:validate_token).with(test_token[:value]) { test_token } 
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:validate_token).with("INVALID_TOKEN") { raise Fog::Identity::OpenStack::NotFound.new } 
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_credentials).with("test","secret").and_return(test_token)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_credentials).with("me","me") { raise Fog::Identity::OpenStack::NotFound.new } 
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_token).and_return(test_token)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_external_user).and_return(test_token)
   end
   
   controller do # anonymous subclass of ActionController::Base
