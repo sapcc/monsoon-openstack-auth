@@ -56,7 +56,7 @@ MonsoonOpenstackAuth.configure do |config|
   config.form_auth_allowed  = true
   # optional, default=false
   config.access_key_auth_allowed = false
-  
+
 
   # optional, default= last url before redirected to form
   #config.login_redirect_url = '/'
@@ -105,7 +105,7 @@ gem 'activerecord-session_store'
 rails generate active_record:session_migration
 ```
 
-File: config/initializers/session_store.rb 
+File: config/initializers/session_store.rb
 
 ```ruby
 Rails.application.config.session_store :active_record_store, :key => '_monsoon_app_session'
@@ -193,7 +193,7 @@ current_user
 
 ##### logged_in?
 
-Instance method, available in controller instances and views. Returns true if current logged in user is 
+Instance method, available in controller instances and views. Returns true if current logged in user is
 presented.
 
 ```ruby
@@ -267,15 +267,15 @@ Some explanations on that:
 
 ```"default": "rule:admin_required" ``` defines the default rule which is used in case that an authorization request with an undefined rule is made.
 
-```"admin_required": "role:admin or is_admin:True"``` defines a rule which can later be referenced in other rules. It uses the role and is_admin attributes frm the current user for whom a authorization request is made.
+```"admin_required": "role:admin or is_admin:True"``` defines a rule which can later be referenced in other rules. It uses the role and is_admin attributes from the current user for whom a authorization request is made.
 
 ```"d_member" : "domain_id:%(domain.id)s"``` when the user domain_id from his current authentication scope is the same as the one given to the auth. request. The auth. request could be made with an Domain object which has an id attribute.
 
-```"identity:project_list":    "rule:admin_or_domain_member"``` defines a application specific rule where the context is identity (might come from config.authorization.context) and the action to be checked is project_list. 
+```"identity:project_list":    "rule:admin_or_domain_member"``` defines a application specific rule where the context is identity (might come from config.authorization.context) and the action to be checked is project_list.
 
-#### Explizit authorization enforcement 
+#### Explizit authorization enforcement
 
-You've to use the policy_engine to do a policy enforcement. The engine is always available 
+You've to use the policy_engine to do a policy enforcement. The engine is always available
 
 ```policy_engine = MonsoonOpenstackAuth.policy_engine```
 
@@ -289,50 +289,55 @@ You get a `true or false` as an result.
 
 #### User authorization checks
 
-Similar to the above but more convinient you can check authorizations for a user with the `is_allowed?` method. So you can ask 
+Similar to the above but more convinient you can check authorizations for a user with the `is_allowed?` method. So you can ask
 
 ```ruby
 action = "identity:project_list"
 @current_user.is_allowed?(action, @domain)
-``` 
+```
 and get a boolean response.
 
 #### Controller authorization enforcements
 
-Controllers get some additional class methods for authorization pupose automatically through a railtie.
+Controllers get some additional class methods for authorization purpose automatically through a railtie.
 
 You can check authorization in your controllers in one of two ways:
 
-`authorization_actions_for ModelClass [, :name => 'ModelNameUsedInPolicy', :actions => {:action_name => 'policy_action_name'}, <StandardBeforeFilterOptions> ]` 
+`authorization_actions_for ModelClass [, :name => 'ModelNameUsedInPolicy', :actions => {:action_name => 'policy_action_name'}, <StandardBeforeFilterOptions> ]`
 
 protects multiple controller actions with a before_filter, which performs a class-level check. If the current user is never allowed to delete a ModelClass, he'll never even get to the controller's destroy method.
 
-`authorization_action_for @model [, :name => 'ModelNameUsedInPolicy' ]` 
+`authorization_action_for @model [, :name => 'ModelNameUsedInPolicy' ]`
 
 can be called inside a single controller action, and performs an instance-level check. If called inside update, it will check whether the current user is allowed to update this particular @model instance.
 
 If either method finds a user attempting something they're not authorized to do, a Security Violation will result.
 
-How does `authorization_actions_for` know to check deletable_by? before the controller's destroy action? It checks your configuration from config.authorization.controller_action_map configured in the initializer file. 
+How does `authorization_actions_for` know to check deletable_by? before the controller's destroy action? It checks your configuration from config.authorization.controller_action_map configured in the initializer file.
 
 The mappings are also configurable per controller with
 
-```ruby 
+```ruby
 authorization_actions :index => 'list', :update => 'change'
+```
+
+Alternatively you can call an authorization check by it's rule directly with an
+
+```ruby
+  if_allowed?(PolicyFileRule [, {key: value, ...}])
 ```
 
 #### User authorization checks
 
-Authorizations for a user can be checked by the `is_allowed?` method. So you can ask 
+Authorizations for a user can be checked by the `is_allowed?` method. So you can ask
 
 ```ruby
-action = "identity:project_list"
-@current_user.is_allowed?(action, params)
-``` 
+@current_user.is_allowed?(PolicyFileRule, params)
+```
 
 Example:
 ```ruby
-  @current_user.is_allowed?("identity:project_create", {domain_id: 1}) 
+  @current_user.is_allowed?("identity:project_create", {domain_id: 1})
   @current_user.is_allowed?(["identity:project_create","identity:project_change"], {domain_id: 1})
 ```
 
