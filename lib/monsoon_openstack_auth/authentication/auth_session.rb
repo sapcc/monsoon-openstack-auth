@@ -1,13 +1,13 @@
 module MonsoonOpenstackAuth
   module Authentication
-    class Session
+    class AuthSession
       attr_reader :session_store, :region
     
       class << self
       
         # check if valid token, basic auth, sso or session token is presented      
         def check_authentication(controller, region, scope_and_options={})
-          session = Session.new(controller,region,scope_and_options)
+          session = AuthSession.new(controller,region,scope_and_options)
           if(scope_and_options.delete :raise_error)
             session.authenticate
           else
@@ -17,7 +17,7 @@ module MonsoonOpenstackAuth
       
         # create user from form and authenticate
         def create_from_login_form(controller,region,username,password,scope={})
-          session = Session.new(controller, region, scope)
+          session = AuthSession.new(controller, region, scope)
           redirect_to_url = session.login_form_user(username,password)
           return redirect_to_url
         end
@@ -39,7 +39,7 @@ module MonsoonOpenstackAuth
         @controller = controller
         @region = region
         @scope = scope 
-            
+   
         # create new session store object
         @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(@controller.session) if self.class.session_id_presented?(controller)
         # get api client
@@ -55,7 +55,6 @@ module MonsoonOpenstackAuth
         end
 
         raise MonsoonOpenstackAuth::Authentication::NotAuthorized
-
       end
 
       def authenticate_or_redirect
@@ -297,11 +296,11 @@ module MonsoonOpenstackAuth
       end
     
       def create_user_from_session_store
-        @user = MonsoonOpenstackAuth::Authentication::User.new(@region,@session_store.token)
+        @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(@region,@session_store.token)
       end
     
       def create_user_from_token(token)
-        @user = MonsoonOpenstackAuth::Authentication::User.new(@region, token) 
+        @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(@region, token) 
       end
     
       def user
@@ -340,7 +339,7 @@ module MonsoonOpenstackAuth
 
 
       def params
-          @controller.params
+        @controller.params
       end
 
     end

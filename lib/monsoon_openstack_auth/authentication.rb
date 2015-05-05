@@ -1,24 +1,19 @@
 require "monsoon_openstack_auth/authentication/errors"
-require "monsoon_openstack_auth/authentication/user"
+require "monsoon_openstack_auth/authentication/auth_user"
 require "monsoon_openstack_auth/authentication/session_store"
-require "monsoon_openstack_auth/authentication/session"
+require "monsoon_openstack_auth/authentication/auth_session"
 
 module MonsoonOpenstackAuth
   # This module is included in a rails controller
   module Authentication
-
-    extend ActiveSupport::Concern
-    include ActiveSupport::Rescuable unless defined?(Rails)
-
-    included do
-      extend ClassMethods
-      include InstanceMethods
+    def self.included(base)
+      base.send :extend, ClassMethods
+      base.send :include, InstanceMethods
     
-      helper_method :current_user, :logged_in?, :services
+      base.send :helper_method, :current_user, :logged_in?, :services
     end
 
     module ClassMethods
-          
       def skip_authentication(options={})
         prepend_before_filter options do
           @_skip_authentication=true
@@ -59,7 +54,7 @@ module MonsoonOpenstackAuth
           project = get_value.call(prj)
 
           raise MonsoonOpenstackAuth::Authentication::InvalidRegion.new("A region should be provided") unless region
-          @monsoon_openstack_auth = MonsoonOpenstackAuth::Authentication::Session.check_authentication(self, region, organization: organization, project: project,raise_error:raise_error)
+          @monsoon_openstack_auth = MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(self, region, organization: organization, project: project,raise_error:raise_error)
         end
       end
     end
