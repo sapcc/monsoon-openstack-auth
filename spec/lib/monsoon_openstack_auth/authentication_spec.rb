@@ -2,7 +2,9 @@ require 'spec_helper'
 
 describe MonsoonOpenstackAuth::Authentication, :type => :controller do
   before :each do
-    MonsoonOpenstackAuth::Authentication::AuthSession.stub(:check_authentication) {true}
+    auth_session = double("auth_session")
+    auth_session.stub(:user).and_return(FactoryGirl.build_stubbed(:user, :member))
+    MonsoonOpenstackAuth::Authentication::AuthSession.stub(:check_authentication) {auth_session}
   end
   
   context "skip authentication for an action" do

@@ -4,47 +4,57 @@ module MonsoonOpenstackAuth
       attr_reader :session_store, :region
     
       class << self
-      
+              
         # check if valid token, basic auth, sso or session token is presented      
         def check_authentication(controller, region, scope_and_options={})
-          session = AuthSession.new(controller,region,scope_and_options)
-          if(scope_and_options.delete :raise_error)
+          raise_not_authorized_error = scope_and_options.delete(:raise_error)
+          
+          session = AuthSession.new(controller,session_store(controller), region, scope_and_options)
+          
+          if raise_not_authorized_error
+            # authentication raises an error unless user is authenticated
             session.authenticate
           else
+            # redirect user to login form or root path unless user is authenticated
             session.authenticate_or_redirect
           end
         end
       
         # create user from form and authenticate
         def create_from_login_form(controller,region,username,password,scope={})
-          session = AuthSession.new(controller, region, scope)
+          session = AuthSession.new(controller, session_store(controller), region, scope)
           redirect_to_url = session.login_form_user(username,password)
           return redirect_to_url
         end
       
         # clear session_store if request session is presented
         def logout(controller)
-          if session_id_presented?(controller)
-            session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
-            session_store.delete_token
-          end
+          session_store = session_store(controller)
+          session_store.delete_token if session_store          
         end
       
         def session_id_presented?(controller)
           not controller.request.session_options[:id].blank?
         end
+        
+        def session_store(controller)
+          # return nil if request session id isn't provided 
+          return nil if controller.request.session_options[:id].blank?
+          # return session store
+          SessionStore.new(controller.session)
+        end
       end
 
-      def initialize(controller, region, scope={})
+      def initialize(controller, session_store, region, scope={})
         @controller = controller
+        @session_store = session_store
         @region = region
+
         @scope = scope 
-   
-        # create new session store object
-        @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(@controller.session) if self.class.session_id_presented?(controller)
+
         # get api client
         @api_client = MonsoonOpenstackAuth.api_client(@region) if @region
-      
+              
         @debug = MonsoonOpenstackAuth.configuration.debug?
       end
 
@@ -61,10 +71,11 @@ module MonsoonOpenstackAuth
         authenticate
       rescue MonsoonOpenstackAuth::Authentication::NotAuthorized
         if MonsoonOpenstackAuth.configuration.form_auth_allowed? and @session_store
-          redirect_to_login_form and return
+          redirect_to_login_form
         else
           @controller.redirect_to @controller.main_app.root_path, notice: 'User is not authenticated!'      
         end
+        return nil
       end
     
       def authenticated?

@@ -12,7 +12,19 @@ module MonsoonOpenstackAuth
     
       base.send :helper_method, :current_user, :logged_in?, :services
     end
-
+    
+    def self.get_filter_value(controller,method_name)
+      result = nil
+      if method_name
+        if method_name.kind_of?(Proc)
+          result = method_name.call(controller)
+        elsif controller.respond_to?(method_name.to_sym)
+          result = controller.send(method_name.to_sym)
+        end
+      end
+      (result.is_a?(String) and result.empty?) ? nil : result
+    end
+    
     module ClassMethods
       def skip_authentication(options={})
         prepend_before_filter options do
@@ -36,38 +48,33 @@ module MonsoonOpenstackAuth
         raise MonsoonOpenstackAuth::Authentication::InvalidRegion.new("A region should be provided") unless reg
 
         before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") }) do
-          region = reg.kind_of?(Proc) ? reg.call(self) : self.send(reg.to_sym)
-
-          get_value = lambda do |method_name| 
-            result = nil
-            if method_name
-              if method_name.kind_of?(Proc)
-                result = method_name.call(self)
-              elsif self.respond_to?(method_name.to_sym)
-                result = self.send(method_name.to_sym)
-              end
-            end
-            (result.is_a?(String) and result.empty?) ? nil : result
-          end    
-            
-          organization = get_value.call(org)
-          project = get_value.call(prj)
-
+          region        = Authentication.get_filter_value(self,reg)
+          
+          # region is required
           raise MonsoonOpenstackAuth::Authentication::InvalidRegion.new("A region should be provided") unless region
-          @monsoon_openstack_auth = MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(self, region, organization: organization, project: project,raise_error:raise_error)
+            
+          @auth_session = AuthSession.check_authentication(self, region, {
+            organization: Authentication.get_filter_value(self,org), 
+            project: Authentication.get_filter_value(self,prj),
+            raise_error:raise_error
+          })
+          @current_user = @auth_session.user if @auth_session
         end
       end
     end
 
     module InstanceMethods 
+      def auth_session
+        @auth_session
+      end
+      
       def current_user
-        @monsoon_openstack_auth.nil? ? nil : @monsoon_openstack_auth.user
+        @current_user
       end
 
       def logged_in?
-        @monsoon_openstack_auth.nil? ? false : @monsoon_openstack_auth.logged_in?
+        !@current_user.nil?
       end
     end
-    
   end
 end

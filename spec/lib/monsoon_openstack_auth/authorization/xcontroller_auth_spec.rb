@@ -59,8 +59,10 @@ describe DomainXController, type: :controller do
       MonsoonOpenstackAuth.configuration.debug = true
       MonsoonOpenstackAuth.load_policy
 
-      MonsoonOpenstackAuth::Authentication::AuthSession.stub(:check_authentication) { true }
-      controller.stub(:current_user).and_return(FactoryGirl.build_stubbed(:user, :member))
+      auth_session = double("auth_session")
+      auth_session.stub(:user).and_return(FactoryGirl.build_stubbed(:user, :member))
+      MonsoonOpenstackAuth::Authentication::AuthSession.stub(:check_authentication) {auth_session}
+      
       controller.stub(:get_domain).and_return(FactoryGirl.build_stubbed(:domain, :member_domain))
 
       routes.draw do
