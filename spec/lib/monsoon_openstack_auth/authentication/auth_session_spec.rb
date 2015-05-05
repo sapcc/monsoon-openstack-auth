@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe MonsoonOpenstackAuth::Authentication::Session do
+describe MonsoonOpenstackAuth::Authentication::AuthSession do
   test_token = HashWithIndifferentAccess.new(ApiStub.keystone_token.merge("expires_at" => (Time.now+1.hour).to_s))
 
   before :each do    

@@ -76,7 +76,7 @@ describe DomainController, type: :controller do
     MonsoonOpenstackAuth.configuration.debug = true
     MonsoonOpenstackAuth.load_policy
     
-    MonsoonOpenstackAuth::Authentication::Session.stub(:check_authentication) { true }
+    MonsoonOpenstackAuth::Authentication::AuthSession.stub(:check_authentication) { true }
     
     routes.draw do
       get "index" => "domain#index"
@@ -245,7 +245,7 @@ describe ProjectController, type: :controller do
     MonsoonOpenstackAuth.configuration.debug = true
     MonsoonOpenstackAuth.load_policy
     
-    MonsoonOpenstackAuth::Authentication::Session.stub(:check_authentication) { true }
+    MonsoonOpenstackAuth::Authentication::AuthSession.stub(:check_authentication) { true }
     
     routes.draw do
       get "index" => "project#index"
