@@ -13,9 +13,9 @@ module MonsoonOpenstackAuth
       app.config.assets.precompile += %w(application.css)
     end
       
-    config.after_initialize do 
+    config.after_initialize do
       MonsoonOpenstackAuth.load_policy
-      MonsoonOpenstackAuth.load_default_domain
+      MonsoonOpenstackAuth.load_default_domain unless Rails.env=='test'
     end
   end
 end

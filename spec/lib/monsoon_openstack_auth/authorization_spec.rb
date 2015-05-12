@@ -13,7 +13,7 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
   context "authorization filter all" do
     #before { skip }
     controller do # anonymous subclass of ActionController::Base
-      authentication_required region: -> c { c.params[:region_id] }, organization_id: -> c { c.params[:organization_id] }, project_id: -> c { c.params[:project_id] }
+      authentication_required region: -> c { c.params[:region_id] }, domain: -> c { c.params[:domain_id] }, project_id: -> c { c.params[:project_id] }
       authorization_actions_for :get_domain
       authorization_actions :change => 'update', :index => 'list'
 
@@ -62,7 +62,7 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
     #before { skip }
 
     controller do # anonymous subclass of ActionController::Base
-      authentication_required region: -> c { c.params[:region_id] }, organization_id: -> c { c.params[:organization_id] }, project_id: -> c { c.params[:project_id] }
+      authentication_required region: -> c { c.params[:region_id] }, domain: -> c { c.params[:domain_id] }, project_id: -> c { c.params[:project_id] }
       authorization_actions_for :get_domain, :except => [:index, :show]
 
       def index
@@ -110,7 +110,7 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
     #before { skip }
 
     controller  do # anonymous subclass of ActionController::Base
-      authentication_required region: -> c { c.params[:region_id] }, organization_id: -> c { c.params[:organization_id] }, project_id: -> c { c.params[:project_id] }
+      authentication_required region: -> c { c.params[:region_id] }, domain: -> c { c.params[:domain_id] }, project_id: -> c { c.params[:project_id] }
       authorization_actions_for :get_domain, :only => [:new]
 
       def index

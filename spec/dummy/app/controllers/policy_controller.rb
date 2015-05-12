@@ -1,6 +1,6 @@
 class PolicyController < ApplicationController
 
-  authentication_required only: [:show], region: -> c { 'europe' }, organization: -> c {'localsmkey02'}
+  authentication_required only: [:show], region: -> c { 'europe' }, domain: -> c {'localsmkey02'}
   authorization_required
 
   def show
