@@ -1,6 +1,6 @@
 class DashboardController < ApplicationController
-  authentication_required region: :get_region, project: :get_project, organization: :get_organization
-  #example: authentication_required only: [:index], region: -> c { 'europe' }, organization: -> c {'Test'}
+  authentication_required region: :get_region, project: :get_project, domain: :get_domain
+  #example: authentication_required only: [:index], region: -> c { 'europe' }, domain: -> c {'Test'}
   include OpenstackServiceProvider::Services
   
   def index
@@ -11,8 +11,8 @@ class DashboardController < ApplicationController
     @region = params[:region_id]
   end
   
-  def get_organization
-    @organization_id = (controller_name == 'organizations') ? params[:id] : params[:organization_id]
+  def get_domain
+    @domain_id = (controller_name == 'domains') ? params[:id] : params[:domain_id]
   end
   
   def get_project

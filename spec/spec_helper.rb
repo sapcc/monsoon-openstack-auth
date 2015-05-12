@@ -65,6 +65,9 @@ RSpec.configure do |config|
   config.infer_spec_type_from_file_location!
   config.include FactoryGirl::Syntax::Methods
 
+  config.before(:each) do
+    MonsoonOpenstackAuth.stub(:default_domain).and_return('europe')
+  end
 end
 
 

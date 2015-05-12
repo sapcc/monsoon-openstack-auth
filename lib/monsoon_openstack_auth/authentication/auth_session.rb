@@ -94,13 +94,13 @@ module MonsoonOpenstackAuth
 
           if @scope[:project]
             return if project && project["id"]==@scope[:project]
-            scope= {project: {domain:{id: @scope[:organization]},id: @scope[:project]}}
-          elsif @scope[:organization]
-            return if domain && domain["id"]==@scope[:organization]
-            scope = {domain:{id:@scope[:organization]}}
+            scope= {project: {domain:{id: @scope[:domain]},id: @scope[:project]}}
+          elsif @scope[:domain]
+            return if domain && domain["id"]==@scope[:domain]
+            scope = {domain:{id:@scope[:domain]}}
           else
 
-            # scope is empty -> no organization and project provided
+            # scope is empty -> no domain and project provided
             # return if token scope is also empty
             return if (domain.nil? and project.nil?)
                         
@@ -127,7 +127,7 @@ module MonsoonOpenstackAuth
               scope=nil
               retry
             else
-              raise MonsoonOpenstackAuth::Authentication::NotAuthorized.new("User has no access to the requested organization: #{e}")
+              raise MonsoonOpenstackAuth::Authentication::NotAuthorized.new("User has no access to the requested domain: #{e}")
             end
           end
         end

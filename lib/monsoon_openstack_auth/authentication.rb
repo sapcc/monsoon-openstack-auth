@@ -55,7 +55,7 @@ module MonsoonOpenstackAuth
           raise MonsoonOpenstackAuth::Authentication::InvalidRegion.new("A region should be provided") unless region
             
           @auth_session = AuthSession.check_authentication(self, region, {
-            organization: Authentication.get_filter_value(self,org), 
+            domain: Authentication.get_filter_value(self,org), 
             project: Authentication.get_filter_value(self,prj),
             raise_error:raise_error
           })

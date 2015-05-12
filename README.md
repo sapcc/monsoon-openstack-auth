@@ -130,7 +130,7 @@ authentication_required options
 options:
 
 * **region**, optional. Example: 'europe'
-* **organization**, optional. Example: 'o-ghghad'
+* **domain**, optional. Example: 'o-ghghad'
 * **project**, optional. Example: 'p-jhjhhj'
 * **only**, optional. Example only: [:index,:show]
 * **except**, optional. Example except: [:index,:show]
@@ -166,13 +166,13 @@ Example:
 
 ```ruby
 DashboardController < ApplicationController
-  authentication_required only: [:index], region: -> c {'europe'}, project: :get_project, organization: :get_organization
+  authentication_required only: [:index], region: -> c {'europe'}, project: :get_project, domain: :get_domain
 
   def index
   end
 
-  def get_organization
-    @organization_id = (controller_name == 'organizations') ? params[:id] : params[:organization_id]
+  def get_domain
+    @domain_id = (controller_name == 'organizations') ? params[:id] : params[:domain_id]
   end
 
   def get_project
