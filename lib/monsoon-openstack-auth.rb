@@ -62,7 +62,12 @@ module MonsoonOpenstackAuth
   end
   
   def self.load_default_domain
-    @default_domain ||= self.api_client(self.configuration.default_region_name).default_domain
+    @default_domain = begin
+      self.api_client(self.configuration.default_region_name).default_domain
+    rescue => e
+      nil  
+    end
+    
     puts "[Monsoon Openstack Auth]: Could not load default domain for name=#{self.configuration.default_domain_name}." unless @default_domain 
   end
   
