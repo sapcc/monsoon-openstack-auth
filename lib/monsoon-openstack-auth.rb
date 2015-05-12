@@ -63,7 +63,7 @@ module MonsoonOpenstackAuth
   
   def self.load_default_domain
     @default_domain = begin
-      self.api_client(self.configuration.default_region_name).default_domain
+      self.api_client(self.configuration.default_region).default_domain
     rescue => e
       nil  
     end

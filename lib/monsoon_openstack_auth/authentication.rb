@@ -44,9 +44,8 @@ module MonsoonOpenstackAuth
         org = options.delete(:organization)
         prj = options.delete(:project)
 
-        Rails.logger.debug "authentication_required region 1 #{reg}"
-
-        raise MonsoonOpenstackAuth::Authentication::InvalidRegion.new("A region should be provided") unless reg
+        # use default region from config
+        reg = -> c {MonsoonOpenstackAuth.configuration.default_region} unless reg
 
         before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") }) do
           region        = Authentication.get_filter_value(self,reg)

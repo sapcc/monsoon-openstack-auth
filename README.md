@@ -58,7 +58,7 @@ MonsoonOpenstackAuth.configure do |config|
   config.access_key_auth_allowed = false
   
   # optional, default='europe'
-  config.region = 'europe'
+  config.default_region = 'europe'
   
   # optional, default='sap_default'
   config.default_domain_name='sap_default'
@@ -129,7 +129,7 @@ authentication_required options
 ```
 options:
 
-* **region**, required. Example: 'europe'
+* **region**, optional. Example: 'europe'
 * **organization**, optional. Example: 'o-ghghad'
 * **project**, optional. Example: 'p-jhjhhj'
 * **only**, optional. Example only: [:index,:show]
@@ -138,6 +138,16 @@ options:
 * **unless**, optional
 
 Example:
+
+```ruby
+DashboardController < ApplicationController
+  authentication_required
+
+  def index
+  end
+
+end
+
 
 ```ruby
 DashboardController < ApplicationController
