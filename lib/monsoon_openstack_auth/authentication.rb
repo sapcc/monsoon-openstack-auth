@@ -42,6 +42,7 @@ module MonsoonOpenstackAuth
 
         reg = options.delete(:region)
         org = options.delete(:organization)
+        org = options.delete(:domain) unless org
         prj = options.delete(:project)
 
         # use default region from config
