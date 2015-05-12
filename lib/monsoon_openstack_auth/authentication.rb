@@ -1,4 +1,5 @@
 require "monsoon_openstack_auth/authentication/errors"
+require "monsoon_openstack_auth/authentication/auth_default_domain"
 require "monsoon_openstack_auth/authentication/auth_user"
 require "monsoon_openstack_auth/authentication/session_store"
 require "monsoon_openstack_auth/authentication/auth_session"
@@ -10,7 +11,7 @@ module MonsoonOpenstackAuth
       base.send :extend, ClassMethods
       base.send :include, InstanceMethods
     
-      base.send :helper_method, :current_user, :logged_in?, :services
+      base.send :helper_method, :current_user, :logged_in?, :services, :auth_default_domain
     end
     
     def self.get_filter_value(controller,method_name)
@@ -74,6 +75,10 @@ module MonsoonOpenstackAuth
 
       def logged_in?
         !@current_user.nil?
+      end
+      
+      def auth_default_domain
+        MonsoonOpenstackAuth.default_domain
       end
     end
   end

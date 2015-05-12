@@ -23,8 +23,9 @@ module MonsoonOpenstackAuth
       end
     
       def initialize(region)
-        if self.class.api_endpoint.nil? and self.class.api_userid.nil? and self.class.api_password.nil?
-          raise ConfigurationError.new("Api credentials not provided! Please provide 
+        
+        unless (self.class.api_endpoint or self.class.api_userid or self.class.api_password)
+          raise MonsoonOpenstackAuth::ConnectionDriver::ConfigurationError.new("Api credentials not provided! Please provide 
             connection_driver.api_endpoint, connection_driver.api_userid and 
             connection_driver.api_password (in initializer).") 
         end    
@@ -42,6 +43,20 @@ module MonsoonOpenstackAuth
     
       def connection
         @fog
+      end
+      
+      # Default Domain such a sap_default
+      def default_domain(name=MonsoonOpenstackAuth.configuration.default_domain_name)
+        unless @default_domain
+          begin
+            dd = @fog.domains.all(name: name).first
+            return nil unless dd
+            @default_domain = MonsoonOpenstackAuth::Authentication::AuthDefaultDomain.new(id: dd.id, name: dd.name, description: dd.description, enabled: dd.enabled)
+          rescue => e
+            return nil
+          end
+        end
+        return @default_domain
       end
     
       def validate_token(auth_token)

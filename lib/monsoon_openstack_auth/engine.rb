@@ -15,6 +15,7 @@ module MonsoonOpenstackAuth
       
     config.after_initialize do 
       MonsoonOpenstackAuth.load_policy
+      MonsoonOpenstackAuth.load_default_domain
     end
   end
 end
