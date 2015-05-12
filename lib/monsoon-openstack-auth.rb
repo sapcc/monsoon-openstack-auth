@@ -1,5 +1,6 @@
 require "monsoon_fog"
 
+require "monsoon_openstack_auth/connection_driver/errors"
 require "monsoon_openstack_auth/connection_driver/interface"
 require "monsoon_openstack_auth/connection_driver/default"
 require "monsoon_openstack_auth/api_client"
@@ -58,6 +59,15 @@ module MonsoonOpenstackAuth
       MonsoonOpenstackAuth.logger.info "Could not load policy file. #{e.message}" 
       return false
     end
+  end
+  
+  def self.load_default_domain
+    @default_domain ||= self.api_client(self.configuration.default_region_name).default_domain
+    puts "[Monsoon Openstack Auth]: Could not load default domain for name=#{self.configuration.default_domain_name}." unless @default_domain 
+  end
+  
+  def self.default_domain
+    @default_domain
   end
 
 end

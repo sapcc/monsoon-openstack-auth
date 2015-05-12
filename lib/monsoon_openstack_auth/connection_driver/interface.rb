@@ -28,6 +28,10 @@ module MonsoonOpenstackAuth
       def authenticate_with_access_key(access_key, scope=nil)
         raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("authenticate_with_access_key is not implemented yet!")
       end
+      
+      def default_domain
+        raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("default_domain is not implemented yet!")
+      end
     end
   end
 end

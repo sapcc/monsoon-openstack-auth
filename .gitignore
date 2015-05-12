@@ -18,3 +18,4 @@ spec/dummy/.sass-cache
 Gemfile.lock
 spec/lib/monsoon_openstack_auth/authorization/xcontroller_auth_spec.rb
 spec/dummy/.env
+.DS_Store
