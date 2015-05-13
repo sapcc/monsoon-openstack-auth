@@ -345,7 +345,12 @@ module MonsoonOpenstackAuth
     
       def redirect_to_login_form
         @session_store.redirect_to = @controller.request.env['REQUEST_URI'] if @session_store
-        @controller.redirect_to @controller.monsoon_openstack_auth.new_session_path(@region)
+        
+        if @region==MonsoonOpenstackAuth.configuration.default_region
+          @controller.redirect_to @controller.monsoon_openstack_auth.new_session_path
+        else
+          @controller.redirect_to @controller.monsoon_openstack_auth.new_session_path(@region)
+        end
       end
 
 
