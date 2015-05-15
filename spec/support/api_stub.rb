@@ -1,4 +1,4 @@
-module ApiStub
+module ApiStub  
   def self.keystone_token
     {
       "methods"=>["password"], 

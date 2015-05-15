@@ -118,6 +118,7 @@ module MonsoonOpenstackAuth
           end
         
           begin
+            MonsoonOpenstackAuth.logger.info "rescope token." if @debug
             # scope has changed -> get new scoped token
             token = @api_client.authenticate_with_token(token[:value], scope) 
             create_user_from_token(token)
