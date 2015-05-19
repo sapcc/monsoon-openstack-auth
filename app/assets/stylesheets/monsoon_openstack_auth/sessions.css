@@ -6,7 +6,7 @@
   background-image: -ms-linear-gradient(top, #fff, #eee);
   background-image: -o-linear-gradient(top, #fff, #eee);
   background-image: linear-gradient(top, #fff, #eee);
-  height: 190px;
+  height: 230px;
   width: 300px;
   margin: 200px 0 0 -180px;
   padding: 30px;
@@ -131,7 +131,7 @@ fieldset {
 /*  position:relative;*/
 }
 
-.username-wrapper:before, .password-wrapper:before {
+.domain-wrapper:before, .username-wrapper:before, .password-wrapper:before {
   font-family: 'FontAwesome';
   color: #999;
   position: absolute;
@@ -143,6 +143,10 @@ fieldset {
 
 .username-wrapper:before {
   content: "\f007";
+}
+
+.domain-wrapper:before {
+  content: "\f0f7";
 }
 
 #password {
