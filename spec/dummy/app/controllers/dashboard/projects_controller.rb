@@ -2,7 +2,7 @@ module Dashboard
   class ProjectsController < DashboardController
     def show
       @project = services.identity.user_project(@project_id)
-      if_allowed?("identity:project_show", {id: @project.id}) do
+      if_allowed?("identity:project_show", {domain: OpenStruct.new(id:@domain_id), id: @project.id}) do
         @project
       end
     end
