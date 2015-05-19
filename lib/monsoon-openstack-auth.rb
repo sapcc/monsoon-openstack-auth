@@ -72,7 +72,9 @@ module MonsoonOpenstackAuth
   end
   
   def self.default_domain
-    @default_domain
+    # load and cache default domain unless available
+    self.load_default_domain unless @default_domain
+    @default_domain 
   end
 
 end

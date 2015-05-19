@@ -64,8 +64,17 @@ module MonsoonOpenstackAuth
       end
   
       def authenticate_with_credentials(username,password, scope=nil)
-        auth = {auth:{identity: {methods: ["password"],password:{user:{id: username,password: password}}}}}
-        auth[:auth][:scope]=scope if scope
+        # build auth hash
+        auth = { auth: { identity: { methods: ["password"], password:{} } } }
+        
+        if scope # scope is given
+          # try to authenticate with user name and password for given scope
+          auth[:auth][:identity][:password] = { user:{ name: username,password: password }.merge(scope) }
+        else # scope is nil
+          # try to authenticate with user id and password
+          auth[:auth][:identity][:password] = { user:{ id: username,password: password } }
+        end    
+
         #MonsoonOpenstackAuth.logger.info "authenticate_with_credentials -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
       end

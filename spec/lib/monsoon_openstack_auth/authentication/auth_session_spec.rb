@@ -4,7 +4,8 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
   test_token = HashWithIndifferentAccess.new(ApiStub.keystone_token.merge("expires_at" => (Time.now+1.hour).to_s))
 
   before :each do    
-    Fog::IdentityV3::OpenStack.stub(:new)
+    @fog_driver = double("fog driver").as_null_object
+    Fog::IdentityV3::OpenStack.stub(:new).and_return(@fog_driver)
 
     MonsoonOpenstackAuth.configure do |config|
       # connection driver, default MonsoonOpenstackAuth::Authentication::Driver::Default (Fog)
@@ -318,6 +319,26 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         expect(MonsoonOpenstackAuth.api_client('europe')).to have_received(:authenticate_with_access_key)
       end
 
+    end
+    
+    describe "::create_from_login_form" do
+      before :each do
+        allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_credentials).with("test","test",anything).and_call_original
+      end
+      
+      context "domain_name is nil" do
+        it "should call authenticate using id and password" do
+          allow(@fog_driver.tokens).to receive(:authenticate).with({ auth: { identity: { methods: ["password"], password:{user: {id: 'test', password: 'test'} } } } })
+          MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(controller,'europe','test','test')  
+        end
+      end
+      
+      context "domain_name is not nil" do
+        it "should call authenticate using id and password" do
+          allow(@fog_driver.tokens).to receive(:authenticate).with({ auth: { identity: { methods: ["password"], password:{user: {name: 'test', password: 'test', domain: {name: 'test_domain'} } } } } })
+          MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(controller,'europe','test','test','test_domain')  
+        end
+      end
     end
   end
 end

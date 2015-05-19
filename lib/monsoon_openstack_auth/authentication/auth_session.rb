@@ -21,7 +21,8 @@ module MonsoonOpenstackAuth
         end
       
         # create user from form and authenticate
-        def create_from_login_form(controller,region,username,password,scope={})
+        def create_from_login_form(controller,region,username,password,domain_name=nil)
+          scope = {domain: {name: domain_name}} unless (domain_name.nil? or domain_name.empty?)
           session = AuthSession.new(controller, session_store(controller), region, scope)
           redirect_to_url = session.login_form_user(username,password)
           return redirect_to_url
@@ -332,7 +333,7 @@ module MonsoonOpenstackAuth
       
         begin          
           redirect_to_url = (MonsoonOpenstackAuth.configuration.login_redirect_url || @session_store.redirect_to || @controller.main_app.root_path)
-          token = @api_client.authenticate_with_credentials(username, password)
+          token = @api_client.authenticate_with_credentials(username, password, @scope)
           @session_store.token=token 
           @session_store.delete_redirect_to
           create_user_from_token(token)
