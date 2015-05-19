@@ -74,7 +74,6 @@ module MonsoonOpenstackAuth
           # try to authenticate with user id and password
           auth[:auth][:identity][:password] = { user:{ id: username,password: password } }
         end    
-
         #MonsoonOpenstackAuth.logger.info "authenticate_with_credentials -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
       end

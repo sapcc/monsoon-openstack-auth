@@ -2,7 +2,7 @@
   Project <%= @project.name %>
 <%end%>
 
-<%= link_to 'Back to organization', organization_path(@region,@organization_id) %>
+<%= link_to 'Back to organization', domain_path(@region,@domain_id) %>
 
 <div class="project" style="padding: 15px">
   <table>
@@ -23,5 +23,5 @@
   </table>
 </div>
 
-<%= button_to 'TEST Edit action', organization_project_path(@region,@organization_id, @project_id), method: :put %>
-<%= button_to 'TEST Destroy action', organization_project_path(@region,@organization_id, @project_id), method: :delete %>
+<%= button_to 'TEST Edit action', domain_project_path(@region,@domain_id, @project_id), method: :put %>
+<%= button_to 'TEST Destroy action', domain_project_path(@region,@domain_id, @project_id), method: :delete %>

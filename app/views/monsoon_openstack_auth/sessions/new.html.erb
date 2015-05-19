@@ -7,7 +7,7 @@
     <h1>Log In</h1>
 
     <fieldset id="inputs">
-      <p class="username-wrapper"><%= text_field_tag :domain_name, @domain_name, placeholder: "Domain ID", autofocus: true, required: true %></p>
+      <p class="domain-wrapper"><%= text_field_tag :domain_name, @domain_name, placeholder: "Domain name", autofocus: true, required: true %></p>
       <p class="username-wrapper"><%= text_field_tag :username, @username, placeholder: "Userid", autofocus: true, required: true %></p>
       <p class="password-wrapper"><%= password_field_tag :password, @password, placeholder: "Password", required: true %></p>
 
