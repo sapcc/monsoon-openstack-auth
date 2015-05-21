@@ -21,8 +21,15 @@ module MonsoonOpenstackAuth
         end
       
         # create user from form and authenticate
-        def create_from_login_form(controller,region,username,password,domain_name=nil)
-          scope = {domain: {name: domain_name}} unless (domain_name.nil? or domain_name.empty?)
+        def create_from_login_form(controller,region,username,password, domain={id: nil, name: nil})
+          scope = if (domain[:name] && !domain[:name].empty?)
+            {domain: {name: domain[:name]}}
+          elsif (domain[:id] && !domain[:id].empty?)
+            {domain: {id: domain[:id]}}  
+          else
+            nil
+          end
+          
           session = AuthSession.new(controller, session_store(controller), region, scope)
           redirect_to_url = session.login_form_user(username,password)
           return redirect_to_url
@@ -323,6 +330,8 @@ module MonsoonOpenstackAuth
       def logged_in?
         not user.nil?
       end
+      
+      
     
       ############ LOGIN FORM FUCNTIONALITY ##################
       def login_form_user(username,password)

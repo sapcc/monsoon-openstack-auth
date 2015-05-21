@@ -26,6 +26,10 @@ module MonsoonOpenstackAuth
       def name
         @name ||= read_value("user.name")
       end
+      
+      def full_name
+        (description.nil? or description.empty?) ? name : description
+      end
      
       def description
         @description ||= read_value("user.description")
