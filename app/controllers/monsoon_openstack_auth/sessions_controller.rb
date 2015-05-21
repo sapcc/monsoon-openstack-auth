@@ -13,9 +13,9 @@ module MonsoonOpenstackAuth
       redirect_to main_app.root_path, alert: 'Not allowed!' and return unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
       @username = params[:username]
       @password = params[:password]
-      @domain_name = params[:domain_name]
+      @domain = { name: params[:domain_name], id: params[:domain_id]}
       region = (params[:region_id] || MonsoonOpenstackAuth.configuration.default_region)
-      redirect_to_url = MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(self,region,@username,@password, @domain_name)
+      redirect_to_url = MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(self,region,@username,@password, @domain)
       if redirect_to_url 
         redirect_to redirect_to_url, notice: 'Signed on!'
       else

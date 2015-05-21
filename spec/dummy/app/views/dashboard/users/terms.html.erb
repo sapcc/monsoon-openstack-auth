@@ -1,0 +1,13 @@
+<%= form_tag register_path(@region,@domain_id), id: "monsoon_openstack_auth_login" do %>
+  <h1>Terms of use</h1>
+
+  <fieldset id="inputs">
+    <p><%= check_box_tag(:terms_of_use) %>&nbsp;Accept terms of use</p>
+  </fieldset>
+  <fieldset id="actions">
+    <% if @error%>
+      <div class="error"><%= @error %></div>
+    <% end %>
+    <input type="submit" id="submit" value="Send">
+  </fieldset>
+<% end %>
