@@ -5,6 +5,8 @@ module MonsoonOpenstackAuth
     skip_authentication
     
     def new
+      @region = (params[:region_id] || MonsoonOpenstackAuth.configuration.default_region)
+      
       redirect_to main_app.root_path, alert: 'Not allowed!' and return unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
       MonsoonOpenstackAuth::Authentication::AuthSession.logout(self)
     end
