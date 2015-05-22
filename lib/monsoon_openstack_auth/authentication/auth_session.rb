@@ -144,7 +144,7 @@ module MonsoonOpenstackAuth
               scope=nil
               retry
             else
-              raise MonsoonOpenstackAuth::Authentication::NotAuthorized.new("User has no access to the requested domain: #{e}")
+              raise MonsoonOpenstackAuth::Authentication::NotAuthorized.new("User has no access to the requested scope: #{e}")
             end
           end
         end
