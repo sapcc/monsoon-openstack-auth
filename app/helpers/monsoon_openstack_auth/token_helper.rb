@@ -6,7 +6,7 @@ module MonsoonOpenstackAuth
     end
 
     def os_token
-      session[MonsoonOpenstackAuth::SessionStore::SESSION_NAME]
+      session[MonsoonOpenstackAuth::Authentication::SessionStore::SESSION_NAME]
 
     end
 
