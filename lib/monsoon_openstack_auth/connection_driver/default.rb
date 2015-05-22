@@ -52,6 +52,10 @@ module MonsoonOpenstackAuth
         @fog
       end
       
+      def domain_by_name(domain_name)
+        @fog.domains.find_by_name(domain_name)
+      end
+      
       def create_user_domain_role(user_id,domain_id,role_name)
         return false if user_id.nil? or domain_id.nil? or role_name.nil?
         user = @fog.users.find_by_id(user_id)

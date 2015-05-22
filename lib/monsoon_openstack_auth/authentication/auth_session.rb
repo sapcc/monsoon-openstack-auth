@@ -21,9 +21,20 @@ module MonsoonOpenstackAuth
         end
       
         # create user from form and authenticate
-        def create_from_login_form(controller,region,username,password, domain=nil)
-          scope = if (domain && !domain.empty?)
-            { domain: domain }
+        def create_from_login_form(controller,region,username,password, domain_id=nil, domain_name=nil)
+          if domain_id.nil? and domain_name
+            domain = begin 
+              MonsoonOpenstackAuth.api_client(region).domain_by_name(domain_name)
+            rescue => e
+              puts e.message
+              puts e.backtrace.join("\n")
+              return false
+            end  
+            domain_id = domain.id
+          end
+          
+          scope = if (domain_id && !domain_id.empty?)
+            { domain: domain_id }
           else
             nil
           end
@@ -356,7 +367,7 @@ module MonsoonOpenstackAuth
           create_user_from_token(token)
           
           # make user member of requested domain unless domain is nil
-          @api_client.create_user_domain_role(@user.id,@scope[:domain],'member')
+          @api_client.create_user_domain_role(@user.id,@scope[:domain],'member') if @scope and @scope[:domain]
 
           return redirect_to_url
         rescue => e
