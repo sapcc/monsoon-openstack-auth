@@ -16,6 +16,8 @@ MonsoonOpenstackAuth.configure do |config|
   # optional, default=false
   config.access_key_auth_allowed = false
   
+  config.default_region = 'europe'
+  
   # optional, default= last url before redirected to form
   #config.login_redirect_url = '/'
   

@@ -5,8 +5,9 @@ module MonsoonOpenstackAuth
     skip_authentication
     
     def new
-      @region = (params[:region_id] || MonsoonOpenstackAuth.configuration.default_region)
-      
+      session_store = MonsoonOpenstackAuth::Authentication::AuthSession.session_store(self)
+      @region = session_store.region
+      @domain_id = session_store.domain_id
       redirect_to main_app.root_path, alert: 'Not allowed!' and return unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
       MonsoonOpenstackAuth::Authentication::AuthSession.logout(self)
     end
@@ -15,9 +16,9 @@ module MonsoonOpenstackAuth
       redirect_to main_app.root_path, alert: 'Not allowed!' and return unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
       @username = params[:username]
       @password = params[:password]
-      @domain = { name: params[:domain_name], id: params[:domain_id]}
-      region = (params[:region_id] || MonsoonOpenstackAuth.configuration.default_region)
-      redirect_to_url = MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(self,region,@username,@password, @domain)
+      @domain_id = params[:domain_id]
+      @region = (params[:region_id] || MonsoonOpenstackAuth.configuration.default_region)
+      redirect_to_url = MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(self,@region,@username,@password, @domain_id)
       if redirect_to_url 
         redirect_to redirect_to_url, notice: 'Signed on!'
       else

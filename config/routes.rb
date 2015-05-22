@@ -1,7 +1,5 @@
 MonsoonOpenstackAuth::Engine.routes.draw do
-  scope '(:region_id)' do
-    resources :sessions, only: [:new,:create]
-  end
+  resources :sessions, only: [:new,:create]
       
   get 'logout', to: 'sessions#destroy'
 end

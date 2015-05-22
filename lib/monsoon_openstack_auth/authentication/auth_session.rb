@@ -21,11 +21,9 @@ module MonsoonOpenstackAuth
         end
       
         # create user from form and authenticate
-        def create_from_login_form(controller,region,username,password, domain={id: nil, name: nil})
-          scope = if (domain[:name] && !domain[:name].empty?)
-            {domain: {name: domain[:name]}}
-          elsif (domain[:id] && !domain[:id].empty?)
-            {domain: {id: domain[:id]}}  
+        def create_from_login_form(controller,region,username,password, domain=nil)
+          scope = if (domain && !domain.empty?)
+            { domain: domain }
           else
             nil
           end
@@ -114,12 +112,22 @@ module MonsoonOpenstackAuth
                         
             # user has a default domain. If the default domain is equal to the token domain then do not rescope and return
             default_domain_id = token.fetch(:user,{}).fetch("domain",{}).fetch("id",nil)
+            
+            
+            # TODO: the following code does not rescope if user domain id is the same like scope domain id.
+            # This is made for performance, it does not rescope and does not create new tokens in keston.
+            # However, this also prevents the user to get the roles for that domain. NOT GOOD! 
+            #p "::::::::::::::::::::::::USER DOMAIN"
+            #p default_domain_id
+            #p token_domain = ( (project || {})["domain"] || domain)
+            
             if default_domain_id
               token_domain = ( (project || {})["domain"] || domain)
               if (token_domain and token_domain["id"]==default_domain_id)
                 return
               end
-            end          
+            end     
+            ###########################################     
 
             # did not returned -> get new unscoped token                       
             scope="unscoped"
@@ -346,6 +354,10 @@ module MonsoonOpenstackAuth
           @session_store.token=token 
           @session_store.delete_redirect_to
           create_user_from_token(token)
+          
+          # make user member of requested domain unless domain is nil
+          @api_client.create_user_domain_role(@user.id,@scope[:domain],'member')
+
           return redirect_to_url
         rescue => e
           MonsoonOpenstackAuth.logger.error "login_form_user -> failed. #{e}"
@@ -356,19 +368,16 @@ module MonsoonOpenstackAuth
     
       def redirect_to_login_form
         @session_store.redirect_to = @controller.request.env['REQUEST_URI'] if @session_store
-        
-        if @region==MonsoonOpenstackAuth.configuration.default_region
-          @controller.redirect_to @controller.monsoon_openstack_auth.new_session_path
-        else
-          @controller.redirect_to @controller.monsoon_openstack_auth.new_session_path(@region)
-        end
+        @session_store.region = @region
+        @session_store.domain_id = @scope[:domain]
+        @controller.redirect_to @controller.monsoon_openstack_auth.new_session_path
       end
 
 
       def params
         @controller.params
       end
-
+        
     end
   end
 end
