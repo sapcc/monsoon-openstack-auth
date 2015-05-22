@@ -31,6 +31,8 @@ module MonsoonOpenstackAuth
         end    
       
         MonsoonOpenstackAuth.logger.info("Monsoon Openstack Auth -> api_endpoint: #{MonsoonOpenstackAuth::ConnectionDriver::Default.endpoint}")
+        
+        begin
         @fog = Fog::IdentityV3::OpenStack.new({
           openstack_region:   region,
           openstack_auth_url: self.class.endpoint,
@@ -38,11 +40,23 @@ module MonsoonOpenstackAuth
           openstack_api_key:  self.class.api_password,
           connection_options: self.class.connection_options
         })
+        rescue => e
+          puts e
+          puts e.backtrace.join("\n")
+          MonsoonOpenstackAuth::ConnectionDriver::ConnectionError.new(e)
+        end
         self
       end  
     
       def connection
         @fog
+      end
+      
+      def create_user_domain_role(user_id,domain_id,role_name)
+        return false if user_id.nil? or domain_id.nil? or role_name.nil?
+        user = @fog.users.find_by_id(user_id)
+        member_role = @fog.roles.all(name:role_name).first
+        user.grant_role(member_role.id)
       end
       
       # Default Domain such a sap_default
@@ -53,6 +67,9 @@ module MonsoonOpenstackAuth
             return nil unless dd
             @default_domain = MonsoonOpenstackAuth::Authentication::AuthDefaultDomain.new(id: dd.id, name: dd.name, description: dd.description, enabled: dd.enabled)
           rescue => e
+            puts e 
+            puts e.backtrace.join("\n")
+            MonsoonOpenstackAuth::ConnectionDriver::ConnectionError.new(e)
             return nil
           end
         end
@@ -67,13 +84,19 @@ module MonsoonOpenstackAuth
         # build auth hash
         auth = { auth: { identity: { methods: ["password"], password:{} } } }
         
+        # build domain params. Authenticate user in given domain.
         if scope # scope is given
+          domain_params = if scope[:domain]
+            {domain: {id: scope[:domain]}}
+          else
+            nil
+          end
           # try to authenticate with user name and password for given scope
-          auth[:auth][:identity][:password] = { user:{ name: username,password: password }.merge(scope) }
+          auth[:auth][:identity][:password] = { user:{ name: username,password: password }.merge(domain_params) }
         else # scope is nil
           # try to authenticate with user id and password
           auth[:auth][:identity][:password] = { user:{ id: username,password: password } }
-        end    
+        end   
         #MonsoonOpenstackAuth.logger.info "authenticate_with_credentials -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
       end
@@ -81,6 +104,7 @@ module MonsoonOpenstackAuth
       def authenticate_with_token(token, scope=nil)
         auth = {auth:{identity: {methods: ["token"],token:{ id: token}}}}
         auth[:auth][:scope]=scope if scope
+        
         MonsoonOpenstackAuth.logger.info "authenticate_with_token -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
       end

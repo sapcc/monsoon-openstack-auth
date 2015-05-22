@@ -4,5 +4,6 @@ module MonsoonOpenstackAuth
     class MalformedApiEndpoint < StandardError; end
     class ConfigurationError < StandardError; end
     class InterfaceNotImplementedError < NoMethodError; end
+    class ConnectionError < StandardError; end
   end
 end
