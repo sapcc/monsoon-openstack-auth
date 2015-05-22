@@ -17,8 +17,9 @@ module MonsoonOpenstackAuth
       @username = params[:username]
       @password = params[:password]
       @domain_id = params[:domain_id]
+      @domain_name = params[:domain_name]
       @region = (params[:region_id] || MonsoonOpenstackAuth.configuration.default_region)
-      redirect_to_url = MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(self,@region,@username,@password, @domain_id)
+      redirect_to_url = MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(self,@region,@username,@password, @domain_id,@domain_name)
       if redirect_to_url 
         redirect_to redirect_to_url, notice: 'Signed on!'
       else

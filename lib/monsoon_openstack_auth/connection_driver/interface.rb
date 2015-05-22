@@ -32,7 +32,11 @@ module MonsoonOpenstackAuth
       def default_domain
         raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("default_domain is not implemented yet!")
       end
-      
+
+      def domain_by_name(domain_name)
+        raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("domain_by_name is not implemented yet!")
+      end
+            
       def create_user_domain_role(user_id,domain_id,role_name)
         raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("create_user_domain_role is not implemented yet!")
       end
