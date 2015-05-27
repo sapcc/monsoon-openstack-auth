@@ -78,7 +78,7 @@
               Type
             %th
               Endpoints
-          -token[:catalog].each do |service|
+          -Array.wrap(token[:catalog]).each do |service|
             %tr
               %td
                 =service[:id]
