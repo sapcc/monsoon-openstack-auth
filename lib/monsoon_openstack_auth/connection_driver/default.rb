@@ -53,7 +53,7 @@ module MonsoonOpenstackAuth
       end
       
       def domain_by_name(domain_name)
-        @fog.domains.find_by_name(domain_name)
+        @fog.domains.all(name:domain_name).first
       end
       
       def create_user_domain_role(user_id,domain_id,role_name)

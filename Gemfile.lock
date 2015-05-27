@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/sapcc/monsoon/monsoon-fog.git
-  revision: aff8f36b95843a51890788840fe85e61d8d46694
+  revision: e6a898f8573e155386f337f463d7b29c2d567de9
   specs:
     monsoon-fog (0.4.0)
       fog (~> 1.28)
@@ -107,7 +107,7 @@ GEM
     fog-atmos (0.1.0)
       fog-core
       fog-xml
-    fog-aws (0.2.2)
+    fog-aws (0.3.0)
       fog-core (~> 1.27)
       fog-json (~> 1.0)
       fog-xml (~> 0.1)
