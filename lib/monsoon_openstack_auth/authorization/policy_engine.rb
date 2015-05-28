@@ -6,7 +6,7 @@ module MonsoonOpenstackAuth
     class PolicyEngine
       
       DEFAULT_RULE_NAME = 'default'
-    
+
       def initialize(policy_json)
         @rules            = RulesContainer.new
         @parsed_policy    = {}
@@ -15,7 +15,7 @@ module MonsoonOpenstackAuth
       end
       
       def policy(current_user)
-        Policy.new(@rules,current_user)
+        Policy.new(@rules, current_user)
       end
 
       protected
@@ -63,6 +63,9 @@ module MonsoonOpenstackAuth
       end
 
       class Policy
+
+        attr_reader :user
+
         LOCALS = {
           'roles'       => lambda { |current_user| current_user.role_names } ,
           'domain_id'   => lambda { |current_user| current_user.domain_id },
@@ -81,7 +84,8 @@ module MonsoonOpenstackAuth
     
         def initialize(rules,current_user)
           @rules = rules
-          @locals = Policy.locals(current_user)
+          @user = current_user
+          @locals = Policy.locals(@user)
         end
     
         def enforce_with_trace(rule_names=[], params = {})
@@ -104,7 +108,7 @@ module MonsoonOpenstackAuth
           rule_names.each do |name|
             res = @rules.get(name).execute(@locals,params)
             result &= res
-            MonsoonOpenstackAuth.logger.info("Rule enforced [#{@rules.get(name).name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params.to_json if params}")
+            MonsoonOpenstackAuth.logger.info("Rule enforced [#{name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params.to_json if params}")
           end
           result
         end

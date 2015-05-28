@@ -10,7 +10,7 @@ module AuthenticationStub
     'BAD_DOMAIN'
   end
   
-  def self.test_token 
+  def self.test_token
     @test_token ||= HashWithIndifferentAccess.new(ApiStub.keystone_token.merge("expires_at" => (Time.now+1.hour).to_s))
   end
   
@@ -43,7 +43,8 @@ module AuthenticationStub
     end
 
   
-    def stub_authentication
+    def stub_authentication(options={})
+
       stub_auth_configuration
       
       allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token).
@@ -56,6 +57,13 @@ module AuthenticationStub
           
       @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
       @session_store.token=AuthenticationStub.test_token
+    end
+
+    def stub_authentication_with_token(token_hash)
+      stub_auth_configuration
+
+      @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
+      @session_store.token = token_hash
     end
   end
 end
