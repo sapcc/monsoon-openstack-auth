@@ -22,12 +22,12 @@ module MonsoonOpenstackAuth
       include InstanceMethods
     
       rescue_from(MonsoonOpenstackAuth::Authorization::SecurityViolation, :with => MonsoonOpenstackAuth::Authorization.security_violation_callback)
-      class_attribute :authorization_resource, :instance_reader => false      
+      class_attribute :authorization_resource, :instance_reader => false
     end
 
     module ClassMethods
-      
-      def skip_authorization(options={})
+
+       def skip_authorization(options={})
         prepend_before_filter options do
           @_skip_authorization=true
         end
@@ -117,9 +117,12 @@ module MonsoonOpenstackAuth
         elsif authorization_resource.is_a? Symbol
           hashed_resource = Hashie::Mash.new
           authorization_resouce_name = authorization_resource.to_s
+        elsif authorization_resource.is_a? ActiveRecord::Base
+          hashed_resource =  Hashie::Mash.new({ authorization_resource.class.name.downcase.to_sym => authorization_resource })
+          authorization_resouce_name = authorization_resource.class.name
         else
           unless authorization_resource.is_a? Hash
-            hashed_resource =  Hashie::Mash.new({ authorization_resource.class.name.downcase.to_sym => authorization_resource.instance_values.symbolize_keys })
+            hashed_resource =  Hashie::Mash.new({ authorization_resource.class.name.downcase.to_sym => authorization_resource })
           else
             hashed_resource = Hashie::Mash.new(authorization_resource)
           end
@@ -139,11 +142,11 @@ module MonsoonOpenstackAuth
         if params[:policy_trace] && params[:policy_trace] == "1" && !session[:policy_trace]
           session[:policy_trace] = 1
         elsif params[:policy_trace] && session[:policy_trace]
-            session.delete(:policy_trace)
+          session.delete(:policy_trace)
         end
 
-        result = if session[:policy_trace]
-          @policy_trace = policy.enforce_with_trace([os_action], hashed_resource) 
+        result = if session[:policy_trace] || MonsoonOpenstackAuth.configuration.authorization.trace_enabled
+          @policy_trace = policy.enforce_with_trace([os_action], hashed_resource)
           @policy_trace.print
           @policy_trace.result     
         else
@@ -174,7 +177,7 @@ module MonsoonOpenstackAuth
             session.delete(:policy_trace)
         end
 
-        result = if session[:policy_trace]
+        result = if session[:policy_trace] || MonsoonOpenstackAuth.configuration.authorization.trace_enabled
           @policy_trace = policy.enforce_with_trace(policy_rules, mashed_resource)
           @policy_trace.print
           @policy_trace.result
@@ -214,7 +217,8 @@ module MonsoonOpenstackAuth
       end
 
       def policy
-        @policy ||= MonsoonOpenstackAuth.policy_engine.policy(current_user)
+        @policy = MonsoonOpenstackAuth.policy_engine.policy(current_user) if !@policy || current_user.id != @policy.user.id
+        return @policy
       end
 
       class MissingAction < StandardError;
