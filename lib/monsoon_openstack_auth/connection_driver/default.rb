@@ -118,8 +118,15 @@ module MonsoonOpenstackAuth
         #REMOTE_USER=d000000
         #REMOTE_DOMAIN=test
 
-        auth = { auth: { identity: {methods: ["external"], external:{user: username }}}}
-        auth[:auth][:scope]=scope if scope
+        domain_params = if scope && scope[:domain]
+          {domain: {id: scope[:domain]}}
+        else
+          {}
+        end
+        
+        auth = { auth: { identity: {methods: ["external"], external:{user: username }.merge(domain_params) }}}    
+            
+        #auth[:auth][:scope]=scope if scope
         MonsoonOpenstackAuth.logger.info "authenticate_external_user -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
       end
@@ -132,6 +139,9 @@ module MonsoonOpenstackAuth
       rescue Excon::Errors::Unauthorized
 
       end
+      
+      protected
+      
     end
   end
 end

@@ -122,23 +122,7 @@ module MonsoonOpenstackAuth
             return if (domain.nil? and project.nil?)
                         
             # user has a default domain. If the default domain is equal to the token domain then do not rescope and return
-            default_domain_id = token.fetch(:user,{}).fetch("domain",{}).fetch("id",nil)
-            
-            
-            # TODO: the following code does not rescope if user domain id is the same like scope domain id.
-            # This is made for performance, it does not rescope and does not create new tokens in keston.
-            # However, this also prevents the user to get the roles for that domain. NOT GOOD! 
-            #p "::::::::::::::::::::::::USER DOMAIN"
-            #p default_domain_id
-            #p token_domain = ( (project || {})["domain"] || domain)
-            
-            if default_domain_id
-              token_domain = ( (project || {})["domain"] || domain)
-              if (token_domain and token_domain["id"]==default_domain_id)
-                return
-              end
-            end     
-            ###########################################     
+            user_domain_id = token.fetch(:user,{}).fetch("domain",{}).fetch("id",nil) 
 
             # did not returned -> get new unscoped token                       
             scope="unscoped"
@@ -262,16 +246,28 @@ module MonsoonOpenstackAuth
         # sso user is presented
         # get username from certificate
         username = @controller.request.env['HTTP_SSL_CLIENT_S_DN'].match('CN=([^,]*)')[1]
-      
+
         # return false if no username given.
         if username.nil? or username.empty?
           MonsoonOpenstackAuth.logger.info "validate_sso_certificate -> user not presented." if @debug
           return false
         end
+        
+        scope = nil
+        
+        begin 
+          domain_name_math = @controller.request.env['HTTP_SSL_CLIENT_S_DN'].match('O=([^\/]*)')
+          domain_name = domain_name_math[1] if domain_name_math
+          domain_name = "sap_default" if (domain_name && domain_name=~/SAP-AG/i)
+          domain = MonsoonOpenstackAuth.api_client(region).domain_by_name(domain_name) if domain_name
+          scope = { domain: domain.id } if domain && domain.id
+        rescue => e
+          MonsoonOpenstackAuth.logger.error "Could not find Domain for name=#{domain_name}. #{e}"
+        end 
       
         # authenticate user as external user 
         begin
-          token = @api_client.authenticate_external_user(username)
+          token = @api_client.authenticate_external_user(username,scope)
           # create user from token and save token in session store
           create_user_from_token(token)
           save_token_in_session_store(token)
