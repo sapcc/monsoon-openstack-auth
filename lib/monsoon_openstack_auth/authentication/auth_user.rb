@@ -2,7 +2,7 @@ module MonsoonOpenstackAuth
   module Authentication
     class AuthUser
       attr_reader :context, :services_region
-    
+
       def initialize(region,token_hash)
         raise MonsoonOpenstackAuth::MalformedToken.new("Token is nil.") if token_hash.nil?
         raise MonsoonOpenstackAuth::MalformedToken.new("Token should be a hash.") unless token_hash.is_a?(Hash)
@@ -31,6 +31,7 @@ module MonsoonOpenstackAuth
         (description.nil? or description.empty?) ? name : description
       end
      
+
       def description
         @description ||= read_value("user.description")
       end
@@ -155,8 +156,21 @@ module MonsoonOpenstackAuth
       end
 
       def is_allowed?(actions, params={})
+        unless params.is_a? Hash
+          params_hash = Hash.new
+          params_hash[params.class.name.downcase.to_sym] = params
+        else
+          params_hash = params
+        end
         @policy ||= MonsoonOpenstackAuth.policy_engine.policy(self)
-        @policy.enforce(actions,params)
+        result = if MonsoonOpenstackAuth.configuration.authorization.trace_enabled
+                   policy_trace = @policy.enforce_with_trace(actions, params_hash)
+                   policy_trace.print
+                   policy_trace.result
+                 else
+                   @policy.enforce(actions, params_hash)
+                 end
+        return result
       end
 
       protected
