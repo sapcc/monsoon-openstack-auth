@@ -43,6 +43,7 @@ module MonsoonOpenstackAuth
   end
   
   def self.policy_engine
+    MonsoonOpenstackAuth.load_policy if configuration.authorization.reload_policy
     @policy_engine
   end
   
