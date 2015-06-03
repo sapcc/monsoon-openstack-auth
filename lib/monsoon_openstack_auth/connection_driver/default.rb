@@ -40,6 +40,7 @@ module MonsoonOpenstackAuth
           openstack_api_key:  self.class.api_password,
           connection_options: self.class.connection_options
         })
+
         rescue => e
           puts e
           puts e.backtrace.join("\n")
