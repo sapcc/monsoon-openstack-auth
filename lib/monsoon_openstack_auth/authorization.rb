@@ -153,7 +153,7 @@ module MonsoonOpenstackAuth
           policy.enforce([os_action], hashed_resource)
         end
       
-        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(current_user, os_action, authorization_resource) unless result
+        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(authorization_user, os_action, authorization_resource) unless result
       end
 
 
@@ -185,7 +185,7 @@ module MonsoonOpenstackAuth
           policy.enforce(policy_rules, mashed_resource)
         end
 
-        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(current_user, policy_rules, mashed_resource) unless result
+        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(authorization_user, policy_rules, mashed_resource) unless result
       end
 
       # Renders a static file to minimize the chances of further errors.
@@ -217,8 +217,12 @@ module MonsoonOpenstackAuth
       end
 
       def policy
-        @policy = MonsoonOpenstackAuth.policy_engine.policy(current_user) if !@policy || current_user.id != @policy.user.id
+        @policy = MonsoonOpenstackAuth.policy_engine.policy(authorization_user) if !@policy || authorization_user.id != @policy.user.id
         return @policy
+      end
+
+      def authorization_user
+        send(MonsoonOpenstackAuth.configuration.authorization.user_method)
       end
 
       class MissingAction < StandardError;
