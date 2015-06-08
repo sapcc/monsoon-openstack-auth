@@ -44,7 +44,7 @@ module MonsoonOpenstackAuth
   end
   
   class AuthorizationConfig
-    METHODS = [:policy_file_path, :controller_action_map, :context, :security_violation_handler, :reload_policy, :trace_enabled]
+    METHODS = [:policy_file_path, :controller_action_map, :context, :security_violation_handler, :user_method, :reload_policy, :trace_enabled]
     attr_accessor *METHODS
     
     def initialize
@@ -59,6 +59,8 @@ module MonsoonOpenstackAuth
       }
       @context = Rails.application.class.parent_name if Rails
       @security_violation_handler = :authorization_forbidden
+      @user_method = :current_user
+
       @policy_file_path = 'config/policy.json'
       @trace_enabled = false
       @reload_policy = false
