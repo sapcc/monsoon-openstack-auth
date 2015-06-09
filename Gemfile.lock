@@ -1,9 +1,38 @@
 GIT
-  remote: git://github.com/sapcc/monsoon/monsoon-fog.git
-  revision: e6a898f8573e155386f337f463d7b29c2d567de9
+  remote: git://github.com/sapcc/i056593/fog.git
+  revision: 3ab89c96e24525ec5a90b561b394b62baa6e39a4
+  branch: master
   specs:
-    monsoon-fog (0.4.0)
-      fog (~> 1.28)
+    fog (1.31.1)
+      fog-atmos
+      fog-aws (~> 0.0)
+      fog-brightbox (~> 0.4)
+      fog-core (~> 1.30)
+      fog-ecloud
+      fog-google (>= 0.0.2)
+      fog-json
+      fog-local
+      fog-powerdns (>= 0.1.1)
+      fog-profitbricks
+      fog-radosgw (>= 0.0.2)
+      fog-riakcs
+      fog-sakuracloud (>= 0.0.4)
+      fog-serverlove
+      fog-softlayer
+      fog-storm_on_demand
+      fog-terremark
+      fog-vmfusion
+      fog-voxel
+      fog-xml (~> 0.1.1)
+      ipaddress (~> 0.5)
+      nokogiri (~> 1.5, >= 1.5.11)
+
+GIT
+  remote: git://github.com/sapcc/monsoon/monsoon-fog.git
+  revision: 3fc87646533a2a7404050af1abecf6fe4132685c
+  specs:
+    monsoon-fog (0.4.1)
+      fog (~> 1.31.1)
       retryable (~> 1.3)
 
 PATH
@@ -81,33 +110,10 @@ GEM
     ffi (1.9.8)
     fission (0.5.0)
       CFPropertyList (~> 2.2)
-    fog (1.30.0)
-      fog-atmos
-      fog-aws (~> 0.0)
-      fog-brightbox (~> 0.4)
-      fog-core (~> 1.27, >= 1.27.4)
-      fog-ecloud
-      fog-google (>= 0.0.2)
-      fog-json
-      fog-local
-      fog-powerdns (>= 0.1.1)
-      fog-profitbricks
-      fog-radosgw (>= 0.0.2)
-      fog-riakcs
-      fog-sakuracloud (>= 0.0.4)
-      fog-serverlove
-      fog-softlayer
-      fog-storm_on_demand
-      fog-terremark
-      fog-vmfusion
-      fog-voxel
-      fog-xml (~> 0.1.1)
-      ipaddress (~> 0.5)
-      nokogiri (~> 1.5, >= 1.5.11)
     fog-atmos (0.1.0)
       fog-core
       fog-xml
-    fog-aws (0.3.0)
+    fog-aws (0.4.0)
       fog-core (~> 1.27)
       fog-json (~> 1.0)
       fog-xml (~> 0.1)
@@ -130,16 +136,16 @@ GEM
       fog-core
       fog-json
       fog-xml
-    fog-json (1.0.1)
+    fog-json (1.0.2)
       fog-core (~> 1.0)
-      multi_json (~> 1.0)
+      multi_json (~> 1.10)
     fog-local (0.2.1)
       fog-core (~> 1.27)
     fog-powerdns (0.1.1)
       fog-core (~> 1.27)
       fog-json (~> 1.0)
       fog-xml (~> 0.1)
-    fog-profitbricks (0.0.2)
+    fog-profitbricks (0.0.3)
       fog-core
       fog-xml
       nokogiri
@@ -306,6 +312,7 @@ DEPENDENCIES
   activerecord-session_store (~> 0.1.0)
   dotenv-rails
   factory_girl_rails (~> 4.0)
+  fog!
   guard-rspec
   monsoon-fog!
   monsoon-openstack-auth!
@@ -313,3 +320,6 @@ DEPENDENCIES
   rspec-rails (~> 2.99.0)
   sqlite3
   webmock
+
+BUNDLED WITH
+   1.10.3
