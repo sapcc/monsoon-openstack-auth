@@ -15,7 +15,9 @@ gemspec
 # To use debugger enable below
 # gem 'debugger'
 
+# gem 'monsoon-fog', :path => '../monsoon-fog'
 gem 'monsoon-fog', git: 'git://github.com/sapcc/monsoon/monsoon-fog.git'
+gem 'fog', git: 'git://github.com/sapcc/i056593/fog.git', branch:'master'
 
 gem 'rails', '>=4.0.0', :groups => [:development, :test]
 gem 'dotenv-rails', :groups => [:development, :test]
