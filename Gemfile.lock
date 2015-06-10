@@ -1,5 +1,5 @@
 GIT
-  remote: git://github.com/sapcc/i056593/fog.git
+  remote: git://github.com/sapcc/monsoon/fog.git
   revision: 3ab89c96e24525ec5a90b561b394b62baa6e39a4
   branch: master
   specs:
@@ -29,7 +29,7 @@ GIT
 
 GIT
   remote: git://github.com/sapcc/monsoon/monsoon-fog.git
-  revision: 3fc87646533a2a7404050af1abecf6fe4132685c
+  revision: b1e2db4819b91ab1c28d87d1da686c01b8fee207
   specs:
     monsoon-fog (0.4.1)
       fog (~> 1.31.1)
@@ -129,7 +129,7 @@ GEM
       mime-types
       net-scp (~> 1.1)
       net-ssh (>= 2.1.3)
-    fog-ecloud (0.1.1)
+    fog-ecloud (0.1.2)
       fog-core
       fog-xml
     fog-google (0.0.5)
