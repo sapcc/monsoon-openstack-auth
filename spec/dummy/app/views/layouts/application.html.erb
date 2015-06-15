@@ -30,6 +30,12 @@
   <div class="content">
     <%= render template: '/monsoon_openstack_auth/shared/policy_trace'%>
     
+    <% if @service_user%>
+      Service User's name: <%= @service_user.current_user %><br/>
+      Service User's domains: <%= @domains.collect {|d| d.name}%><br/>
+      Is cloud admin: <%= (@monsooncc.nil? or @admin_role.nil?) ? false : @service_user.role_assignments.filter_by(domain_id: @monsooncc.id, role_id: @admin_role.id).count>0%>
+    <% end %>  
+    
     <% flash.each do |name, msg| -%>
       <%= content_tag :div, msg, class: name %>
     <% end -%>
