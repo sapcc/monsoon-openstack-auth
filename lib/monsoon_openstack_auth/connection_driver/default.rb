@@ -44,7 +44,7 @@ module MonsoonOpenstackAuth
         rescue => e
           puts e
           puts e.backtrace.join("\n")
-          MonsoonOpenstackAuth::ConnectionDriver::ConnectionError.new(e)
+          raise MonsoonOpenstackAuth::ConnectionDriver::ConnectionError.new(e)
         end
         self
       end  
