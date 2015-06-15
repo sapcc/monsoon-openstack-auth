@@ -2,7 +2,7 @@ module MonsoonOpenstackAuth
   module ConnectionDriver
     class Default < MonsoonOpenstackAuth::ConnectionDriver::Interface
       class << self
-        attr_accessor :api_endpoint, :api_userid, :api_password, :ssl_verify_peer, :ssl_ca_path, :ssl_ca_file
+        attr_accessor :api_endpoint, :api_userid, :api_password, :api_domain, :ssl_verify_peer, :ssl_ca_path, :ssl_ca_file
       
         def connection_options
           result = { ssl_verify_peer: (ssl_verify_peer.nil? ? true : ssl_verify_peer) }
@@ -23,7 +23,7 @@ module MonsoonOpenstackAuth
       end
     
       def initialize(region)
-        
+        # connect service user
         unless (self.class.api_endpoint or self.class.api_userid or self.class.api_password)
           raise MonsoonOpenstackAuth::ConnectionDriver::ConfigurationError.new("Api credentials not provided! Please provide 
             connection_driver.api_endpoint, connection_driver.api_userid and 
@@ -32,18 +32,25 @@ module MonsoonOpenstackAuth
       
         MonsoonOpenstackAuth.logger.info("Monsoon Openstack Auth -> api_endpoint: #{MonsoonOpenstackAuth::ConnectionDriver::Default.endpoint}")
         
-        begin
-        @fog = Fog::IdentityV3::OpenStack.new({
-          openstack_region:   region,
+        params = {
           openstack_auth_url: self.class.endpoint,
-          openstack_userid:   self.class.api_userid,
+          openstack_region:   region,
           openstack_api_key:  self.class.api_password,
           connection_options: self.class.connection_options
-        })
-
+        }
+        
+        if self.class.api_domain
+          # scoped service user -> use domain, username and password
+          params[:openstack_domain_name] = self.class.api_domain
+          params[:openstack_username] = self.class.api_userid
+        else
+          # unscoped service user -> use userid and password
+          params[:openstack_userid] = self.class.api_userid
+        end
+        
+        begin            
+          @fog = Fog::IdentityV3::OpenStack.new(params)
         rescue => e
-          puts e
-          puts e.backtrace.join("\n")
           raise MonsoonOpenstackAuth::ConnectionDriver::ConnectionError.new(e)
         end
         self
@@ -72,10 +79,7 @@ module MonsoonOpenstackAuth
             return nil unless dd
             @default_domain = MonsoonOpenstackAuth::Authentication::AuthDefaultDomain.new(id: dd.id, name: dd.name, description: dd.description, enabled: dd.enabled)
           rescue => e
-            puts e 
-            puts e.backtrace.join("\n")
-            MonsoonOpenstackAuth::ConnectionDriver::ConnectionError.new(e)
-            return nil
+            raise MonsoonOpenstackAuth::ConnectionDriver::ConnectionError.new(e)
           end
         end
         return @default_domain

@@ -78,7 +78,11 @@ module MonsoonOpenstackAuth
       end
       
       def auth_default_domain
-        MonsoonOpenstackAuth.default_domain
+        begin
+          MonsoonOpenstackAuth.default_domain
+        rescue MonsoonOpenstackAuth::ApiError => e
+          nil
+        end
       end
     end
   end

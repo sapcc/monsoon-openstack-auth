@@ -11,6 +11,8 @@ require 'monsoon_openstack_auth/authorization'
 require "monsoon_openstack_auth/configuration"
 
 module MonsoonOpenstackAuth
+  class ApiError < StandardError; end
+  
   class LoggerWrapper
     def initialize(logger)
       @logger = logger
@@ -38,7 +40,16 @@ module MonsoonOpenstackAuth
 
   def self.api_client(region)
     @api_connections = {} unless @api_connections
-    @api_connections[region] ||= MonsoonOpenstackAuth::ApiClient.new(region)
+    
+    # create and cache api_connection for requested region.
+    unless @api_connections[region]
+      @api_connections[region] = begin
+        MonsoonOpenstackAuth::ApiClient.new(region)
+      rescue MonsoonOpenstackAuth::ConnectionDriver::ConnectionError => e
+        self.logger.error(e.message)
+        raise ApiError.new("Service user unavailable. Could not authenticate service user.")
+      end
+    end
     @api_connections[region]
   end
   
@@ -65,14 +76,11 @@ module MonsoonOpenstackAuth
   def self.load_default_domain
     @default_domain = begin
       self.api_client(self.configuration.default_region).default_domain
-    rescue MonsoonOpenstackAuth::ConnectionDriver::ConnectionError=> e
-      puts e
-      puts e.backtrace.join("\n")
-      nil  
+    rescue ApiError,MonsoonOpenstackAuth::ConnectionDriver::ConnectionError => e
+      nil
     end
     
-    raise "[Monsoon Openstack Auth]: Could not load default domain for name=#{self.configuration.default_domain_name}." unless @default_domain 
-    #puts "[Monsoon Openstack Auth]: Could not load default domain for name=#{self.configuration.default_domain_name}." unless @default_domain 
+    raise ApiError.new("Could not load default domain '#{self.configuration.default_domain_name}'") unless @default_domain
   end
   
   def self.default_domain
