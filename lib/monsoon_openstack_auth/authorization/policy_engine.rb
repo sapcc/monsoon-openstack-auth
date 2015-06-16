@@ -68,7 +68,7 @@ module MonsoonOpenstackAuth
 
         LOCALS = {
           'roles'       => lambda { |current_user| current_user.role_names } ,
-          'domain_id'   => lambda { |current_user| current_user.domain_id },
+          'domain_id'   => lambda { |current_user| current_user.project_domain_id || current_user.domain_id },
           'is_admin'    => lambda { |current_user| current_user.admin? },
           'project_id'  => lambda { |current_user| current_user.project_id },
           'user_id'     => lambda { |current_user| current_user.id }
