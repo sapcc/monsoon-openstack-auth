@@ -68,7 +68,7 @@ module MonsoonOpenstackAuth
 
         LOCALS = {
           'roles'       => lambda { |current_user| current_user.role_names } ,
-          'domain_id'   => lambda { |current_user| current_user.user_domain_id },
+          'domain_id'   => lambda { |current_user| current_user.domain_id },
           'is_admin'    => lambda { |current_user| current_user.admin? },
           'project_id'  => lambda { |current_user| current_user.project_id },
           'user_id'     => lambda { |current_user| current_user.id }
@@ -89,6 +89,8 @@ module MonsoonOpenstackAuth
         end
     
         def enforce_with_trace(rule_names=[], params = {})
+          params = ::MonsoonOpenstackAuth::Authorization::PolicyParams.build(params)
+          
           trace = ExecutionTrace.new
           
           result = true
@@ -96,19 +98,21 @@ module MonsoonOpenstackAuth
           rule_names.each do |name|
             res = @rules.get(name).execute(@locals,params,trace)
             result &= res
-            MonsoonOpenstackAuth.logger.info("Rule enforced [#{name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params.to_json if params}")
+            MonsoonOpenstackAuth.logger.info("Rule enforced [#{name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params if params}")
           end
 
           trace
         end
         
         def enforce(rule_names=[], params = {})
+          params = ::MonsoonOpenstackAuth::Authorization::PolicyParams.build(params)
+          
           result = true
           rule_names = [rule_names] unless rule_names.is_a?(Array)
           rule_names.each do |name|
             res = @rules.get(name).execute(@locals,params)
             result &= res
-            MonsoonOpenstackAuth.logger.info("Rule enforced [#{name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params.to_json if params}")
+            MonsoonOpenstackAuth.logger.info("Rule enforced [#{name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params if params}")
           end
           result
         end

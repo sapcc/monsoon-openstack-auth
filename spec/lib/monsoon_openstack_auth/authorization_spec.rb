@@ -8,6 +8,7 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
     MonsoonOpenstackAuth::Authentication::AuthSession.stub(:check_authentication) {auth_session}
     MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
     MonsoonOpenstackAuth.load_policy
+    MonsoonOpenstackAuth.stub(:api_client)
   end
 
   context "authorization filter all" do
