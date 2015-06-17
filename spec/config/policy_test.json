@@ -18,7 +18,7 @@
     
     "identity:domain_list":     "rule:admin_required or role:member",
     "identity:domain_create":   "@",
-    "identity:domain_change":   "rule:admin_required or rule:d_owner",
+    "identity:domain_change":   "rule:admin_or_domain_owner",
     "identity:domain_delete":   "rule:admin_required",
     "identity:domain_x_list":     "rule:admin_required or role:member",
     "identity:domain_x_create":   "@",

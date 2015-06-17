@@ -23,6 +23,7 @@ FactoryGirl.define do
         user.stub(:project_id).and_return 'project_123'
         user.stub(:domain_id).and_return 'domain_123'
         user.stub(:user_domain_id).and_return 'domain_123'
+        user.stub(:project_domain_id).and_return 'domain_123'
       end
     end
 

@@ -344,7 +344,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
       
       context "domain_name is not nil" do
         it "should call authenticate using id and password" do
-          allow(@fog_driver.tokens).to receive(:authenticate).with({ auth: { identity: { methods: ["password"], password:{user: {name: 'test', password: 'test', domain: {name: 'test_domain'} } } } } })
+          allow(@fog_driver.tokens).to receive(:authenticate).with({ auth: { identity: { methods: ["password"], password:{user: {name: 'test', password: 'test', domain: {id: 'test_domain'} } } } } })
           MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(controller,'europe','test','test','test_domain')  
         end
       end
