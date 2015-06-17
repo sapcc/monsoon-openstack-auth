@@ -64,7 +64,7 @@ describe MonsoonOpenstackAuth::Authorization::PolicyEngine do
         @action = [x.metadata[:description_args].first]
         @domain = FactoryGirl.build_stubbed(:domain, :member_domain)
         @project = FactoryGirl.build_stubbed(:project, :member_project)
-        @params = Hashie::Mash.new({:domain => {:id => @domain.id},:project => {:id => @project.id}})
+        @params = {:domain => {:id => @domain.id},:project => {:id => @project.id}}
         @policy = @policy_engine.policy(@current_user)
       end
       it "returns false if user is domain member/owner" do

@@ -79,7 +79,7 @@ describe MonsoonOpenstackAuth::Authorization::PolicyEngine do
       end
     end
 
-    context "user allowed actions when user is membe" do
+    context "user allowed actions when user is member" do
 
       before :each do |x|
         @current_user = FactoryGirl.build_stubbed(:user, :member)
