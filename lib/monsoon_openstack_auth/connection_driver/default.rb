@@ -86,7 +86,9 @@ module MonsoonOpenstackAuth
       end
     
       def validate_token(auth_token)
-        HashWithIndifferentAccess.new(@fog.tokens.validate(auth_token).attributes)
+        cache.fetch key:auth_token,scope:nil do
+          HashWithIndifferentAccess.new(@fog.tokens.validate(auth_token).attributes)
+        end
       end
   
       def authenticate_with_credentials(username,password, scope=nil)
@@ -146,7 +148,12 @@ module MonsoonOpenstackAuth
       end
       
       protected
-      
+
+        def cache
+          impl = MonsoonOpenstackAuth.configuration.token_cache
+          impl.new
+        end
+
     end
   end
 end

@@ -2,7 +2,7 @@ module MonsoonOpenstackAuth
   class Configuration    
     METHODS = [
       :connection_driver, :token_auth_allowed, :basic_auth_allowed,:access_key_auth_allowed, :sso_auth_allowed,
-      :form_auth_allowed, :login_redirect_url, :debug, :logger, :authorization, :default_domain_name, :default_region
+      :form_auth_allowed, :login_redirect_url, :debug, :logger, :authorization, :default_domain_name, :default_region,:token_cache
     ]
     
     attr_accessor *METHODS
@@ -19,6 +19,7 @@ module MonsoonOpenstackAuth
       @debug                    = false
       @logger                   = MonsoonOpenstackAuth::LoggerWrapper.new(Rails ? Rails.logger : Logger.new(STDERR))
       @authorization            = AuthorizationConfig.new
+      @token_cache              = MonsoonOpenstackAuth::Cache::NoopCache
     end
     
     # support old configuration format
