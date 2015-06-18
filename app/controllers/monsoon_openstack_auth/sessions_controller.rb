@@ -21,17 +21,17 @@ module MonsoonOpenstackAuth
       @region = (params[:region_id] || MonsoonOpenstackAuth.configuration.default_region)
       redirect_to_url = MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(self,@region,@username,@password, @domain_id,@domain_name)
       if redirect_to_url 
-        redirect_to redirect_to_url, notice: 'Signed on!'
+        redirect_to redirect_to_url#, notice: 'Signed on!'
       else
         @error = 'Invalid username/password combination'
-        flash[:alert] = @error
+        #flash[:alert] = @error
         render action: :new
       end
     end
   
     def destroy
       MonsoonOpenstackAuth::Authentication::AuthSession.logout(self)
-      redirect_to main_app.root_path, notice: "Signed out!"
+      redirect_to main_app.root_path#, notice: "Signed out!"
     end
   end
 end

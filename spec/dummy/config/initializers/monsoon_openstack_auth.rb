@@ -19,6 +19,8 @@ MonsoonOpenstackAuth.configure do |config|
   
   config.default_region = 'europe'
   
+  config.provide_sso_domain = true
+  
   # optional, default= last url before redirected to form
   #config.login_redirect_url = '/'
   
