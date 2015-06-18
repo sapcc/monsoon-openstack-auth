@@ -255,15 +255,17 @@ module MonsoonOpenstackAuth
         
         scope = nil
         
-        begin 
-          domain_name_math = @controller.request.env['HTTP_SSL_CLIENT_S_DN'].match('O=([^\/]*)')
-          domain_name = domain_name_math[1] if domain_name_math
-          domain_name = "sap_default" if (domain_name && domain_name=~/SAP-AG/i)
-          domain = MonsoonOpenstackAuth.api_client(region).domain_by_name(domain_name) if domain_name
-          scope = { domain: domain.id } if domain && domain.id
-        rescue => e
-          MonsoonOpenstackAuth.logger.error "Could not find Domain for name=#{domain_name}. #{e}"
-        end 
+        if MonsoonOpenstackAuth.configuration.provide_sso_domain
+          begin 
+            domain_name_math = @controller.request.env['HTTP_SSL_CLIENT_S_DN'].match('O=([^\/]*)')
+            domain_name = domain_name_math[1] if domain_name_math
+            domain_name = "sap_default" if (domain_name && domain_name=~/SAP-AG/i)
+            domain = MonsoonOpenstackAuth.api_client(region).domain_by_name(domain_name) if domain_name
+            scope = { domain: domain.id } if domain && domain.id
+          rescue => e
+            MonsoonOpenstackAuth.logger.error "Could not find Domain for name=#{domain_name}. #{e}"
+          end 
+        end
       
         # authenticate user as external user 
         begin
