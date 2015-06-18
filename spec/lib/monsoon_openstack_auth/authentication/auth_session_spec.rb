@@ -295,6 +295,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
       end
 
       it "authenticates from sso" do
+        MonsoonOpenstackAuth.configuration.provide_sso_domain=true
         domain = double("domain")
         domain.stub(:id).and_return('o-sap_default')
         
@@ -313,6 +314,30 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         expect(controller.current_user).not_to be(nil)
         expect(controller.current_user.token).to eq(test_token[:value])
         expect(MonsoonOpenstackAuth.api_client('europe')).to have_received(:authenticate_external_user).with("test",{domain: 'o-sap_default'})
+      end
+      
+      it "authenticate from sso ignoring domain" do
+        MonsoonOpenstackAuth.configuration.provide_sso_domain=false
+        
+        domain = double("domain")
+        domain.stub(:id).and_return('o-sap_default')
+        
+        allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:domain_by_name).with('sap_default').and_return(domain)
+        
+        request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
+        request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
+        request.env['HTTP_SSL_CLIENT_S_DN'] = "/O=SAP-AG/CN=test"
+
+        allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_external_user).and_return(test_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_token)
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
+
+        get "index", { region_id: 'europe', domain: test_token_domain, project: test_token_project }
+        expect(controller.current_user).not_to be(nil)
+        expect(controller.current_user.token).to eq(test_token[:value])
+        
+        expect(MonsoonOpenstackAuth.api_client('europe')).to have_received(:authenticate_external_user).with("test",nil)
       end
 
       it "authenticates from access_key" do
