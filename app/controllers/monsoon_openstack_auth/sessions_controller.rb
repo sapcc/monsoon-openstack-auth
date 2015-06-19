@@ -24,7 +24,7 @@ module MonsoonOpenstackAuth
         redirect_to redirect_to_url#, notice: 'Signed on!'
       else
         @error = 'Invalid username/password combination'
-        flash[:alert] = @error
+        flash.now[:alert] = @error
         render action: :new
       end
     end
