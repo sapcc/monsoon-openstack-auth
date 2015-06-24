@@ -1,9 +1,8 @@
 require_dependency "monsoon_openstack_auth/application_controller"
 
 module MonsoonOpenstackAuth
-  class SessionsController < ApplicationController
-    skip_authentication
-    
+  class SessionsController < ActionController::Base
+        
     def new
       session_store = MonsoonOpenstackAuth::Authentication::AuthSession.session_store(self)
       @region = session_store.region
@@ -31,7 +30,7 @@ module MonsoonOpenstackAuth
   
     def destroy
       MonsoonOpenstackAuth::Authentication::AuthSession.logout(self)
-      redirect_to main_app.root_path#, notice: "Signed out!"
+      redirect_to main_app.root_url#, notice: "Signed out!"
     end
   end
 end

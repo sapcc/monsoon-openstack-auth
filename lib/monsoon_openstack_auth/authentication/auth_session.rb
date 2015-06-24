@@ -352,6 +352,7 @@ module MonsoonOpenstackAuth
     
       ############ LOGIN FORM FUCNTIONALITY ##################
       def login_form_user(username,password)
+        puts ":::::::::::::::::::::::::::::::::login_form_user"
         unless @session_store
           MonsoonOpenstackAuth.logger.info "login_form_user -> session store not presented." if @debug
           return nil
@@ -359,6 +360,8 @@ module MonsoonOpenstackAuth
       
         begin          
           redirect_to_url = (MonsoonOpenstackAuth.configuration.login_redirect_url || @session_store.redirect_to || @controller.main_app.root_path)
+          puts ">>>>>>>>>>>>>>>>redirect_to_url"
+          puts redirect_to_url
           token = @api_client.authenticate_with_credentials(username, password, @scope)
           @session_store.token=token 
           @session_store.delete_redirect_to
