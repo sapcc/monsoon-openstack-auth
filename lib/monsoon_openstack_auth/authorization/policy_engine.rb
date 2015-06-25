@@ -164,31 +164,77 @@ module MonsoonOpenstackAuth
         class << self
           def parse(all_rules,name, rule)
             
+            # ############ normalize rule ############
+            # # replace %(text)s with params["text"]
+            # parsed_rule = rule.gsub(/%\(/,'params["').gsub(/\)s/,'"]')
+            # # replace "(" and ")" with " ( " and " ) "
+            # parsed_rule = parsed_rule.gsub(/\s*(?<bracket>\(|\))\s*/, ' \k<bracket> ')
+            # # replace "or" and "and" with " or " and " and "
+            # parsed_rule = parsed_rule.gsub(/\s+(?<operator>or|\bor\b|and|\band\b)\s+/i, ' \k<operator> ')
+            # # remove spaces betwenn ":" and text
+            # parsed_rule = parsed_rule.gsub(/\s*(?<colon>:)\s*/, '\k<colon>')
+            # ############# end #############
+            #
+            # # replace params["param1.param2.param3"] with (params["param1"].param2.param3 rescue false)
+            # parsed_rule = parsed_rule.gsub(/params\["(?<param>[^\.|\]]+)(?<attributes>(\.[^\]]+)+)"\]/,'params["\k<param>"]\k<attributes>')
+            # # replace params["param"] with params["param".to_sym]
+            # parsed_rule = parsed_rule.gsub(/params\["(?<param>[^\]]+)"\]/,'params["\k<param>".to_sym]')
+            # # replace "True" and "@" and empty rule with "true"
+            # parsed_rule = parsed_rule.gsub(/^$/,'true').gsub(/True|@/i, 'true')
+            # # replace "False" and "!" with "false"
+            # parsed_rule = parsed_rule.gsub(/False|!/i, 'false')
+            #
+            # # save rules which name's contain ":"
+            # # replace rule:part1:part2:partn with rule:part1<->part2<->part3
+            # parsed_rule = parsed_rule.gsub(/rule:([^\s]+)/) {|m| "rule:#{$1.gsub(/\:/,'<->')}" }
+            #
+            # # replace rule:name with @rules["name"].execute(locals,params)
+            # parsed_rule = parsed_rule.gsub(/rule:(?<rule>[^\s]+)/,'@rules.get("\k<rule>").execute(locals,params,trace)')
+            # # replace role:name with locals["roles"].include?("name")
+            # parsed_rule = parsed_rule.gsub(/role:(?<role>[^\s]+)/,'locals["roles"].include?("\k<role>")')
+            # # replace name:value with (locals["name"]=="value" rescue false)
+            # parsed_rule = parsed_rule.gsub(/(?<key>[^\s|:]+):(?<value>[^\s]+)/,'(locals["\k<key>"]==\k<value> rescue false)')
+            #
+            # # recover rules
+            # # replace <-> with :
+            # parsed_rule = parsed_rule.gsub("<->",":")
+            
             ############ normalize rule ############
             # replace %(text)s with params["text"]
             parsed_rule = rule.gsub(/%\(/,'params["').gsub(/\)s/,'"]')
+            
             # replace "(" and ")" with " ( " and " ) "
-            parsed_rule = parsed_rule.gsub(/\s*(?<bracket>\(|\))\s*/, ' \k<bracket> ')
+            parsed_rule.gsub!(/\s*(?<bracket>\(|\))\s*/, ' \k<bracket> ')
             # replace "or" and "and" with " or " and " and "
-            parsed_rule = parsed_rule.gsub(/\s+(?<operator>or|\bor\b|and|\band\b)\s+/i, ' \k<operator> ')
+            parsed_rule.gsub!(/\s+(?<operator>or|\bor\b|and|\band\b)\s+/i, ' \k<operator> ')
             # remove spaces betwenn ":" and text
-            parsed_rule = parsed_rule.gsub(/\s*(?<colon>:)\s*/, '\k<colon>')
+            parsed_rule.gsub!(/\s*(?<colon>:)\s*/, '\k<colon>')
             ############# end #############
         
             # replace params["param1.param2.param3"] with (params["param1"].param2.param3 rescue false)
-            parsed_rule = parsed_rule.gsub(/params\["(?<param>[^\.|\]]+)(?<attributes>(\.[^\]]+)+)"\]/,'(begin; params["\k<param>"]\k<attributes>; rescue; false; end) ')
+            parsed_rule.gsub!(/params\["(?<param>[^\.|\]]+)(?<attributes>(\.[^\]]+)+)"\]/,'params["\k<param>"]\k<attributes>')
             # replace params["param"] with params["param".to_sym]
-            parsed_rule = parsed_rule.gsub(/params\["(?<param>[^\]]+)"\]/,'params["\k<param>".to_sym]')
+            parsed_rule.gsub!(/params\["(?<param>[^\]]+)"\]/,'params["\k<param>".to_sym]')
             # replace "True" and "@" and empty rule with "true"
-            parsed_rule = parsed_rule.gsub(/^$/,'true').gsub(/True|@/i, 'true')
+            parsed_rule.gsub!(/^$/,'true')
+            parsed_rule.gsub!(/True|@/i, 'true')
             # replace "False" and "!" with "false"
-            parsed_rule = parsed_rule.gsub(/False|!/i, 'false')
+            parsed_rule.gsub!(/False|!/i, 'false')
+            
+            #********* save rules which name's contain ":" 
+            # replace rule:part1:part2:partn with rule:part1<->part2<->part3
+            parsed_rule.gsub!(/rule:([^\s]+)/) {|m| "rule:#{$1.gsub(/\:/,'<->')}" }          
+            
             # replace rule:name with @rules["name"].execute(locals,params)
-            parsed_rule = parsed_rule.gsub(/rule:(?<rule>[^\s]+)/,'@rules.get("\k<rule>").execute(locals,params,trace)')
+            parsed_rule.gsub!(/rule:(?<rule>[^\s]+)/,'@rules.get("\k<rule>").execute(locals,params,trace)')
             # replace role:name with locals["roles"].include?("name")
-            parsed_rule = parsed_rule.gsub(/role:(?<role>[^\s]+)/,'locals["roles"].include?("\k<role>")')
-            # replace name:value with locals["name"]=="value"
-            parsed_rule = parsed_rule.gsub(/(?<key>[^\s|:]+):(?<value>[^\s]+)/,'locals["\k<key>"]==\k<value>')
+            parsed_rule.gsub!(/role:(?<role>[^\s]+)/,'locals["roles"].include?("\k<role>")')
+            # replace name:value with (locals["name"]=="value" rescue false)
+            parsed_rule.gsub!(/(?<key>[^\s|:]+):(?<value>[^\s]+)/,'(locals["\k<key>"]==\k<value> rescue false)')
+            
+            #********* recover rules
+            # replace <-> with :
+            parsed_rule.gsub!("<->",":")
 
             self.new(all_rules, name,rule, parsed_rule)
           end
