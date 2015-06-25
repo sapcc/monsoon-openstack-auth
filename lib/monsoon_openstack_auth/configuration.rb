@@ -52,7 +52,7 @@ module MonsoonOpenstackAuth
     
     def initialize
       @controller_action_map = {
-          :index   => 'read',
+          :index   => 'list',
           :show    => 'read',
           :new     => 'create',
           :create  => 'create',
