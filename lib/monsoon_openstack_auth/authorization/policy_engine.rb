@@ -97,6 +97,7 @@ module MonsoonOpenstackAuth
           rule_names = [rule_names] unless rule_names.is_a?(Array)
           rule_names.each do |name|
             res = @rules.get(name).execute(@locals,params,trace)
+            #res = begin @rules.get(name).execute(@locals,params,trace); rescue RuleExecutionError; false; end
             result &= res
             MonsoonOpenstackAuth.logger.info("Rule enforced [#{name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params if params}")
           end
@@ -111,6 +112,7 @@ module MonsoonOpenstackAuth
           rule_names = [rule_names] unless rule_names.is_a?(Array)
           rule_names.each do |name|
             res = @rules.get(name).execute(@locals,params)
+            #res = begin @rules.get(name).execute(@locals,params); rescue RuleExecutionError; false; end
             result &= res
             MonsoonOpenstackAuth.logger.info("Rule enforced [#{name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params if params}")
           end
@@ -132,25 +134,25 @@ module MonsoonOpenstackAuth
         end
         
         def to_s(pre="\t",after="")
-          out = "#{pre}locals: #{self.locals}#{after}"
-          out += "#{pre}params: #{(self.params||{})}#{after}"
+          out = "\033[33m#{pre}locals: #{self.locals}#{after}\033[0m"
+          out += "\033[33m#{pre}params: #{(self.params||{})}#{after}\033[0m\n"
           out += to_s_recursive(self,pre,after)
           out
         end
         
         def print
-          MonsoonOpenstackAuth.logger.info "===============TRACE============="
-          MonsoonOpenstackAuth.logger.info "locals: #{self.locals}"
-          MonsoonOpenstackAuth.logger.info "params: #{(self.params||{}).to_s}"
-          MonsoonOpenstackAuth.logger.info self.to_s("\t","\n")
-          MonsoonOpenstackAuth.logger.info "================================="
+          MonsoonOpenstackAuth.logger.info """
+            \n\033[33m===============RULE TRACE=============\033[0m
+            \n#{self.to_s("\t","\n")}
+            \n\033[33m=================================\033[0m
+          """    
         end
         
         protected
         def to_s_recursive(trace,pre,after,level=0)
           prefix = ""
           level.times{prefix+=pre}
-          out = "#{prefix}#{trace.rule.name}: #{trace.rule.rule} -> #{trace.result}#{after}" if trace.rule  
+          out = "\033[33m#{prefix}#{trace.rule.name}: #{trace.rule.rule} -> #{trace.result}#{after}\033[0m" if trace.rule  
           trace.next.each{|t| out += to_s_recursive(t,pre,after,level+1)}
           out
         end
@@ -173,8 +175,8 @@ module MonsoonOpenstackAuth
             parsed_rule = parsed_rule.gsub(/\s*(?<colon>:)\s*/, '\k<colon>')
             ############# end #############
         
-            # replace params["param1.param2.param3"] with params["param1"].param2.param3
-            parsed_rule = parsed_rule.gsub(/params\["(?<param>[^\.|\]]+)(?<attributes>(\.[^\]]+)+)"\]/,'params["\k<param>"]\k<attributes>')
+            # replace params["param1.param2.param3"] with (params["param1"].param2.param3 rescue false)
+            parsed_rule = parsed_rule.gsub(/params\["(?<param>[^\.|\]]+)(?<attributes>(\.[^\]]+)+)"\]/,'(begin; params["\k<param>"]\k<attributes>; rescue; false; end) ')
             # replace params["param"] with params["param".to_sym]
             parsed_rule = parsed_rule.gsub(/params\["(?<param>[^\]]+)"\]/,'params["\k<param>".to_sym]')
             # replace "True" and "@" and empty rule with "true"
@@ -187,7 +189,7 @@ module MonsoonOpenstackAuth
             parsed_rule = parsed_rule.gsub(/role:(?<role>[^\s]+)/,'locals["roles"].include?("\k<role>")')
             # replace name:value with locals["name"]=="value"
             parsed_rule = parsed_rule.gsub(/(?<key>[^\s|:]+):(?<value>[^\s]+)/,'locals["\k<key>"]==\k<value>')
-        
+
             self.new(all_rules, name,rule, parsed_rule)
           end
           
@@ -239,15 +241,19 @@ module MonsoonOpenstackAuth
           # catch no method error and raise rule execution error  
           rescue NoMethodError => nme
             raise RuleExecutionError.new(self,locals,params,nme)
+            #return false
           # catch name error and raise rule execution error    
           rescue NameError => ne
             raise RuleExecutionError.new(self,locals,params,nme)
+            #return false
           # catch rule execution error from nested rules and raise it up to next 
           rescue RuleExecutionError => ree
             raise ree
+            #return false
           # catch other exceptions and raise rule execution error    
           rescue NameError => ne
             raise RuleExecutionError.new(self,locals,params,nme)
+            #return false
           end
         end
     

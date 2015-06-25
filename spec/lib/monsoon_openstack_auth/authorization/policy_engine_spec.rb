@@ -17,10 +17,10 @@ describe MonsoonOpenstackAuth::Authorization::PolicyEngine do
         @policy = @policy_engine.policy(@current_user)
       end
 
-      it "raises error if empty params" do
+      it "raises no error if empty params" do
         expect{
           @policy.enforce(["owner"],{})
-        }.to raise_error(MonsoonOpenstackAuth::Authorization::RuleExecutionError)
+        }.not_to raise_error(MonsoonOpenstackAuth::Authorization::RuleExecutionError)
       end
     end
     

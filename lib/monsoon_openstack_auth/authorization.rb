@@ -17,10 +17,72 @@ module MonsoonOpenstackAuth
         self.send(MonsoonOpenstackAuth.configuration.authorization.security_violation_handler, exception)
       end
     end
+    
+    def self.authorization_action_map
+      @authorization_action_map ||= MonsoonOpenstackAuth.configuration.authorization.controller_action_map.dup
+    end
+    
+    def self.controller_name(params={})
+      n = params.fetch("controller",'').split('/').last
+      n || ''
+    end
+    
+    def self.determine_rule_name(params={})
+      controller_name = controller_name(params)
+      action_name = params["action"]
+      
+      # `action_name` comes from ActionController
+      authorization_action = authorization_action_map[action_name.to_sym] || action_name
+      application_name = MonsoonOpenstackAuth.configuration.authorization.context
+      rule_name = "#{application_name}:#{controller_name.singularize}_#{authorization_action.to_s}"
+    end
+    
+    # build policy relevant parameters based on controller params
+    def self.build_policy_params(params={},options = {})
+      policy_params = {}
+      ignore_params = options.fetch(:ignore_params,[:page,:per_page,:action, :controller])
+      id_alias = options.fetch(:id_alias,'id')
+      model_class = options.fetch(:model_class,nil)
+      controller_name = controller_name(params)
+
+      # convert params to policy params
+      relevant_params = params.inject({}) do |hash, name_value_pair|
+        name = name_value_pair[0].to_sym
+        value = name_value_pair[1]
+        hash[name]=value unless ignore_params.include?(name)
+        hash
+      end
+      
+      relevant_params.each do |name,value|
+        policy_params[name.to_sym] = value  
+        name_as_string = name.to_s
+        
+        if name_as_string.end_with?("_id") or name_as_string=='id'
+          class_name = if name_as_string.end_with?("_id")
+            name_as_string.gsub("_id",'')
+          else
+            model_class || controller_name(params).singularize
+          end
+          
+          begin
+            klazz = eval(class_name.capitalize)
+            object = klazz.where(id_alias => value).first
+            policy_params[:target] ||= {}
+            policy_params[:target][class_name.downcase.to_sym] = object
+          rescue => e
+            puts e
+          end
+        end  
+      end
+
+      policy_params
+    end
 
     included do
       extend ClassMethods
       include InstanceMethods
+      
+      helper_method :enforce_permissions
     
       rescue_from(MonsoonOpenstackAuth::Authorization::SecurityViolation, :with => MonsoonOpenstackAuth::Authorization.security_violation_callback)
       class_attribute :authorization_resource, :instance_reader => false
@@ -28,12 +90,36 @@ module MonsoonOpenstackAuth
 
     module ClassMethods
 
-       def skip_authorization(options={})
+      def skip_authorization(options={})
         prepend_before_filter options do
           @_skip_authorization=true
         end
       end
 
+      ################ NEW action-level permissions ######################
+      def authorization_required(options={})
+        id_alias = options.delete(:id_alias)
+        ignore_params = options.delete(:ignore_params)
+        model_class = options.delete(:model_class)
+        additional_options = {}
+        additional_options[:id_alias] = id_alias if id_alias
+        additional_options[:ignore_params] = ignore_params if ignore_params
+        additional_options[:model_class] = model_class if model_class
+        
+        before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authorization") }) do
+          # get the rule_name for requested action
+          policy_rule_name  = ::MonsoonOpenstackAuth::Authorization.determine_rule_name(params)
+          # build policy params (including: params and target objects like user)
+          # params = {user_id: 1} -> target[:user] = User.where(id_alias=>1)
+          policy_params     = ::MonsoonOpenstackAuth::Authorization.build_policy_params(params, additional_options) || {}
+
+          enforce_permissions(policy_rule_name, policy_params)
+        end
+      end
+      ################# END Andreas #####################
+      
+      
+      
       # Sets up before_filter to ensure user is allowed to perform a given controller action
       #
       # @param [Class OR Symbol] resource_or_finder - class whose authorizer
@@ -83,6 +169,43 @@ module MonsoonOpenstackAuth
     end
 
     module InstanceMethods
+      ################### action-level permissions #########################
+      # object level permissions
+      # possible signatures:
+      # enforce_permissions("identity:user_read", {user: UserObject})
+      # enforce_permissions(["identity:user_read","user_create"], {user: UserObject})
+      # enforce_permissions(:user_read,{user: UserObject})
+      # enforce_permissions(user: UserObject), rule_name is determined based on the controller and action names 
+      def enforce_permissions(*options)
+        context = "#{MonsoonOpenstackAuth.configuration.authorization.context}:"
+
+        policy_rules = [] 
+        policy_params = {}
+
+        if options.first.is_a?(Hash)
+          policy_rules = [MonsoonOpenstackAuth::Authorization.determine_rule_name(self.params)]
+          policy_params = options.first
+        else
+          policy_rules = options.first.is_a?(Array) ? options.first : [options.first]
+          policy_rules = policy_rules.collect{|n| n.to_s.start_with?(context) ? n.to_s : "#{context}#{n.to_s}" }
+          policy_params = options.second
+        end
+                  
+        result = if MonsoonOpenstackAuth.configuration.authorization.trace_enabled
+          policy_trace = policy.enforce_with_trace(policy_rules, policy_params)
+          policy_trace.print
+          policy_trace.result
+        else
+          policy.enforce(policy_rules, policy_params)
+        end
+
+        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(authorization_user, policy_rules, policy_params) unless result
+      end
+      
+      ################### END Andreas ###################
+    
+    
+    
     
       attr_writer :authorization_performed
 
