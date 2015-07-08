@@ -1,6 +1,6 @@
 module MonsoonOpenstackAuth
   module Authentication
-    class AuthUser
+    class AuthUser < MonsoonOpenstackAuth::Authorization::PolicyInterface
       attr_reader :context, :services_region
 
       def initialize(region,token_hash)

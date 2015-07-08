@@ -6,7 +6,7 @@ module MonsoonOpenstackAuth
     def new
       session_store = MonsoonOpenstackAuth::Authentication::AuthSession.session_store(self)
       @region = session_store.region
-      @domain_id = session_store.domain_id
+      @domain_id =session_store.domain_id
       redirect_to main_app.root_path, alert: 'Not allowed!' and return unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
       MonsoonOpenstackAuth::Authentication::AuthSession.logout(self)
     end

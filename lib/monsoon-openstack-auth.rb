@@ -6,8 +6,8 @@ require "monsoon_openstack_auth/connection_driver/default"
 require "monsoon_openstack_auth/api_client"
 
 require "monsoon_openstack_auth/engine"
-require "monsoon_openstack_auth/authentication"
 require 'monsoon_openstack_auth/authorization'
+require "monsoon_openstack_auth/authentication"
 require "monsoon_openstack_auth/configuration"
 
 require "monsoon_openstack_auth/cache/rails_memory_cache"

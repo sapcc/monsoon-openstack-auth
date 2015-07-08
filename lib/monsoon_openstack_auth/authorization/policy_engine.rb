@@ -164,6 +164,7 @@ module MonsoonOpenstackAuth
         class << self
           def parse(all_rules,name, rule)
             
+            #TODO: remove following lines if alternative solution works (remove after 30.06.2015)
             # ############ normalize rule ############
             # # replace %(text)s with params["text"]
             # parsed_rule = rule.gsub(/%\(/,'params["').gsub(/\)s/,'"]')
@@ -230,7 +231,7 @@ module MonsoonOpenstackAuth
             # replace role:name with locals["roles"].include?("name")
             parsed_rule.gsub!(/role:(?<role>[^\s]+)/,'locals["roles"].include?("\k<role>")')
             # replace name:value with (locals["name"]=="value" rescue false)
-            parsed_rule.gsub!(/(?<key>[^\s|:]+):(?<value>[^\s]+)/,'(locals["\k<key>"]==\k<value> rescue false)')
+            parsed_rule.gsub!(/(?<key>[^\s|:]+):(?<value>[^\s]+)/,'(begin; locals["\k<key>"]==\k<value>; rescue; false; end)')
             
             #********* recover rules
             # replace <-> with :

@@ -51,15 +51,8 @@ module MonsoonOpenstackAuth
     attr_accessor *METHODS
     
     def initialize
-      @controller_action_map = {
-          :index   => 'list',
-          :show    => 'read',
-          :new     => 'create',
-          :create  => 'create',
-          :edit    => 'update',
-          :update  => 'update',
-          :destroy => 'delete'
-      }
+      @controller_action_map = {}
+      
       @context = Rails.application.class.parent_name if Rails
       @security_violation_handler = :authorization_forbidden
       @user_method = :current_user
