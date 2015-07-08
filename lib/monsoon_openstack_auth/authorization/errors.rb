@@ -10,7 +10,7 @@ module MonsoonOpenstackAuth
       end
 
       def message
-        "#{@user.name} is not authorized for action #{@action}  on resource: #{@resource}"
+        "#{@user.nil? ? 'User' : @user.name} is not authorized for action #{@action}  on resource: #{@resource}"
       end
     end
     

@@ -348,8 +348,6 @@ module MonsoonOpenstackAuth
         not user.nil?
       end
       
-      
-    
       ############ LOGIN FORM FUCNTIONALITY ##################
       def login_form_user(username,password)
         unless @session_store
@@ -365,7 +363,7 @@ module MonsoonOpenstackAuth
           create_user_from_token(token)
           
           # make user member of requested domain unless domain is nil
-          @api_client.create_user_domain_role(@user.id,@scope[:domain],'member') if @scope and @scope[:domain]
+          @api_client.create_user_domain_role(@user.id,'member') if @scope and @scope[:domain]
 
           return redirect_to_url
         rescue => e
