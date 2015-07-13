@@ -23,6 +23,7 @@ module MonsoonOpenstackAuth
       @authorization_action_map ||= MonsoonOpenstackAuth.configuration.authorization.controller_action_map.dup
     end
     
+    ################ NEW action-level permissions ######################
     def self.determine_rule_name(controller_name, action_name)
       authorization_action = authorization_action_map[action_name.to_sym] || action_name
       application_name = MonsoonOpenstackAuth.configuration.authorization.context
@@ -96,6 +97,7 @@ module MonsoonOpenstackAuth
       policy_params.delete(:target) if policy_params[:target].empty?
       policy_params
     end
+    ##################### END ###########################
 
     included do
       extend ClassMethods
@@ -136,7 +138,7 @@ module MonsoonOpenstackAuth
           enforce_permissions(policy_rule_name, policy_params)
         end
       end
-      ################# END Andreas #####################
+      ################# END #####################
       
       
       
