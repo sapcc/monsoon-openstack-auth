@@ -365,6 +365,10 @@ module MonsoonOpenstackAuth
           # make user member of requested domain unless domain is nil
           @api_client.create_user_domain_role(@user.id,'member') if @scope and @scope[:domain]
 
+          if redirect_to_url.is_a?(Proc)
+            redirect_to_url = redirect_to_url.call(@user)
+          end
+          
           return redirect_to_url
         rescue => e
           MonsoonOpenstackAuth.logger.error "login_form_user -> failed. #{e}"
