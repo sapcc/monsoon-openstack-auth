@@ -9,6 +9,25 @@ module MonsoonOpenstackAuth
         @services_region = region
         @context = token_hash
       end
+      
+      # # after login information
+      # def set_first_time_login(bool)
+      #   @first_time_login = bool
+      # end
+      #
+      # def first_time_login?
+      #   @first_time_login==true ? true : false
+      # end
+      #
+      # def redirect_url
+      #   @redirect_to_url
+      # end
+      #
+      # def set_redirect_url(url)
+      #   @redirect_to_url=url
+      # end
+      # #####end
+      
 
       def enabled?
         @enabled ||= read_value("user.enabled")

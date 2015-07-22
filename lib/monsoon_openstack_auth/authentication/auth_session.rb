@@ -359,16 +359,17 @@ module MonsoonOpenstackAuth
           redirect_to_url = (MonsoonOpenstackAuth.configuration.login_redirect_url || @session_store.redirect_to || @controller.main_app.root_path)
           token = @api_client.authenticate_with_credentials(username, password, @scope)
           @session_store.token=token 
-          @session_store.delete_redirect_to
           create_user_from_token(token)
           
           # make user member of requested domain unless domain is nil
           @api_client.create_user_domain_role(@user.id,'member') if @scope and @scope[:domain]
-
+          
+          # redirect_url is a Proc (defined in initializer)
           if redirect_to_url.is_a?(Proc)
-            redirect_to_url = redirect_to_url.call(@user)
+            redirect_to_url = redirect_to_url.call(@session_store.redirect_to, @user)
           end
           
+          @session_store.delete_redirect_to
           return redirect_to_url
         rescue => e
           MonsoonOpenstackAuth.logger.error "login_form_user -> failed. #{e}"
