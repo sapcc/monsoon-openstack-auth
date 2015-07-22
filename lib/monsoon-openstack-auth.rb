@@ -31,7 +31,7 @@ module MonsoonOpenstackAuth
   class << self
     attr_accessor :configuration
   end
-  
+    
   def self.configure
     self.configuration ||= MonsoonOpenstackAuth::Configuration.new
     yield(configuration)
