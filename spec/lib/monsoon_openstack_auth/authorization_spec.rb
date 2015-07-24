@@ -3,7 +3,7 @@ require 'spec_helper'
 describe MonsoonOpenstackAuth::Authorization, :type => :controller do
 
   before :each do
-    auth_session = double("auth_session")
+    auth_session = double("auth_session").as_null_object
     auth_session.stub(:user).and_return(FactoryGirl.build_stubbed(:user, :member))
     MonsoonOpenstackAuth::Authentication::AuthSession.stub(:check_authentication) { auth_session }
     MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")

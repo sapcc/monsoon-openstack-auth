@@ -4,20 +4,25 @@ module MonsoonOpenstackAuth
       attr_reader :session_store, :region
     
       class << self
-              
-        # check if valid token, basic auth, sso or session token is presented      
+        
+        # check if valid token, basic auth, sso or session token is presented
         def check_authentication(controller, region, scope_and_options={})
-          raise_not_authorized_error = scope_and_options.delete(:raise_error)
-          
+          raise_error = scope_and_options.delete(:raise_error)
+
           session = AuthSession.new(controller,session_store(controller), region, scope_and_options)
           
-          if raise_not_authorized_error
-            # authentication raises an error unless user is authenticated
-            session.authenticate
+          # return session if already authenticated
+          return session if session.authenticated?
+          
+          # not authenticated!
+          # raise error if options contains the flag
+          if raise_error
+            raise MonsoonOpenstackAuth::Authentication::NotAuthorized
           else
-            # redirect user to login form or root path unless user is authenticated
-            session.authenticate_or_redirect
+            # try to redirect to login form
+            session.redirect_to_login_form or controller.redirect_to(controller.main_app.root_path, notice: 'User is not authenticated!')
           end
+          return nil
         end
       
         # create user from form and authenticate
@@ -73,28 +78,8 @@ module MonsoonOpenstackAuth
         @api_client = MonsoonOpenstackAuth.api_client(@region) if @region
               
         @debug = MonsoonOpenstackAuth.configuration.debug?
-      end
-
-      def authenticate
-        if authenticated?
-          get_scoped_token if @session_store and !@scope.empty?
-          return self
-        end
-
-        raise MonsoonOpenstackAuth::Authentication::NotAuthorized
-      end
-
-      def authenticate_or_redirect
-        authenticate
-      rescue MonsoonOpenstackAuth::Authentication::NotAuthorized
-        if MonsoonOpenstackAuth.configuration.form_auth_allowed? and @session_store
-          redirect_to_login_form
-        else
-          @controller.redirect_to @controller.main_app.root_path, notice: 'User is not authenticated!'      
-        end
-        return nil
-      end
-    
+      end    
+      
       def authenticated?
         return true if validate_session_token
         return true if validate_auth_token
@@ -103,8 +88,8 @@ module MonsoonOpenstackAuth
         return true if validate_http_basic
       end
     
-      def get_scoped_token
-        if @session_store and @session_store.token_valid? 
+      def rescope_token
+        if @session_store and @session_store.token_valid? and !@scope.empty?
           token = @session_store.token
           domain =  token[:domain] 
           project = token[:project]
@@ -361,8 +346,10 @@ module MonsoonOpenstackAuth
           @session_store.token=token 
           create_user_from_token(token)
           
-          # make user member of requested domain unless domain is nil
-          @api_client.create_user_domain_role(@user.id,'member') if @scope and @scope[:domain]
+          #TODO: remove it
+          # # make user member of requested domain unless domain is nil
+          # @api_client.create_user_domain_role(@user.id,'member') if @scope and @scope[:domain]
+          # ###end
           
           # redirect_url is a Proc (defined in initializer)
           if redirect_to_url.is_a?(Proc)
@@ -379,12 +366,16 @@ module MonsoonOpenstackAuth
       end
     
       def redirect_to_login_form
-        @session_store.redirect_to = @controller.request.env['REQUEST_URI'] if @session_store
-        @session_store.region = @region
-        @session_store.domain_id = @scope[:domain]
-        @controller.redirect_to @controller.monsoon_openstack_auth.new_session_path
+        if MonsoonOpenstackAuth.configuration.form_auth_allowed? and @session_store
+          @session_store.redirect_to = @controller.request.env['REQUEST_URI'] if @session_store
+          @session_store.region = @region
+          @session_store.domain_id = @scope[:domain]
+          @controller.redirect_to @controller.monsoon_openstack_auth.new_session_path
+          return true
+        else
+          return false
+        end
       end
-
 
       def params
         @controller.params
