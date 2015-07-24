@@ -44,7 +44,10 @@ module MonsoonOpenstackAuth
         org = options.delete(:organization)
         org = options.delete(:domain) unless org
         prj = options.delete(:project)
-
+        
+        do_rescope = options.delete(:rescope)
+        do_rescope = do_rescope.nil? ? true : do_rescope 
+        
         # use default region from config
         reg = -> c {MonsoonOpenstackAuth.configuration.default_region} unless reg
 
@@ -59,7 +62,14 @@ module MonsoonOpenstackAuth
             project: Authentication.get_filter_value(self,prj),
             raise_error:raise_error
           })
-          @current_user = @auth_session.user if @auth_session
+          
+          # @current_user = @auth_session.user if @auth_session
+          
+          if @auth_session
+            @current_user = @auth_session.user
+            # rescope token to domain and project unless prevented 
+            authentication_rescope_token if do_rescope
+          end
         end
       end
     end
@@ -75,6 +85,10 @@ module MonsoonOpenstackAuth
 
       def logged_in?
         !@current_user.nil?
+      end
+      
+      def authentication_rescope_token
+        @auth_session.rescope_token if @auth_session
       end
       
       def auth_default_domain

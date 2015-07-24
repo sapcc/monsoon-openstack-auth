@@ -76,7 +76,7 @@ describe DomainController, type: :controller do
     MonsoonOpenstackAuth.configuration.debug = true
     MonsoonOpenstackAuth.load_policy
     
-    auth_session = double("auth_session")
+    auth_session = double("auth_session").as_null_object
     auth_session.stub(:user).and_return(FactoryGirl.build_stubbed(:user, :member))
     MonsoonOpenstackAuth::Authentication::AuthSession.stub(:check_authentication) {auth_session}
     MonsoonOpenstackAuth.stub(:api_client)
@@ -248,7 +248,7 @@ describe ProjectController, type: :controller do
     MonsoonOpenstackAuth.configuration.debug = true
     MonsoonOpenstackAuth.load_policy
     
-    auth_session = double("auth_session")
+    auth_session = double("auth_session").as_null_object
     auth_session.stub(:user).and_return(FactoryGirl.build_stubbed(:user, :member))
     MonsoonOpenstackAuth::Authentication::AuthSession.stub(:check_authentication) {auth_session}
     MonsoonOpenstackAuth.stub(:api_client)
