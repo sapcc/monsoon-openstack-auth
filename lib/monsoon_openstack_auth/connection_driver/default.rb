@@ -64,6 +64,8 @@ module MonsoonOpenstackAuth
         @fog.domains.all(name:domain_name).first
       end
       
+      # DEPRECATED
+      # TODO: remove it in one month (end of august)  
       def create_user_domain_role(user_id,role_name)
         return false if user_id.nil? or role_name.nil?
         user = @fog.users.find_by_id(user_id)

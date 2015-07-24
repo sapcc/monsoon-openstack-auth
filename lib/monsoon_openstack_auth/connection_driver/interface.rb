@@ -36,7 +36,9 @@ module MonsoonOpenstackAuth
       def domain_by_name(domain_name)
         raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("domain_by_name is not implemented yet!")
       end
-            
+         
+      # DEPRECATED
+      # TODO: remove it in one month (end of august)      
       def create_user_domain_role(user_id,domain_id,role_name)
         raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("create_user_domain_role is not implemented yet!")
       end

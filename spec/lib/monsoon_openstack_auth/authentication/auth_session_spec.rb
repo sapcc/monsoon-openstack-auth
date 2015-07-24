@@ -393,62 +393,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
           MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(controller, 'europe', {domain:'aaa',project:'bbb'})
         end
       end
-      
-      # context "not authorized" do
-      #   it "should raise not_authorized_error on forbidden scope " do
-      #     allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:authenticated?).and_return(true)
-      #     allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:rescope_token).and_raise(MonsoonOpenstackAuth::Authentication::NotAuthorized)
-      #
-      #     expect {
-      #       MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(controller, 'europe', {domain:'aaa',project:'bbb',raise_error:true})
-      #     }.to raise_error
-      #   end
-      #
-      #   it "do not redirect -> raise error" do
-      #     allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:authenticated?).and_return(true)
-      #     allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:rescope_token).and_raise(MonsoonOpenstackAuth::Authentication::NotAuthorized)
-      #     allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:redirect_to_login_form).and_return true
-      #
-      #     expect {
-      #       MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(controller, 'europe', {domain:'aaa',project:'bbb'})
-      #     }.to raise_error
-      #   end
-      #
-      #   it "redirect to login form" do
-      #     allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:authenticated?).and_return(false)
-      #     allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:rescope_token).and_raise(MonsoonOpenstackAuth::Authentication::NotAuthorized)
-      #     allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:redirect_to_login_form).and_return true
-      #
-      #     expect {
-      #       MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(controller, 'europe', {domain:'aaa',project:'bbb'})
-      #     }.not_to raise_error
-      #   end
-      # end
-      #
-      # context "authenticated and authorized" do
-      #   it "should not raise a not_authorized_error" do
-      #     allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:authenticated?).and_return(true)
-      #     allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:rescope_token).and_return(true)
-      #
-      #     expect {
-      #       MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(controller, 'europe', {domain:'aaa',project:'bbb',raise_error:true})
-      #     }.not_to raise_error
-      #   end
-      # end
-      #
-      # context "authorized and session unavailable" do
-      #   it "should not raise a not_authorized_error" do
-      #     auth_session = double("auth_session").as_null_object
-      #     MonsoonOpenstackAuth::Authentication::AuthSession.stub(:new).and_return(auth_session)
-      #
-      #     allow(auth_session).to receive(:authenticated?).and_return(true)
-      #     auth_session.instance_variable_set("@session_store",nil)
-      #
-      #     expect {
-      #       MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(controller, 'europe', {domain:'aaa',project:'bbb',raise_error:true})
-      #     }.not_to raise_error
-      #   end
-      # end
+
     end
   end
 end
