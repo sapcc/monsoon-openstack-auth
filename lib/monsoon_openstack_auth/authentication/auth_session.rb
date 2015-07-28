@@ -43,7 +43,7 @@ module MonsoonOpenstackAuth
           else
             nil
           end
-          
+
           session = AuthSession.new(controller, session_store(controller), region, scope)
           redirect_to_url = session.login_form_user(username,password)
           return redirect_to_url
@@ -345,17 +345,11 @@ module MonsoonOpenstackAuth
           token = @api_client.authenticate_with_credentials(username, password, @scope)
           @session_store.token=token 
           create_user_from_token(token)
-          
-          #TODO: remove it
-          # # make user member of requested domain unless domain is nil
-          # @api_client.create_user_domain_role(@user.id,'member') if @scope and @scope[:domain]
-          # ###end
-          
+                  
           # redirect_url is a Proc (defined in initializer)
           if redirect_to_url.is_a?(Proc)
             redirect_to_url = redirect_to_url.call(@session_store.redirect_to, @user)
           end
-          
           @session_store.delete_redirect_to
           return redirect_to_url
         rescue => e
