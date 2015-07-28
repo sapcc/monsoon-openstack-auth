@@ -91,6 +91,10 @@ module MonsoonOpenstackAuth
         @auth_session.rescope_token if @auth_session
       end
       
+      def redirect_to_login_form
+        @auth_session.redirect_to_login_form if @auth_session
+      end
+      
       def auth_default_domain
         begin
           MonsoonOpenstackAuth.default_domain
