@@ -9,7 +9,7 @@ module MonsoonOpenstackAuth
         @services_region = region
         @context = token_hash
       end
-      
+
       # # after login information
       # def set_first_time_login(bool)
       #   @first_time_login = bool
@@ -27,29 +27,29 @@ module MonsoonOpenstackAuth
       #   @redirect_to_url=url
       # end
       # #####end
-      
+
 
       def enabled?
         @enabled ||= read_value("user.enabled")
       end
 
-      # Returns the token value (auth_token)  
+      # Returns the token value (auth_token)
       def token
-        @token ||= @context["value"] 
+        @token ||= @context["value"]
       end
-    
+
       def id
         @id ||= read_value("user.id")
       end
-    
+
       def name
         @name ||= read_value("user.name")
       end
-      
+
       def full_name
         (description.nil? or description.empty?) ? name : description
       end
-     
+
 
       def description
         @description ||= read_value("user.description")
@@ -58,95 +58,99 @@ module MonsoonOpenstackAuth
       def user_domain_id
         @user_domain_id ||= read_value("user.domain.id")
       end
-    
+
       def user_domain_name
         @user_domain_name ||= read_value("user.domain.name")
       end
-    
+
       def domain_id
         @domain_id ||= read_value("domain.id")
       end
-    
+
       def domain_name
         @domain_name ||= read_value("domain.name")
       end
-    
+
       def project_id
         @project_id ||= read_value("project.id")
       end
-    
+
       def project_name
         @project_name ||= read_value("project.name")
       end
-    
+
+      def project_parent_id
+        @project_parent_id ||= read_value("project.parent_id")
+      end
+
       def project_domain_id
         @project_domain_id ||= read_value("project.domain.id")
       end
-    
+
       def project_domain_name
         @project_domain_name ||= read_value("project.domain.name")
       end
-    
+
       def project_scoped
         @project_scoped ||= read_value("project")
       end
-    
+
       def domain_scoped
         @domain_scoped ||= read_value("domain")
       end
-    
+
       def token_expires_at
         @token_expires_at ||= DateTime.parse(@context["expires_at"])
       end
-    
+
       def token_expired?
         token_expires_at<Time.now
       end
-    
+
       def token_issued_at
         @token_issued_at ||= DateTime.parse(@context["issued_at"])
       end
-    
+
       def service_catalog
         @service_catalog ||= (@context["catalog"] || @context["serviceCatalog"] || [])
       end
-    
+
       def has_service?(type)
-        catch(:found) do 
+        catch(:found) do
           service_catalog.each { |service| throw(:found, true) if service["type"]==type }
           # not found
           false
         end
       end
-    
+
       def roles
         @roles ||= (@context["roles"] || read_value("user.roles") || [])
       end
-    
+
       def role_names
-        @role_names ||= roles.nil? ? [] : roles.collect{|r| r.is_a?(Hash) ? r["name"] : r}  
+        @role_names ||= roles.nil? ? [] : roles.collect{|r| r.is_a?(Hash) ? r["name"] : r}
       end
-    
+
       def has_role?(name)
-        catch(:found) do 
+        catch(:found) do
           roles.each { |role| throw(:found, true) if role["name"]==name }
           # not found
           false
         end
       end
- 
+
       def admin?
         if @is_admin.nil?
           @is_admin = catch(:found) do
             # return true if found
-            roles.each{ |role| throw(:found, true) if role["name"]=="admin" } 
+            roles.each{ |role| throw(:found, true) if role["name"]=="admin" }
             # else return false
             false
           end
         end
         @is_admin
       end
-    
+
       # Returns the first endpoint region for first non-identity service
       # in the service catalog
       def default_services_region
@@ -158,8 +162,8 @@ module MonsoonOpenstackAuth
         end
         @default_services_region.empty? ? nil : @default_services_region
       end
-    
-      # Returns list of unique region name values found in service catalog 
+
+      # Returns list of unique region name values found in service catalog
       def available_services_regions
         unless @regions
           @regions = []
@@ -167,7 +171,7 @@ module MonsoonOpenstackAuth
             next if service["type"]=="identity"
             (service["endpoints"] || []).each do |endpint|
               @regions << endpint['region']
-            end  
+            end
           end
           @regions.uniq!
         end
@@ -193,7 +197,7 @@ module MonsoonOpenstackAuth
       end
 
       protected
-    
+
       # Returns a value from context for given key.
       # example for key: "user.id"
       def read_value(key)
