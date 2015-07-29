@@ -66,7 +66,6 @@ module MonsoonOpenstackAuth
           # @current_user = @auth_session.user if @auth_session
           
           if @auth_session
-            @current_user = @auth_session.user
             # rescope token to domain and project unless prevented 
             authentication_rescope_token if do_rescope
           end
@@ -80,7 +79,7 @@ module MonsoonOpenstackAuth
       end
       
       def current_user
-        @current_user
+        @auth_session.user if @auth_session
       end
 
       def logged_in?
