@@ -17,6 +17,7 @@ module MonsoonOpenstackAuth
             version = URI(api_endpoint).path.split('/')[1]
             @endpoint = URI.join(api_endpoint, "/#{version}/auth/tokens").to_s
           rescue => e
+            Rails.logger.info("api_endpoint: #{api_endpoint}")
             raise MalformedApiEndpoint.new(e)
           end
         end
