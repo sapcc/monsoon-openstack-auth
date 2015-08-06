@@ -157,7 +157,7 @@ module MonsoonOpenstackAuth
           end
         end
       
-        # didn't returned -> validate auth token
+        # didn't return -> validate auth token
         begin
           token = @api_client.validate_token(auth_token) #self.class.keystone_connection(@region).tokens.validate(auth_token)
           if token
@@ -170,10 +170,20 @@ module MonsoonOpenstackAuth
               return true
             end
           end
-        rescue Fog::Identity::OpenStack::NotFound => e
-          MonsoonOpenstackAuth.logger.error "token validation failed #{e}."
-        end  
-
+          #rescue Excon::Errors::Unauthorized, Fog::Identity::OpenStack::NotFound => e   
+          #MonsoonOpenstackAuth.logger.error "token validation failed #{e}."
+          #end  
+        rescue => e   
+          class_name = e.class.name
+          if class_name.start_with?('Excon') or class_name.start_with?('Fog')
+            MonsoonOpenstackAuth.logger.error "token validation failed #{e}."
+          else
+            MonsoonOpenstackAuth.logger.error "unknown error #{e}."
+            raise e
+          end  
+        end
+      
+        
         MonsoonOpenstackAuth.logger.info "validate_auth_token -> failed." if @debug
         return false      
       end
