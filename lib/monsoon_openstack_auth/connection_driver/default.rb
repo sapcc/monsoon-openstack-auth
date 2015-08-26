@@ -37,7 +37,8 @@ module MonsoonOpenstackAuth
           openstack_auth_url: self.class.endpoint,
           openstack_region:   region,
           openstack_api_key:  self.class.api_password,
-          connection_options: self.class.connection_options
+          connection_options: self.class.connection_options,
+          openstack_service_type: ["identityv3"]
         }
         
         if self.class.api_domain
