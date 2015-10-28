@@ -79,7 +79,11 @@ module MonsoonOpenstackAuth
       end
       
       def current_user
-        @auth_session.user if @auth_session
+        if auth_session
+          auth_session.user
+        else
+          AuthSession.load_user_from_session(self).user rescue nil
+        end
       end
 
       def logged_in?

@@ -5,6 +5,12 @@ module MonsoonOpenstackAuth
     
       class << self
         
+        def load_user_from_session(controller)
+          session = AuthSession.new(controller,session_store(controller), nil, nil)
+          session.validate_session_token
+          return session
+        end
+        
         # check if valid token, basic auth, sso or session token is presented
         def check_authentication(controller, region, scope_and_options={})
           raise_error = scope_and_options.delete(:raise_error)
