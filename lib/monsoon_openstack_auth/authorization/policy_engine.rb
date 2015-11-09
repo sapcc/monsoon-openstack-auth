@@ -7,11 +7,11 @@ module MonsoonOpenstackAuth
 
       DEFAULT_RULE_NAME = 'default'
 
-      def initialize(policy_json)
+      def initialize(policy_hash)
         @rules = RulesContainer.new
         @parsed_policy = {}
         @required_locals = []
-        parse_rules(policy_json)
+        parse_rules(policy_hash)
       end
 
       def policy(current_user)
@@ -20,9 +20,8 @@ module MonsoonOpenstackAuth
 
       protected
 
-      def parse_rules(policy_json)
+      def parse_rules(policy_hash)
         begin
-          policy_hash = JSON.parse(policy_json)
           policy_hash.each do |name, rule|
             parsed_rule = Rule.parse(@rules, name, rule)
             @rules.add(name, parsed_rule)

@@ -57,7 +57,7 @@ module MonsoonOpenstackAuth
       @security_violation_handler = :authorization_forbidden
       @user_method = :current_user
 
-      @policy_file_path = 'config/policy.json'
+      @policy_file_path = ['config/policy.json']
       @trace_enabled = false
       @reload_policy = false
     end
