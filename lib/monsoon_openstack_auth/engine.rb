@@ -14,7 +14,7 @@ module MonsoonOpenstackAuth
     end
       
     config.after_initialize do
-      MonsoonOpenstackAuth.load_policy
+      #MonsoonOpenstackAuth.load_policy
       #MonsoonOpenstackAuth.load_default_domain unless Rails.env=='test'
     end
   end
