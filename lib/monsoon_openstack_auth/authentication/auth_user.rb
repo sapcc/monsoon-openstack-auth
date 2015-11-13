@@ -10,25 +10,6 @@ module MonsoonOpenstackAuth
         @context = token_hash
       end
 
-      # # after login information
-      # def set_first_time_login(bool)
-      #   @first_time_login = bool
-      # end
-      #
-      # def first_time_login?
-      #   @first_time_login==true ? true : false
-      # end
-      #
-      # def redirect_url
-      #   @redirect_to_url
-      # end
-      #
-      # def set_redirect_url(url)
-      #   @redirect_to_url=url
-      # end
-      # #####end
-
-
       def enabled?
         @enabled ||= read_value("user.enabled")
       end
@@ -150,6 +131,27 @@ module MonsoonOpenstackAuth
         end
         @is_admin
       end
+      
+      
+      def service_url(type, options={})
+        region = options[:region] || @services_region || default_services_region
+        interface = options[:interface] || 'public'
+        
+        service = service_catalog.select do |service|
+          service["type"]==type.to_s
+        end.first
+        
+        return nil unless service
+
+        endpoint = service["endpoints"].select do |endpoint|
+          endpoint["region_id"]==region.to_s and endpoint["interface"]==interface.to_s
+        end.first
+        
+        return nil unless endpoint
+        
+        endpoint["url"]
+      end
+      
 
       # Returns the first endpoint region for first non-identity service
       # in the service catalog

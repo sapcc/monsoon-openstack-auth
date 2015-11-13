@@ -99,6 +99,8 @@ module MonsoonOpenstackAuth
         # build auth hash
         auth = { auth: { identity: { methods: ["password"], password:{} } } }
         
+        # Do not set scope. User may not registered yet and so no member of the domain.
+        # Using scope will fail the authentication for new users. 
         # build domain params. Authenticate user in given domain.
         if scope # scope is given
           domain_params = if scope[:domain]
@@ -113,7 +115,7 @@ module MonsoonOpenstackAuth
           auth[:auth][:identity][:password] = { user:{ id: username,password: password } }
         end   
         #MonsoonOpenstackAuth.logger.info "authenticate_with_credentials -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
-        HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
+        HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)      
       end
 
       def authenticate_with_token(token, scope=nil)

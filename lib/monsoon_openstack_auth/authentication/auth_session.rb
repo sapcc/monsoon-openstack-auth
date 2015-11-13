@@ -334,10 +334,11 @@ module MonsoonOpenstackAuth
       end
     
       def create_user_from_session_store
-        @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(@region,@session_store.token)
+        region = @region || @session_store.region
+        @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(region,@session_store.token)
       end
     
-      def create_user_from_token(token)
+      def create_user_from_token(token)       
         @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(@region, token) 
       end
     
@@ -359,6 +360,7 @@ module MonsoonOpenstackAuth
         begin          
           redirect_to_url = (MonsoonOpenstackAuth.configuration.login_redirect_url || @session_store.redirect_to || @controller.main_app.root_path)
           token = @api_client.authenticate_with_credentials(username, password, @scope)
+
           @session_store.token=token 
           create_user_from_token(token)
                   
