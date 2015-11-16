@@ -58,7 +58,10 @@ module MonsoonOpenstackAuth
         # clear session_store if request session is presented
         def logout(controller)
           session_store = session_store(controller)
-          session_store.delete_token if session_store          
+           if session_store 
+             session_store.delete_token   
+             session_store.delete_region      
+           end
         end
       
         def session_id_presented?(controller)
@@ -381,8 +384,7 @@ module MonsoonOpenstackAuth
         if MonsoonOpenstackAuth.configuration.form_auth_allowed? and @session_store
           @session_store.redirect_to = @controller.request.env['REQUEST_URI'] if @session_store
           @session_store.region = @region
-          @session_store.domain_id = @scope[:domain]
-          @controller.redirect_to @controller.monsoon_openstack_auth.new_session_path
+          @controller.redirect_to @controller.monsoon_openstack_auth.login_path(domain_id: @scope[:domain])
           return true
         else
           return false

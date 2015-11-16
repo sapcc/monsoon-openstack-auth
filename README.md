@@ -118,6 +118,21 @@ Rails.application.config.session_store :active_record_store, :key => '_monsoon_a
 
 ### Authentication
 
+#### ActionController::API
+
+ActionController::API does not include http basic functionality. So you have to include it manually if you want to support http basic. 
+
+```ruby
+include ActionController::HttpAuthentication::Basic::ControllerMethods
+```
+
+ActionController::API does not include MonsoonOpenstackAuth::Authentication. So you have to include it manually. 
+
+```ruby
+include MonsoonOpenstackAuth::Authentication
+```
+
+
 #### Controller
 
 ##### authentication_required
