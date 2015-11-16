@@ -228,7 +228,12 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
       context "session token not presented" do
         it "should authenticate user from auth token" do
           get "index", { region_id: 'europe' }
-          expect(response).to redirect_to(controller.monsoon_openstack_auth.new_session_path('europe'))
+          expect(response).to redirect_to(controller.monsoon_openstack_auth.login_path)
+        end
+        
+        it "should authenticate user from auth token by given domain_id" do
+          get "index", { region_id: 'europe', domain: 'default' }
+          expect(response).to redirect_to(controller.monsoon_openstack_auth.login_path('default'))
         end
       end
 
