@@ -153,6 +153,10 @@ module MonsoonOpenstackAuth
 
       end
       
+      def user_details(id)
+        @fog.users.find_by_id(id)
+      end
+      
       protected
 
         def cache

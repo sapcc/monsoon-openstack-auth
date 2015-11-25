@@ -56,6 +56,7 @@ describe OpenstackServiceProvider::Services, type: :controller do
     MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_credentials).with("me","me") { raise Fog::Identity::OpenStack::NotFound.new } 
     MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_token).and_return(test_token)
     MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_external_user).and_return(test_token)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:user_details).and_return(double('user').as_null_object)
   end
   
   controller do # anonymous subclass of ActionController::Base
