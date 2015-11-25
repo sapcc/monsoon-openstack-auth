@@ -333,16 +333,33 @@ module MonsoonOpenstackAuth
 
 
       def save_token_in_session_store(token)
-        @session_store.token=token if @session_store  
+        if @session_store  
+          begin
+            old_user_id = @session_store.user_id
+            new_user_id = (token["user"] || {})["id"]
+
+            if old_user_id!=new_user_id
+              user_details = @api_client.user_details(new_user_id)
+              @session_store.email=user_details.email if user_details
+            end
+          end
+          @session_store.token=token 
+        end
       end
     
       def create_user_from_session_store
         region = @region || @session_store.region
         @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(region,@session_store.token)
+        if @session_store and @session_store.email and @session_store.user_id==@user.id
+          @user.email=@session_store.email
+        end
       end
     
       def create_user_from_token(token)       
         @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(@region, token) 
+        if @session_store and @session_store.email and @session_store.user_id==@user.id
+          @user.email=@session_store.email
+        end
       end
     
       def user
@@ -364,7 +381,7 @@ module MonsoonOpenstackAuth
           redirect_to_url = (MonsoonOpenstackAuth.configuration.login_redirect_url || @session_store.redirect_to || @controller.main_app.root_path)
           token = @api_client.authenticate_with_credentials(username, password, @scope)
 
-          @session_store.token=token 
+          save_token_in_session_store(token) 
           create_user_from_token(token)
                   
           # redirect_url is a Proc (defined in initializer)

@@ -18,5 +18,6 @@ module MonsoonOpenstackAuth
     delegate :default_domain,                 to: :@connection_driver
     delegate :create_user_domain_role,        to: :@connection_driver
     delegate :domain_by_name,                 to: :@connection_driver
+    delegate :user_details,                   to: :@connection_driver 
   end
 end

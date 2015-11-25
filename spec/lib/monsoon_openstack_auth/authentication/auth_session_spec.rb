@@ -25,12 +25,14 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
     MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_external_user).and_return(test_token)
     MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_access_key).with("good_key").and_return(test_token)
     MonsoonOpenstackAuth::ApiClient.any_instance.stub(:authenticate_with_access_key).with("bad_key").and_return(nil)
+    MonsoonOpenstackAuth::ApiClient.any_instance.stub(:user_details).and_return(double('user').as_null_object)
   end
   
   context "included in controller", :type => :controller do
     before do
       controller.main_app.stub(:root_path).and_return('/')  
       controller.monsoon_openstack_auth.stub(:new_session_path).and_return('/auth/sessions/new')
+      controller.monsoon_openstack_auth.stub(:login_path).and_return('/auth/sessions/new')
     end
     
     controller do # anonymous subclass of ActionController::Base

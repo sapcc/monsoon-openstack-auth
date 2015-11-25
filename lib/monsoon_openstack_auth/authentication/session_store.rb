@@ -6,6 +6,10 @@ module MonsoonOpenstackAuth
       def initialize(session)
         @session = session
       end
+      
+      def user_id
+        ((self.token || {})["user"] || {})["id"]
+      end
     
       def token_presented?
         not @session[SESSION_NAME].nil?
@@ -43,6 +47,14 @@ module MonsoonOpenstackAuth
     
       def region=(region)
         @session[:region]=region
+      end
+      
+      def email=(email)
+        @session[:current_user_email]=email
+      end
+      
+      def email
+        @session[:current_user_email]
       end
     
       def region
