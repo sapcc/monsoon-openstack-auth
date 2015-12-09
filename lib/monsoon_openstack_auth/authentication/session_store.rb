@@ -56,6 +56,10 @@ module MonsoonOpenstackAuth
       def email
         @session[:current_user_email]
       end
+      
+      def delete_email
+        @session.delete :current_user_email
+      end
     
       def region
         @session[:region]

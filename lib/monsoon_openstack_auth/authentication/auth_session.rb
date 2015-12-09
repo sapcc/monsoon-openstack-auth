@@ -60,7 +60,8 @@ module MonsoonOpenstackAuth
           session_store = session_store(controller)
            if session_store 
              session_store.delete_token   
-             session_store.delete_region      
+             session_store.delete_region  
+             session_store.delete_email    
            end
         end
       
@@ -337,14 +338,16 @@ module MonsoonOpenstackAuth
           begin
             old_user_id = @session_store.user_id
             new_user_id = (token["user"] || {})["id"]
-            email = (token["user"] || {})["email"] 
             
-            if (email.nil? or email.empty?) and old_user_id!=new_user_id
-              user_details = @api_client.user_details(new_user_id)
-              email = user_details.email if user_details
+            if old_user_id!=new_user_id
+              email = (token["user"] || {})["email"] 
+              if (email.nil? or email.empty?) and old_user_id!=new_user_id
+                user_details = @api_client.user_details(new_user_id)
+                email = user_details.email if user_details
+              end
+              @session_store.email=email
             end
             
-            @session_store.email=email
           end
           @session_store.token=token 
         end
