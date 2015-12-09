@@ -336,18 +336,23 @@ module MonsoonOpenstackAuth
       def save_token_in_session_store(token)
         if @session_store  
           begin
+            # token no longer contains the email and description
+            # if user id in the session differs from user id in the token then
+            # get user details and save email and full_name in the session
             old_user_id = @session_store.user_id
             new_user_id = (token["user"] || {})["id"]
             
             if old_user_id!=new_user_id
-              email = (token["user"] || {})["email"] 
-              if (email.nil? or email.empty?) and old_user_id!=new_user_id
-                user_details = @api_client.user_details(new_user_id)
-                email = user_details.email if user_details
+              user_details = @api_client.user_details(new_user_id)
+              if user_details
+                @session_store.email=user_details.email
+                @session_store.full_name=user_details.description
+              else
+                @session_store.delete_email
+                @session_store.delete_full_name
               end
-              @session_store.email=email
             end
-            
+          rescue
           end
           @session_store.token=token 
         end
@@ -356,15 +361,19 @@ module MonsoonOpenstackAuth
       def create_user_from_session_store
         region = @region || @session_store.region
         @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(region,@session_store.token)
-        if @session_store and @session_store.email and @session_store.user_id==@user.id
+        if @session_store
+          # set user email and full_name from session
           @user.email=@session_store.email
+          @user.full_name = @session_store.full_name
         end
       end
     
       def create_user_from_token(token)       
         @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(@region, token) 
-        if @session_store and @session_store.email and @session_store.user_id==@user.id
+        if @session_store
+          # set user email and full_name from session
           @user.email=@session_store.email
+          @user.full_name=@session_store.full_name
         end
       end
     

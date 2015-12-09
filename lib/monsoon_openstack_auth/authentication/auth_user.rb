@@ -1,7 +1,7 @@
 module MonsoonOpenstackAuth
   module Authentication
     class AuthUser < MonsoonOpenstackAuth::Authorization::PolicyInterface
-      attr_accessor :email
+      attr_accessor :email, :full_name
       attr_reader :context, :services_region
 
       def initialize(region,token_hash)
@@ -27,11 +27,6 @@ module MonsoonOpenstackAuth
       def name
         @name ||= read_value("user.name")
       end
-
-      def full_name
-        (description.nil? or description.empty?) ? name : description
-      end
-
 
       def description
         @description ||= read_value("user.description")
