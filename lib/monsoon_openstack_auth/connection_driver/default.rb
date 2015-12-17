@@ -94,19 +94,21 @@ module MonsoonOpenstackAuth
           HashWithIndifferentAccess.new(@fog.tokens.validate(auth_token).attributes)
         end
       end
-  
-      def authenticate_with_credentials(username,password, scope=nil)
+      
+      def authenticate_with_credentials(username,password, user_domain_params=nil)
         # build auth hash
         auth = { auth: { identity: { methods: ["password"], password:{} } } }
         
         # Do not set scope. User may not registered yet and so no member of the domain.
         # Using scope will fail the authentication for new users. 
         # build domain params. Authenticate user in given domain.
-        if scope # scope is given
-          domain_params = if scope[:domain]
-            {domain: {id: scope[:domain]}}
+        if user_domain_params # scope is given
+          domain_params = if user_domain_params[:domain]
+            { domain: { id: user_domain_params[:domain] } }
+          elsif user_domain_params[:domain_name]
+            { domain: { name: user_domain_params[:domain_name] } }
           else
-            nil
+            {}
           end
           # try to authenticate with user name and password for given scope
           auth[:auth][:identity][:password] = { user:{ name: username,password: password }.merge(domain_params) }
@@ -114,9 +116,12 @@ module MonsoonOpenstackAuth
           # try to authenticate with user id and password
           auth[:auth][:identity][:password] = { user:{ id: username,password: password } }
         end   
-        #MonsoonOpenstackAuth.logger.info "authenticate_with_credentials -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
-        HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)      
+        
+        auth[:auth][:scope] = domain_params if user_domain_params[:scoped_token]  
+     
+        HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes) 
       end
+      
 
       def authenticate_with_token(token, scope=nil)
         auth = {auth:{identity: {methods: ["token"],token:{ id: token}}}}
