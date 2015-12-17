@@ -8,6 +8,7 @@ module MonsoonOpenstackAuth
           result = { ssl_verify_peer: (ssl_verify_peer.nil? ? true : ssl_verify_peer) }
           result[:ssl_ca_file] = ssl_ca_file unless ssl_ca_file.nil?
           result[:ssl_ca_path] = ssl_ca_path unless ssl_ca_path.nil?  
+          result[:debug] = true
           result
         end
       
@@ -62,51 +63,26 @@ module MonsoonOpenstackAuth
         @fog
       end
       
-      def domain_by_name(domain_name)
-        @fog.domains.all(name:domain_name).first
-      end
-      
-      # DEPRECATED
-      # TODO: remove it in one month (end of august)  
-      def create_user_domain_role(user_id,role_name)
-        return false if user_id.nil? or role_name.nil?
-        user = @fog.users.find_by_id(user_id)
-        member_role = @fog.roles.all(name:role_name).first
-        user.grant_role(member_role.id)
-      end
-      
-      # Default Domain such a sap_default
-      def default_domain(name=MonsoonOpenstackAuth.configuration.default_domain_name)
-        unless @default_domain
-          begin
-            dd = @fog.domains.all(name: name).first
-            return nil unless dd
-            @default_domain = MonsoonOpenstackAuth::Authentication::AuthDefaultDomain.new(id: dd.id, name: dd.name, description: dd.description, enabled: dd.enabled)
-          rescue => e
-            raise MonsoonOpenstackAuth::ConnectionDriver::ConnectionError.new(e)
-          end
-        end
-        return @default_domain
-      end
-    
       def validate_token(auth_token)
         cache.fetch key:auth_token,scope:nil do
           HashWithIndifferentAccess.new(@fog.tokens.validate(auth_token).attributes)
         end
       end
   
-      def authenticate_with_credentials(username,password, scope=nil)
+      def authenticate_with_credentials(username,password, user_domain_params=nil)
         # build auth hash
         auth = { auth: { identity: { methods: ["password"], password:{} } } }
         
         # Do not set scope. User may not registered yet and so no member of the domain.
         # Using scope will fail the authentication for new users. 
         # build domain params. Authenticate user in given domain.
-        if scope # scope is given
-          domain_params = if scope[:domain]
-            {domain: {id: scope[:domain]}}
+        if user_domain_params # scope is given
+          domain_params = if user_domain_params[:domain]
+            { domain: { id: user_domain_params[:domain] } }
+          elsif user_domain_params[:domain_name]
+            { domain: { name: user_domain_params[:domain_name] } }
           else
-            nil
+            {}
           end
           # try to authenticate with user name and password for given scope
           auth[:auth][:identity][:password] = { user:{ name: username,password: password }.merge(domain_params) }
@@ -114,6 +90,8 @@ module MonsoonOpenstackAuth
           # try to authenticate with user id and password
           auth[:auth][:identity][:password] = { user:{ id: username,password: password } }
         end   
+        
+        auth[:auth][:scope] = domain_params if user_domain_params[:scoped_token]
         #MonsoonOpenstackAuth.logger.info "authenticate_with_credentials -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)      
       end
@@ -153,9 +131,10 @@ module MonsoonOpenstackAuth
 
       end
       
-      def user_details(id)
-        @fog.users.find_by_id(id)
-      end
+      # #TODO: make it obsolete
+      # def user_details(id)
+      #   @fog.users.find_by_id(id)
+      # end
       
       protected
 

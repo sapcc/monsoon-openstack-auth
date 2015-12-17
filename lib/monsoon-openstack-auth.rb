@@ -83,21 +83,21 @@ module MonsoonOpenstackAuth
     end
   end
 
-  def self.load_default_domain
-    @default_domain = begin
-      self.api_client(self.configuration.default_region).default_domain
-    rescue ApiError, MonsoonOpenstackAuth::ConnectionDriver::ConnectionError => e
-      nil
-    end
-
-    raise ApiError.new("Could not load default domain '#{self.configuration.default_domain_name}'") unless @default_domain
-  end
-
-  def self.default_domain
-    # load and cache default domain unless available
-    self.load_default_domain unless @default_domain
-    @default_domain
-  end
+  # def self.load_default_domain
+  #   @default_domain = begin
+  #     self.api_client(self.configuration.default_region).default_domain
+  #   rescue ApiError, MonsoonOpenstackAuth::ConnectionDriver::ConnectionError => e
+  #     nil
+  #   end
+  #
+  #   raise ApiError.new("Could not load default domain '#{self.configuration.default_domain_name}'") unless @default_domain
+  # end
+  #
+  # def self.default_domain
+  #   # load and cache default domain unless available
+  #   self.load_default_domain unless @default_domain
+  #   @default_domain
+  # end
 
 end
 
