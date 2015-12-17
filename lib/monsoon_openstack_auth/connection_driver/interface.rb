@@ -11,7 +11,7 @@ module MonsoonOpenstackAuth
       end
   
       # returns a token as hash
-      def authenticate_with_credentials(username,password, scope=nil)
+      def authenticate_with_credentials(username,password, user_domain_params=nil)
         raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("authenticate_with_credentials is not implemented yet!")
       end
 
@@ -28,18 +28,10 @@ module MonsoonOpenstackAuth
       def authenticate_with_access_key(access_key, scope=nil)
         raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("authenticate_with_access_key is not implemented yet!")
       end
-      
-      def default_domain
-        raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("default_domain is not implemented yet!")
-      end
-
-      def domain_by_name(domain_name)
-        raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("domain_by_name is not implemented yet!")
-      end
-
-      def user_details(id)
-        raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("user_details is not implemented yet!")
-      end
+      #
+      # def user_details(id)
+      #   raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("user_details is not implemented yet!")
+      # end
     end
   end
 end
