@@ -19,5 +19,10 @@ module MonsoonOpenstackAuth
     delegate :create_user_domain_role,        to: :@connection_driver
     delegate :domain_by_name,                 to: :@connection_driver
     delegate :user_details,                   to: :@connection_driver 
+    
+    def auth_user(username,password,user_domain_params={domain: nil, domain_name: nil, scoped_token: false})
+      token = authenticate_with_credentials(username,password,user_domain_params)
+      MonsoonOpenstackAuth::Authentication::AuthUser.new(@region, token) 
+    end
   end
 end
