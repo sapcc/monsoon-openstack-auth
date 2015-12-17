@@ -8,6 +8,7 @@ module MonsoonOpenstackAuth
           result = { ssl_verify_peer: (ssl_verify_peer.nil? ? true : ssl_verify_peer) }
           result[:ssl_ca_file] = ssl_ca_file unless ssl_ca_file.nil?
           result[:ssl_ca_path] = ssl_ca_path unless ssl_ca_path.nil?  
+          result[:debug] = true
           result
         end
       
@@ -49,12 +50,12 @@ module MonsoonOpenstackAuth
         end
       end
     
-      def initialize(region)
+      def initialize
         unless self.class.api_endpoint
           raise MonsoonOpenstackAuth::ConnectionDriver::ConfigurationError.new("No API endpoint provided!")
         end
 
-        @connection = ::Excon.new(self.class.endpoint)
+        @connection = ::Excon.new(self.class.endpoint,self.class.connection_options)
       end  
       
       def authenticate(auth_params)
