@@ -8,7 +8,7 @@ module MonsoonOpenstackAuth
           result = { ssl_verify_peer: (ssl_verify_peer.nil? ? true : ssl_verify_peer) }
           result[:ssl_ca_file] = ssl_ca_file unless ssl_ca_file.nil?
           result[:ssl_ca_path] = ssl_ca_path unless ssl_ca_path.nil?  
-          #result[:debug] = true
+          result[:debug] = MonsoonOpenstackAuth.configuration.debug
           result
         end
       
