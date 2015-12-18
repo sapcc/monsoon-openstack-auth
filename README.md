@@ -41,10 +41,6 @@ MonsoonOpenstackAuth.configure do |config|
 
   # api auth endpoint
   config.connection_driver.api_endpoint = ENV['MONSOON_OPENSTACK_AUTH_API_ENDPOINT']
-  # api admin user
-  config.connection_driver.api_userid   = ENV['MONSOON_OPENSTACK_AUTH_API_USERID']
-  # api admin password
-  config.connection_driver.api_password = ENV['MONSOON_OPENSTACK_AUTH_API_PASSWORD']
 
   # optional, default=true
   config.token_auth_allowed = true
@@ -56,9 +52,6 @@ MonsoonOpenstackAuth.configure do |config|
   config.form_auth_allowed  = true
   # optional, default=false
   config.access_key_auth_allowed = false
-  
-  # optional, default='europe'
-  config.default_region = 'europe'
   
   # optional, default='sap_default'
   config.default_domain_name='sap_default'
@@ -144,7 +137,6 @@ authentication_required options
 ```
 options:
 
-* **region**, optional. Example: 'europe'
 * **domain**, optional. Example: 'o-ghghad'
 * **project**, optional. Example: 'p-jhjhhj'
 * **only**, optional. Example only: [:index,:show]
@@ -166,14 +158,11 @@ end
 
 ```ruby
 DashboardController < ApplicationController
-  authentication_required region: :get_region
+  authentication_required 
 
   def index
   end
 
-  def get_region
-    @region = params[:region_id]
-  end
 end
 ```
 
@@ -181,7 +170,7 @@ Example:
 
 ```ruby
 DashboardController < ApplicationController
-  authentication_required only: [:index], region: -> c {'europe'}, project: :get_project, domain: :get_domain
+  authentication_required only: [:index], project: :get_project, domain: :get_domain
 
   def index
   end
@@ -209,7 +198,7 @@ options:
 
 * **only**, optional. Example only: [:index,:show]
 * **except**, optional. Example except: [:index,:show]
-* **if**, optional. Example if: -> c {c.params[:region_id].nil?}
+* **if**, optional. Example if: -> c {!c.params[:domain].nil?}
 * **unless**, optional
 
 

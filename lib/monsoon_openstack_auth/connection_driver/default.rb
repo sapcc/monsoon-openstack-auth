@@ -2,13 +2,13 @@ module MonsoonOpenstackAuth
   module ConnectionDriver
     class Default < MonsoonOpenstackAuth::ConnectionDriver::Interface
       class << self
-        attr_accessor :api_endpoint, :api_userid, :api_password, :api_domain, :ssl_verify_peer, :ssl_ca_path, :ssl_ca_file
+        attr_accessor :api_endpoint, :ssl_verify_peer, :ssl_ca_path, :ssl_ca_file
       
         def connection_options
           result = { ssl_verify_peer: (ssl_verify_peer.nil? ? true : ssl_verify_peer) }
           result[:ssl_ca_file] = ssl_ca_file unless ssl_ca_file.nil?
           result[:ssl_ca_path] = ssl_ca_path unless ssl_ca_path.nil?  
-          result[:debug] = true
+          #result[:debug] = true
           result
         end
       

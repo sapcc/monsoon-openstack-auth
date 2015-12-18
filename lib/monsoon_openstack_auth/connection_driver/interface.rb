@@ -1,10 +1,7 @@
 module MonsoonOpenstackAuth
   module ConnectionDriver
     class Interface
-      def initialize(region)
-        raise MonsoonOpenstackAuth::ConnectionDriver::ConfigurationError.new("region not provided!") unless region
-      end
-    
+
       # returns a token as hash
       def validate_token(auth_token)
         raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("validate_token is not implemented yet!")
@@ -28,10 +25,7 @@ module MonsoonOpenstackAuth
       def authenticate_with_access_key(access_key, scope=nil)
         raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("authenticate_with_access_key is not implemented yet!")
       end
-      #
-      # def user_details(id)
-      #   raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("user_details is not implemented yet!")
-      # end
+
     end
   end
 end

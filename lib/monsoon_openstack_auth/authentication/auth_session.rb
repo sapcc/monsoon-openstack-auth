@@ -1,7 +1,7 @@
 module MonsoonOpenstackAuth
   module Authentication
     class AuthSession
-      attr_reader :session_store, :region
+      attr_reader :session_store
     
       class << self
         
@@ -12,10 +12,10 @@ module MonsoonOpenstackAuth
         end
         
         # check if valid token, basic auth, sso or session token is presented
-        def check_authentication(controller, region, scope_and_options={})
+        def check_authentication(controller, scope_and_options={})
           raise_error = scope_and_options.delete(:raise_error)
 
-          session = AuthSession.new(controller,session_store(controller), region, scope_and_options)
+          session = AuthSession.new(controller,session_store(controller), scope_and_options)
           
           # return session if already authenticated
           return session if session.authenticated?
@@ -32,7 +32,7 @@ module MonsoonOpenstackAuth
         end
       
         # create user from form and authenticate
-        def create_from_login_form(controller,region,username,password, domain_id=nil, domain_name=nil)          
+        def create_from_login_form(controller, username,password, domain_id=nil, domain_name=nil)          
           scope = if (domain_id && !domain_id.empty?)
             { domain: domain_id }
           elsif (domain_name && !domain_name.empty?)
@@ -41,7 +41,7 @@ module MonsoonOpenstackAuth
             nil
           end
 
-          session = AuthSession.new(controller, session_store(controller), region, scope)
+          session = AuthSession.new(controller, session_store(controller), scope)
           redirect_to_url = session.login_form_user(username,password)
           return redirect_to_url
         end
@@ -50,8 +50,7 @@ module MonsoonOpenstackAuth
         def logout(controller)
           session_store = session_store(controller)
            if session_store 
-             session_store.delete_token   
-             session_store.delete_region     
+             session_store.delete_token     
            end
         end
       
@@ -67,16 +66,13 @@ module MonsoonOpenstackAuth
         end
       end
 
-      def initialize(controller, session_store, region, scope={})
+      def initialize(controller, session_store, scope={})
         @controller = controller
         @session_store = session_store
-        @region = region
-
         @scope = scope 
 
         # get api client
-        @api_client = MonsoonOpenstackAuth.api_client(@region) if @region
-              
+        @api_client = MonsoonOpenstackAuth.api_client
         @debug = MonsoonOpenstackAuth.configuration.debug?
       end    
       
@@ -159,7 +155,7 @@ module MonsoonOpenstackAuth
       
         # didn't return -> validate auth token
         begin
-          token = @api_client.validate_token(auth_token) #self.class.keystone_connection(@region).tokens.validate(auth_token)
+          token = @api_client.validate_token(auth_token)
           if token
             # token is valid -> create user from token and save token in session store
             create_user_from_token(token)
@@ -254,9 +250,8 @@ module MonsoonOpenstackAuth
           begin 
             domain_name_math = @controller.request.env['HTTP_SSL_CLIENT_S_DN'].match('O=([^\/]*)')
             domain_name = domain_name_math[1] if domain_name_math
-            domain_name = "sap_default" if (domain_name && domain_name=~/SAP-AG/i)
-            domain = MonsoonOpenstackAuth.api_client(region).domain_by_name(domain_name) if domain_name
-            scope = { domain: domain.id } if domain && domain.id
+            domain_name = "sap_default" if (domain_name && domain_name=~/SAP-AG/i)            
+            scope = { domain_name: domain_name }
           rescue => e
             MonsoonOpenstackAuth.logger.error "Could not find Domain for name=#{domain_name}. #{e}"
           end 
@@ -330,12 +325,11 @@ module MonsoonOpenstackAuth
       end
     
       def create_user_from_session_store
-        region = @region || @session_store.region
-        @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(region,@session_store.token)
+        @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(@session_store.token)
       end
     
       def create_user_from_token(token)       
-        @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(@region, token) 
+        @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(token) 
       end
     
       def user
@@ -376,7 +370,6 @@ module MonsoonOpenstackAuth
       def redirect_to_login_form
         if MonsoonOpenstackAuth.configuration.form_auth_allowed? and @session_store
           @session_store.redirect_to = @controller.request.env['REQUEST_URI'] if @session_store
-          @session_store.region = @region
           @controller.redirect_to @controller.monsoon_openstack_auth.login_path(domain_id: @scope[:domain])
           return true
         else

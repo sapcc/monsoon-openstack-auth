@@ -42,19 +42,13 @@ module MonsoonOpenstackAuth
     @logger ||= configuration.logger
   end
 
-  def self.api_client(region)
-    @api_connections = {} unless @api_connections
-
-    # create and cache api_connection for requested region.
-    unless @api_connections[region]
-      @api_connections[region] = begin
-        MonsoonOpenstackAuth::ApiClient.new(region)
-      rescue MonsoonOpenstackAuth::ConnectionDriver::ConnectionError => e
-        self.logger.error(e.message)
-        raise ApiError.new("Service user unavailable. Could not authenticate service user.")
-      end
+  def self.api_client
+    @api_client ||= begin 
+      MonsoonOpenstackAuth::ApiClient.new 
+    rescue MonsoonOpenstackAuth::ConnectionDriver::ConnectionError => e
+      self.logger.error(e.message)
+      raise ApiError.new("Service user unavailable. Could not authenticate service user.")
     end
-    @api_connections[region]
   end
 
   def self.policy_engine
@@ -82,23 +76,6 @@ module MonsoonOpenstackAuth
       return false
     end
   end
-
-  # def self.load_default_domain
-  #   @default_domain = begin
-  #     self.api_client(self.configuration.default_region).default_domain
-  #   rescue ApiError, MonsoonOpenstackAuth::ConnectionDriver::ConnectionError => e
-  #     nil
-  #   end
-  #
-  #   raise ApiError.new("Could not load default domain '#{self.configuration.default_domain_name}'") unless @default_domain
-  # end
-  #
-  # def self.default_domain
-  #   # load and cache default domain unless available
-  #   self.load_default_domain unless @default_domain
-  #   @default_domain
-  # end
-
 end
 
 ActionController::Base.send(:include, MonsoonOpenstackAuth::Authentication)
