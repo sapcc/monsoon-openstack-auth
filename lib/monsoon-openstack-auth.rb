@@ -1,5 +1,3 @@
-require "monsoon_fog"
-
 require "monsoon_openstack_auth/connection_driver/errors"
 require "monsoon_openstack_auth/connection_driver/interface"
 require "monsoon_openstack_auth/connection_driver/default"

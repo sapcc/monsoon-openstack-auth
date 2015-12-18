@@ -18,6 +18,12 @@ module Dummy
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
+    
+    config.keystone_endpoint = ENV['MONSOON_OPENSTACK_AUTH_API_ENDPOINT']
+    config.service_user_id   = ENV['MONSOON_OPENSTACK_AUTH_API_USERID']
+    config.service_user_password = ENV['MONSOON_OPENSTACK_AUTH_API_PASSWORD']
+    config.service_user_domain_name   = ENV['MONSOON_OPENSTACK_AUTH_DOMAIN']
+    config.default_region = 'europe'
   end
 end
 
