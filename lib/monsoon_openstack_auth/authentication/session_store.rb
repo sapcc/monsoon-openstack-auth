@@ -44,21 +44,9 @@ module MonsoonOpenstackAuth
       def redirect_to
         @session[:redirect_to]
       end
-    
-      def region=(region)
-        @session[:region]=region
-      end
-    
-      def region
-        @session[:region]
-      end
       
       def delete_redirect_to
         @session.delete :redirect_to
-      end
-    
-      def delete_region
-        @session.delete :region
       end
     end
   end

@@ -39,24 +39,15 @@ module MonsoonOpenstackAuth
       def authentication_required(options={})
         raise_error = options[:raise_error]
 
-        reg = options.delete(:region)
         org = options.delete(:organization)
         org = options.delete(:domain) unless org
         prj = options.delete(:project)
         
         do_rescope = options.delete(:rescope)
         do_rescope = do_rescope.nil? ? true : do_rescope 
-        
-        # use default region from config
-        reg = -> c {MonsoonOpenstackAuth.configuration.default_region} unless reg
 
-        before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") }) do
-          region        = Authentication.get_filter_value(self,reg)
-          
-          # region is required
-          raise MonsoonOpenstackAuth::Authentication::InvalidRegion.new("A region should be provided") unless region
-            
-          @auth_session = AuthSession.check_authentication(self, region, {
+        before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") }) do          
+          @auth_session = AuthSession.check_authentication(self, {
             domain: Authentication.get_filter_value(self,org), 
             project: Authentication.get_filter_value(self,prj),
             raise_error:raise_error
