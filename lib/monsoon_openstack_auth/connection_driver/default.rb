@@ -62,11 +62,15 @@ module MonsoonOpenstackAuth
         MonsoonOpenstackAuth.logger.info "MonsoonOpenstackAuth#authenticate, #{auth_params.to_s}" if MonsoonOpenstackAuth.configuration.debug
         begin
           result = @connection.post( body: auth_params.to_json, headers: {"Content-Type" => "application/json"}) 
-          token = JSON.parse(result.body)['token']
+          
+          body = JSON.parse(result.body)
+          raise MonsoonOpenstackAuth::ConnectionDriver::AuthenticationError.new(body.to_s) unless body['token']
+
+          token = body['token']
           token["value"] = result.headers["X-Subject-Token"]
           HashWithIndifferentAccess.new(token)
         rescue =>e
-          puts e
+          MonsoonOpenstackAuth.logger.error e.to_s
           nil
         end
       end
@@ -76,14 +80,14 @@ module MonsoonOpenstackAuth
           begin
             headers = {
               "Content-Type" => "application/json",
-              "X-Auth-Token" => (service_user_token || auth_token),
+              "X-Auth-Token" => auth_token,
               "X-Subject-Token" => auth_token
             }
             
             result = @connection.get( headers: headers) 
             HashWithIndifferentAccess.new(JSON.parse(result.body)['token'])
           rescue =>e
-            p e
+            MonsoonOpenstackAuth.logger.error e.to_s
             nil
           end
         end
@@ -110,8 +114,8 @@ module MonsoonOpenstackAuth
           # try to authenticate with user id and password
           auth[:auth][:identity][:password] = { user:{ id: username,password: password } }
         end   
-        
-        auth[:auth][:scope] = domain_params if user_domain_params[:scoped_token]  
+
+        auth[:auth][:scope] = domain_params if user_domain_params and user_domain_params[:scoped_token]  
      
         authenticate(auth)
       end
@@ -124,20 +128,21 @@ module MonsoonOpenstackAuth
         authenticate(auth)
       end
 
-      def authenticate_external_user(username, scope=nil)
+      def authenticate_external_user(username, user_domain_params={})
         #TODO: authenticate external user
         #REMOTE_USER=d000000
         #REMOTE_DOMAIN=test
-
-        domain_params = if scope && scope[:domain]
-          {domain: {id: scope[:domain]}}
+        
+        domain_params = if user_domain_params[:domain]
+          { domain: { id: user_domain_params[:domain] } }
+        elsif user_domain_params[:domain_name]
+          { domain: { name: user_domain_params[:domain_name] } }
         else
           {}
         end
         
         auth = { auth: { identity: {methods: ["external"], external:{user: username }.merge(domain_params) }}}    
-            
-        #auth[:auth][:scope]=scope if scope
+
         MonsoonOpenstackAuth.logger.info "authenticate_external_user -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         authenticate(auth)
       end

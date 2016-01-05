@@ -3,7 +3,7 @@ FactoryGirl.define do
 
     token = ApiStub.keystone_token
     region = 'europe'
-    initialize_with { new(region,token) }
+    initialize_with { new(token) }
 
     trait :admin do
       after(:stub) do |user|

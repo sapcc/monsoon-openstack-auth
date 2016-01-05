@@ -45,14 +45,14 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
     it "should require authorization" do
       expect {
         expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to receive(:enforce)
-        get 'index', region_id: 'europe'
+        get 'index'
       }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
     it "should require authorization" do
       expect {
         expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to receive(:enforce)
-        get 'new', region_id: 'europe'
+        get 'new'
       }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
@@ -91,14 +91,14 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
     it "should NOT require authorization" do
       expect {
         expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).not_to receive(:enforce)
-        get 'index', region_id: 'europe'
+        get 'index'
       }.not_to raise_error
     end
 
     it "should require authorization" do
       expect {
         expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to receive(:enforce)
-        get 'new', region_id: 'europe'
+        get 'new'
       }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
@@ -139,14 +139,14 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
     it "should NOT require authorization" do
       expect {
         expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to_not receive(:enforce)
-        get 'index', region_id: 'europe'
+        get 'index'
       }.not_to raise_error
     end
 
     it "should require authorization" do
       expect {
         expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to receive(:enforce)
-        get 'new', region_id: 'europe'
+        get 'new'
       }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
 
     end
