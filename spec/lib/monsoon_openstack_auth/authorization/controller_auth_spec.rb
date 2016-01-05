@@ -98,7 +98,7 @@ describe DomainController, type: :controller do
     end
 
     it "should allow index" do
-      get :index, region_id: 'europe'
+      get :index
       expect(response.status).to eq(200)
     end
 
@@ -128,7 +128,7 @@ describe DomainController, type: :controller do
     end
 
     it "should allow index" do
-      get :index, region_id: 'europe'
+      get :index
       expect(response.status).to eq(200)
     end
 
@@ -157,7 +157,7 @@ describe DomainController, type: :controller do
     end
 
     it "should allow index" do
-      get :index, region_id: 'europe'
+      get :index
       expect(response.status).to eq(200)
     end
 
@@ -167,12 +167,12 @@ describe DomainController, type: :controller do
     end
 
     it "should NOT allow update" do
-      expect { get :update, region_id: 'europe' }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
+      expect { get :update }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
     it "should NOT allow destroy" do
-      # get :destroy, region_id: 'europe', :target => @target
-      expect { get :destroy, region_id: 'europe' }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
+      # get :destroy, :target => @target
+      expect { get :destroy }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
   end
@@ -186,7 +186,7 @@ describe DomainController, type: :controller do
     end
 
     it "should allow index" do
-      get :index, region_id: 'europe'
+      get :index
       expect(response.status).to eq(200)
     end
 
@@ -196,12 +196,12 @@ describe DomainController, type: :controller do
     end
 
     it "should NOT allow update" do
-      expect { get :update, region_id: 'europe' }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
+      expect { get :update }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
     it "should NOT allow destroy" do
-      # get :destroy, region_id: 'europe', :target => @target
-      expect { get :destroy, region_id: 'europe' }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
+      # get :destroy, :target => @target
+      expect { get :destroy }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
   end
@@ -215,7 +215,7 @@ describe DomainController, type: :controller do
     end
 
     it "should allow index" do
-      get :index, region_id: 'europe'
+      get :index
       expect(response.status).to eq(200)
     end
 
@@ -225,13 +225,13 @@ describe DomainController, type: :controller do
     end
 
     it "should allow update" do
-      get :update, region_id: 'europe'
+      get :update
       expect(response.status).to eq(200)
     end
 
     it "should NOT allow destroy" do
-      # get :destroy, region_id: 'europe', :target => @target
-      expect { get :destroy, region_id: 'europe' }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
+      # get :destroy, :target => @target
+      expect { get :destroy }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
   end
@@ -268,11 +268,11 @@ describe ProjectController, type: :controller do
     end
 
     it "should allow index" do
-      get :index, region_id: 'europe'
+      get :index
     end
 
     it "should allow creation" do
-      get :new, region_id: 'europe'
+      get :new
     end
 
   end
@@ -286,11 +286,11 @@ describe ProjectController, type: :controller do
     end
 
     it "should allow index" do
-      get :index, region_id: 'europe'
+      get :index
     end
 
     it "should allow creation" do
-      get :new, region_id: 'europe'
+      get :new
     end
 
   end
@@ -304,12 +304,12 @@ describe ProjectController, type: :controller do
     end
 
     it "should allow update" do
-      get :update, region_id: 'europe'
+      get :update
       expect(response.status).to eq(200)
     end
 
     it "should NOT allow destroy" do
-      get :destroy, region_id: 'europe'
+      get :destroy
       expect(response.status).to eq(200)
     end
   end
@@ -322,11 +322,11 @@ describe ProjectController, type: :controller do
     end
 
     it "should allow update" do
-      expect { get :update, region_id: 'europe' }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
+      expect { get :update }.to raise_exception(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
     it "should NOT allow destroy" do
-      expect { get :destroy, region_id: 'europe' }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
+      expect { get :destroy }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
   end
