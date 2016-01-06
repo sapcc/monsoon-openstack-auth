@@ -6,7 +6,7 @@ module MonsoonOpenstackAuth
       class << self
         
         def load_user_from_session(controller)
-          session = AuthSession.new(controller,session_store(controller), nil, nil)
+          session = AuthSession.new(controller,session_store(controller), nil)
           session.validate_session_token
           return session
         end
