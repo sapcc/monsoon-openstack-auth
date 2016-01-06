@@ -50,10 +50,16 @@ module AuthenticationStub
       allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token).
         with(AuthenticationStub.test_token["value"], domain: {id: AuthenticationStub.domain_id})
         .and_return(AuthenticationStub.test_token)
-      
+
+
+      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token).
+        with(AuthenticationStub.test_token["value"], "unscoped")
+        .and_return{StandardError.new}  
+                
       allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token).
         with(AuthenticationStub.test_token["value"], domain: {id: AuthenticationStub.bad_domain_id})
         .and_raise{StandardError.new}
+
           
       @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
       @session_store.token=AuthenticationStub.test_token

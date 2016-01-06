@@ -328,7 +328,7 @@ module MonsoonOpenstackAuth
         @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(@session_store.token)
       end
     
-      def create_user_from_token(token)       
+      def create_user_from_token(token)
         @user = MonsoonOpenstackAuth::Authentication::AuthUser.new(token) 
       end
     
