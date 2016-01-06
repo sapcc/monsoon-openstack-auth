@@ -15,7 +15,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
     allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_credentials).with("test","secret").and_return(test_token)
     allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_credentials).with("me","me").and_return(nil)
     allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_credentials).with("test","test",anything).and_return(test_token)
-    allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token).and_return(test_token)
+    allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token).with(anything,anything).and_return(test_token)
     allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_external_user).and_return(test_token)
     allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_access_key).with("good_key").and_return(test_token)
     allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_access_key).with("bad_key").and_return(nil)
