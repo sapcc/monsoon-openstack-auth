@@ -33,7 +33,6 @@ module AuthenticationStub
         config.connection_driver.api_endpoint = "http://localhost:8183/v3/auth/tokens"
       end
       
-      allow(Fog::IdentityV3::OpenStack).to receive(:new)
       default_domain = double('default domain')
       allow(default_domain).to receive(:id).and_return(AuthenticationStub.default_domain_id)
       allow(MonsoonOpenstackAuth).to receive(:default_domain).and_return(default_domain)
