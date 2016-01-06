@@ -31,8 +31,6 @@ module AuthenticationStub
     def stub_auth_configuration
       MonsoonOpenstackAuth.configure do |config|
         config.connection_driver.api_endpoint = "http://localhost:8183/v3/auth/tokens"
-        config.connection_driver.api_userid   = "u-admin"
-        config.connection_driver.api_password = "secret"
       end
       
       allow(Fog::IdentityV3::OpenStack).to receive(:new)
