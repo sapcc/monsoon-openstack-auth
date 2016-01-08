@@ -370,7 +370,13 @@ module MonsoonOpenstackAuth
       def redirect_to_login_form
         if MonsoonOpenstackAuth.configuration.form_auth_allowed? and @session_store
           @session_store.redirect_to = @controller.request.env['REQUEST_URI'] if @session_store
-          @controller.redirect_to @controller.monsoon_openstack_auth.login_path(domain_id: @scope[:domain])
+          
+          if @scope[:domain_name]
+            @controller.redirect_to @controller.monsoon_openstack_auth.login_path(domain_name: @scope[:domain_name])
+          else  
+            @controller.redirect_to @controller.monsoon_openstack_auth.new_session_path(domain_id: @scope[:domain])
+          end
+          #@controller.redirect_to @controller.monsoon_openstack_auth.login_path(domain_id: @scope[:domain])
           return true
         else
           return false
