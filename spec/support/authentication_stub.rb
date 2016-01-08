@@ -33,14 +33,11 @@ module AuthenticationStub
         config.connection_driver.api_endpoint = "http://localhost:8183/v3/auth/tokens"
       end
       
-      default_domain = double('default domain')
-      allow(default_domain).to receive(:id).and_return(AuthenticationStub.default_domain_id)
-      allow(MonsoonOpenstackAuth).to receive(:default_domain).and_return(default_domain)
       allow(MonsoonOpenstackAuth).to receive(:default_region).and_return('europe')
     end
 
   
-    def stub_authentication(options={})
+    def stub_authentication(options={},&block)
 
       stub_auth_configuration
       
@@ -60,6 +57,8 @@ module AuthenticationStub
           
       @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
       @session_store.token=AuthenticationStub.test_token
+      
+      block.call(@session_store.token) if block_given?
     end
 
     def stub_authentication_with_token(token_hash)
