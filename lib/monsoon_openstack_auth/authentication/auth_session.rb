@@ -92,10 +92,18 @@ module MonsoonOpenstackAuth
 
           if @scope[:project]
             return if project && project["id"]==@scope[:project]
-            scope= {project: {domain:{id: @scope[:domain]},id: @scope[:project]}}
+            # scope= {project: {domain:{id: @scope[:domain]},id: @scope[:project]}}
+            scope= if @scope[:domain] 
+              {project: {domain:{id: @scope[:domain]},id: @scope[:project]}}
+            elsif @scope[:domain_name]
+              {project: {domain:{name: @scope[:domain_name]},id: @scope[:project]}}
+            end
           elsif @scope[:domain]
             return if domain && domain["id"]==@scope[:domain]
             scope = {domain:{id:@scope[:domain]}}
+          elsif @scope[:domain_name]
+            return if domain && domain["name"]==@scope[:domain_name]
+            scope = {domain:{name:@scope[:domain_name]}}  
           else
 
             # scope is empty -> no domain and project provided
