@@ -208,16 +208,18 @@ module MonsoonOpenstackAuth
       # enforce_permissions(user: UserObject), rule_name is determined based on the controller and action names 
       def enforce_permissions(*options)
         #context = "#{MonsoonOpenstackAuth.configuration.authorization.context}:"
+        application_name = @authorization_context || MonsoonOpenstackAuth.configuration.authorization.context
 
         policy_rules = [] 
         policy_params = {}
 
         if options.first.is_a?(Hash)
-          policy_rules = [MonsoonOpenstackAuth::Authorization.determine_rule_name(self.controller_name,self.action_name)]
+          # application_name = context || @authorization_context || MonsoonOpenstackAuth.configuration.authorization.context
+          policy_rules = [MonsoonOpenstackAuth::Authorization.determine_rule_name(application_name,self.controller_name,self.action_name)]
           policy_params = options.first
         else
           policy_rules = options.first.is_a?(Array) ? options.first : [options.first]
-          #policy_rules = policy_rules.collect{|n| n.to_s.start_with?(context) ? n.to_s : "#{context}#{n.to_s}" }
+          policy_rules = policy_rules.collect{|n| (n.to_s.include?(':') and n.to_s.start_with?(application_name)) ? n.to_s : "#{application_name}:#{n.to_s}" }
           policy_params = options.second
         end
                   
