@@ -68,7 +68,7 @@ describe MonsoonOpenstackAuth::Authentication, :type => :controller do
     end
     
     it "authentication should ignore empty domain and project" do
-      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller, domain: nil, project: nil, raise_error:nil)
+      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller, domain: nil, domain_name: nil, project: nil, raise_error:nil)
       get 'index'
     end
       
@@ -88,12 +88,12 @@ describe MonsoonOpenstackAuth::Authentication, :type => :controller do
     end
     
     it "authenticate with scope 0-12345 and p-12345" do
-      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller, domain: "o-12345", project: "p-12345", raise_error:nil)
+      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller, domain: "o-12345", domain_name: nil, project: "p-12345", raise_error:nil)
       get 'index', organization_id: 'o-12345', project_id: 'p-12345'
     end
     
     it "authenticate with empty scope" do
-      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller, domain: nil, project: nil, raise_error:nil)
+      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller, domain: nil, domain_name: nil, project: nil, raise_error:nil)
       get 'index', organization_id: '', project_id: ''
     end
     
@@ -116,7 +116,7 @@ describe MonsoonOpenstackAuth::Authentication, :type => :controller do
     end
       
     it "authenticate without redirect" do 
-      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller, domain: "aaa", project: "bbb", raise_error:true).and_return(nil)
+      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller, domain: "aaa", domain_name: nil, project: "bbb", raise_error:true).and_return(nil)
       get 'index', domain_id: 'aaa', project_id: 'bbb'
     end
     
