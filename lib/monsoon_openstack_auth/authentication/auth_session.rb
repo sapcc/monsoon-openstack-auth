@@ -153,7 +153,7 @@ module MonsoonOpenstackAuth
         if @session_store and @session_store.token_valid? and @session_store.token_eql?(auth_token)
           # session token is valid and equal to the auth token
           # create user from session store
-          create_user_from_session
+          create_user_from_session_store
         
           if logged_in?
             MonsoonOpenstackAuth.logger.info "validate_auth_token -> successful (session token is equal to auth token)." if @debug
