@@ -85,7 +85,9 @@ module MonsoonOpenstackAuth
             }
             
             result = @connection.get( headers: headers) 
-            HashWithIndifferentAccess.new(JSON.parse(result.body)['token'])
+            token = JSON.parse(result.body)['token']
+            token["value"] = result.headers["X-Subject-Token"]
+            HashWithIndifferentAccess.new(token)
           rescue =>e
             MonsoonOpenstackAuth.logger.error e.to_s
             nil
