@@ -32,8 +32,6 @@ module AuthenticationStub
       MonsoonOpenstackAuth.configure do |config|
         config.connection_driver.api_endpoint = "http://localhost:8183/v3/auth/tokens"
       end
-      
-      allow(MonsoonOpenstackAuth).to receive(:default_region).and_return('europe')
     end
 
   
@@ -53,12 +51,17 @@ module AuthenticationStub
       allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token).
         with(AuthenticationStub.test_token["value"], domain: {id: AuthenticationStub.bad_domain_id})
         .and_raise{StandardError.new}
+        
+      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).
+        with(AuthenticationStub.test_token["value"]).and_raise{StandardError.new}  
 
           
-      @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
-      @session_store.token=AuthenticationStub.test_token
+      begin
+        @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
+        @session_store.token=AuthenticationStub.test_token
+        block.call(@session_store.token) if block_given?
+      end
       
-      block.call(@session_store.token) if block_given?
     end
 
     def stub_authentication_with_token(token_hash)
