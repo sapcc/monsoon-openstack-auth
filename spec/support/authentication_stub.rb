@@ -38,24 +38,22 @@ module AuthenticationStub
     def stub_authentication(options={},&block)
 
       stub_auth_configuration
-      
-      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token).
-        with(AuthenticationStub.test_token["value"], domain: {id: AuthenticationStub.domain_id})
+
+      # stub validate_token 
+      # stub validate_token for any parameters
+      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).and_return(nil)         
+      # stub validate_token for test_token
+      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).
+        with(AuthenticationStub.test_token["value"]).and_return(AuthenticationStub.test_token)  
+
+
+      # stub authenticate. This method is called from api_client on :authenticate_with_credentials, :authenticate_with_token,
+      # :authenticate_with_access_key, :authenticate_external_user  
+      allow_any_instance_of(MonsoonOpenstackAuth.configuration.connection_driver).to receive(:authenticate2)
         .and_return(AuthenticationStub.test_token)
 
-
-      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token).
-        with(AuthenticationStub.test_token["value"], "unscoped")
-        .and_return{StandardError.new}  
-                
-      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token).
-        with(AuthenticationStub.test_token["value"], domain: {id: AuthenticationStub.bad_domain_id})
-        .and_raise{StandardError.new}
         
-      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).
-        with(AuthenticationStub.test_token["value"]).and_raise{StandardError.new}  
-
-          
+      # stub session token (so authenticate_with_credentials is never called)
       begin
         @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
         @session_store.token=AuthenticationStub.test_token
