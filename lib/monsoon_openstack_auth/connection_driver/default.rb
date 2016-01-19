@@ -57,13 +57,8 @@ module MonsoonOpenstackAuth
 
         @connection = ::Excon.new(self.class.endpoint,self.class.connection_options)
       end  
-      
+
       def authenticate(auth_params)
-        p ">>>>>>>>>>>>>>>>>>"
-        p auth_params
-        authenticate2(auth_params)
-      end
-      def authenticate2(auth_params)
 
         MonsoonOpenstackAuth.logger.info "MonsoonOpenstackAuth#authenticate, #{auth_params.to_s}" if MonsoonOpenstackAuth.configuration.debug
         begin

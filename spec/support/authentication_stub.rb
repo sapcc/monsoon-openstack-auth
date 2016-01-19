@@ -49,7 +49,7 @@ module AuthenticationStub
 
       # stub authenticate. This method is called from api_client on :authenticate_with_credentials, :authenticate_with_token,
       # :authenticate_with_access_key, :authenticate_external_user  
-      allow_any_instance_of(MonsoonOpenstackAuth.configuration.connection_driver).to receive(:authenticate2)
+      allow_any_instance_of(MonsoonOpenstackAuth.configuration.connection_driver).to receive(:authenticate)
         .and_return(AuthenticationStub.test_token)
 
         
@@ -58,6 +58,7 @@ module AuthenticationStub
         @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
         @session_store.token=AuthenticationStub.test_token
         block.call(@session_store.token) if block_given?
+      rescue
       end
       
     end
