@@ -1,3 +1,5 @@
+require "excon"
+
 module MonsoonOpenstackAuth
   module ConnectionDriver
     class Default < MonsoonOpenstackAuth::ConnectionDriver::Interface
