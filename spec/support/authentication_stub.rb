@@ -36,7 +36,6 @@ module AuthenticationStub
 
   
     def stub_authentication(options={},&block)
-
       stub_auth_configuration
 
       # stub validate_token 
@@ -46,12 +45,10 @@ module AuthenticationStub
       allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).
         with(AuthenticationStub.test_token["value"]).and_return(AuthenticationStub.test_token)  
 
-
       # stub authenticate. This method is called from api_client on :authenticate_with_credentials, :authenticate_with_token,
       # :authenticate_with_access_key, :authenticate_external_user  
       allow_any_instance_of(MonsoonOpenstackAuth.configuration.connection_driver).to receive(:authenticate)
         .and_return(AuthenticationStub.test_token)
-
         
       # stub session token (so authenticate_with_credentials is never called)
       begin
