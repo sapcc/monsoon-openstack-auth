@@ -36,7 +36,7 @@ module MonsoonOpenstackAuth
         authentication_required options.merge raise_error:true
       end
 
-      def authentication_required(options={})
+      def authentication_required(options={})      
         raise_error = options[:raise_error]
 
         org       = options.delete(:organization)
@@ -47,7 +47,11 @@ module MonsoonOpenstackAuth
         do_rescope = options.delete(:rescope)
         do_rescope = do_rescope.nil? ? true : do_rescope 
 
-        before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") }) do          
+        before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") }) do       
+          if !raise_error and session and !session.loaded?
+            session[:init] = true 
+          end
+             
           @auth_session = AuthSession.check_authentication(self, {
             domain: Authentication.get_filter_value(self,org), 
             domain_name: Authentication.get_filter_value(self,org_name), 
