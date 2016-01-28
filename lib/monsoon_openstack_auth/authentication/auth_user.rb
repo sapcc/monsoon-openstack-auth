@@ -1,13 +1,11 @@
 module MonsoonOpenstackAuth
   module Authentication
     class AuthUser < MonsoonOpenstackAuth::Authorization::PolicyInterface
-      attr_accessor :email, :full_name
-      attr_reader :context, :services_region
+      attr_reader :context
 
-      def initialize(region,token_hash)
-        raise MonsoonOpenstackAuth::MalformedToken.new("Token is nil.") if token_hash.nil?
-        raise MonsoonOpenstackAuth::MalformedToken.new("Token should be a hash.") unless token_hash.is_a?(Hash)
-        @services_region = region
+      def initialize(token_hash)
+        raise MonsoonOpenstackAuth::Authentication::MalformedToken.new("Token is nil.") if token_hash.nil?
+        raise MonsoonOpenstackAuth::Authentication::MalformedToken.new("Token should be a hash.") unless token_hash.is_a?(Hash)
         @context = token_hash
       end
 
@@ -130,7 +128,7 @@ module MonsoonOpenstackAuth
       
       
       def service_url(type, options={})
-        region = options[:region] || @services_region || default_services_region
+        region = options[:region] || default_services_region
         interface = options[:interface] || 'public'
         
         service = service_catalog.select do |service|

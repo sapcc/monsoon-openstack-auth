@@ -23,7 +23,7 @@ describe MonsoonOpenstackAuth::Authentication, :type => :controller do
 
     it "should require authentication" do
       expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication)
-      get 'index', region_id: 'europe'
+      get 'index'
     end
       
     it "should skip authentication" do
@@ -48,7 +48,7 @@ describe MonsoonOpenstackAuth::Authentication, :type => :controller do
 
     it "should require authentication" do
       expect(MonsoonOpenstackAuth::Authentication::AuthSession).not_to receive(:check_authentication)
-      get 'index', region_id: 'europe'
+      get 'index'
     end
       
     it "should skip authentication" do
@@ -68,8 +68,8 @@ describe MonsoonOpenstackAuth::Authentication, :type => :controller do
     end
     
     it "authentication should ignore empty domain and project" do
-      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller,'europe', domain: nil, project: nil, raise_error:nil)
-      get 'index', region_id: 'europe'
+      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller, domain: nil, domain_name: nil, project: nil, raise_error:nil)
+      get 'index'
     end
       
   end
@@ -88,13 +88,13 @@ describe MonsoonOpenstackAuth::Authentication, :type => :controller do
     end
     
     it "authenticate with scope 0-12345 and p-12345" do
-      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller,'europe', domain: "o-12345", project: "p-12345", raise_error:nil)
-      get 'index', region_id: 'europe', organization_id: 'o-12345', project_id: 'p-12345'
+      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller, domain: "o-12345", domain_name: nil, project: "p-12345", raise_error:nil)
+      get 'index', organization_id: 'o-12345', project_id: 'p-12345'
     end
     
     it "authenticate with empty scope" do
-      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller,'europe', domain: nil, project: nil, raise_error:nil)
-      get 'index', region_id: 'europe', organization_id: '', project_id: ''
+      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller, domain: nil, domain_name: nil, project: nil, raise_error:nil)
+      get 'index', organization_id: '', project_id: ''
     end
     
   end
@@ -102,8 +102,8 @@ describe MonsoonOpenstackAuth::Authentication, :type => :controller do
   
   context "api_authentication_required" do
     before :each do
-      @fog_driver = double("fog driver").as_null_object
-      Fog::IdentityV3::OpenStack.stub(:new).and_return(@fog_driver)
+      #@fog_driver = double("fog driver").as_null_object
+      #Fog::IdentityV3::OpenStack.stub(:new).and_return(@fog_driver)
       allow(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).and_call_original
     end
     
@@ -116,7 +116,7 @@ describe MonsoonOpenstackAuth::Authentication, :type => :controller do
     end
       
     it "authenticate without redirect" do 
-      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller,'europe', domain: "aaa", project: "bbb", raise_error:true).and_return(nil)
+      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(controller, domain: "aaa", domain_name: nil, project: "bbb", raise_error:true).and_return(nil)
       get 'index', domain_id: 'aaa', project_id: 'bbb'
     end
     
@@ -151,8 +151,7 @@ describe MonsoonOpenstackAuth::Authentication, :type => :controller do
   
   context "authentication_required" do
     before :each do
-      @fog_driver = double("fog driver").as_null_object
-      Fog::IdentityV3::OpenStack.stub(:new).and_return(@fog_driver)
+      allow(MonsoonOpenstackAuth::ApiClient).to receive(:new).and_return(double('api client').as_null_object)
       allow(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).and_call_original
     end
     

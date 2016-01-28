@@ -5,7 +5,7 @@ module ApiStub
       "roles"=>[
         {
           "id"=>"9fe2ff9ee4384b1894a90878d3e92bab", 
-          "name"=>"_member_"
+          "name"=>"member"
         }
       ], 
       "expires_at"=>"2015-03-25T16:30:28.816921Z", 

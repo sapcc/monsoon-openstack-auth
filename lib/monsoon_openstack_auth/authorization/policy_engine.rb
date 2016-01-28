@@ -114,9 +114,6 @@ module MonsoonOpenstackAuth
             res = @rules.get(name).execute(@locals, params)
             #res = begin @rules.get(name).execute(@locals,params); rescue RuleExecutionError; false; end
             result &= res
-            
-            # TODO: remove after 31.07.2015
-            #MonsoonOpenstackAuth.logger.info("Rule enforced [#{name}]:#{res}. Token => {:user_id => #{@locals['user_id']}, :domain_id => #{@locals['domain_id']}, :project_id => #{@locals['project_id']}}. Target =>  #{params if params}")
           end
           result
         end
@@ -228,7 +225,6 @@ module MonsoonOpenstackAuth
 
         def execute(locals, params, trace=nil)
           begin
-
             # add to trace if given
             next_trace = ExecutionTrace.new
 

@@ -1,13 +1,16 @@
+require "excon"
+
 module MonsoonOpenstackAuth
   module ConnectionDriver
     class Default < MonsoonOpenstackAuth::ConnectionDriver::Interface
       class << self
-        attr_accessor :api_endpoint, :api_userid, :api_password, :api_domain, :ssl_verify_peer, :ssl_ca_path, :ssl_ca_file
+        attr_accessor :api_endpoint, :ssl_verify_peer, :ssl_ca_path, :ssl_ca_file
       
         def connection_options
           result = { ssl_verify_peer: (ssl_verify_peer.nil? ? true : ssl_verify_peer) }
           result[:ssl_ca_file] = ssl_ca_file unless ssl_ca_file.nil?
           result[:ssl_ca_path] = ssl_ca_path unless ssl_ca_path.nil?  
+          result[:debug] = MonsoonOpenstackAuth.configuration.debug
           result
         end
       
@@ -21,92 +24,94 @@ module MonsoonOpenstackAuth
             raise MalformedApiEndpoint.new(e)
           end
         end
-      end
-    
-      def initialize(region)
-        # connect service user
-        unless (self.class.api_endpoint or self.class.api_userid or self.class.api_password)
-          raise MonsoonOpenstackAuth::ConnectionDriver::ConfigurationError.new("Api credentials not provided! Please provide 
-            connection_driver.api_endpoint, connection_driver.api_userid and 
-            connection_driver.api_password (in initializer).") 
-        end    
-      
-        MonsoonOpenstackAuth.logger.info("Monsoon Openstack Auth -> api_endpoint: #{MonsoonOpenstackAuth::ConnectionDriver::Default.endpoint}")
         
-        params = {
-          openstack_auth_url: self.class.endpoint,
-          openstack_region:   region,
-          openstack_api_key:  self.class.api_password,
-          connection_options: self.class.connection_options,
-          openstack_service_type: ["identityv3"]
-        }
-        
-        if self.class.api_domain
-          # scoped service user -> use domain, username and password
-          params[:openstack_domain_name] = self.class.api_domain
-          params[:openstack_username] = self.class.api_userid
-        else
-          # unscoped service user -> use userid and password
-          params[:openstack_userid] = self.class.api_userid
-        end
-        
-        begin            
-          @fog = Fog::IdentityV3::OpenStack.new(params)
-        rescue => e
-          raise MonsoonOpenstackAuth::ConnectionDriver::ConnectionError.new(e)
-        end
-        self
-      end  
-    
-      def connection
-        @fog
-      end
-      
-      def domain_by_name(domain_name)
-        @fog.domains.all(name:domain_name).first
-      end
-      
-      # DEPRECATED
-      # TODO: remove it in one month (end of august)  
-      def create_user_domain_role(user_id,role_name)
-        return false if user_id.nil? or role_name.nil?
-        user = @fog.users.find_by_id(user_id)
-        member_role = @fog.roles.all(name:role_name).first
-        user.grant_role(member_role.id)
-      end
-      
-      # Default Domain such a sap_default
-      def default_domain(name=MonsoonOpenstackAuth.configuration.default_domain_name)
-        unless @default_domain
-          begin
-            dd = @fog.domains.all(name: name).first
-            return nil unless dd
-            @default_domain = MonsoonOpenstackAuth::Authentication::AuthDefaultDomain.new(id: dd.id, name: dd.name, description: dd.description, enabled: dd.enabled)
-          rescue => e
-            raise MonsoonOpenstackAuth::ConnectionDriver::ConnectionError.new(e)
+        def auth_params
+          if api_userid or api_password
+
+            auth_params = { 
+              auth: { 
+                identity: { 
+                  methods: ["password"],
+                  password: {
+                    user: { 
+                      id: api_userid,
+                      password: api_password
+                    }
+                  }
+                }
+              }
+            }
+          
+            if api_domain
+              user_credentials = auth_params[:auth][:identity][:password][:user]
+              user_credentials[:name] = user_credentials.delete(:id)
+              user_credentials[:domain] = {name: api_domain}
+            end
+            auth_params
           end
         end
-        return @default_domain
       end
     
-      def validate_token(auth_token)
-        cache.fetch key:auth_token,scope:nil do
-          HashWithIndifferentAccess.new(@fog.tokens.validate(auth_token).attributes)
+      def initialize
+        unless self.class.api_endpoint
+          raise MonsoonOpenstackAuth::ConnectionDriver::ConfigurationError.new("No API endpoint provided!")
+        end
+
+        @connection = ::Excon.new(self.class.endpoint,self.class.connection_options)
+      end  
+
+      def authenticate(auth_params)
+
+        MonsoonOpenstackAuth.logger.info "MonsoonOpenstackAuth#authenticate, #{auth_params.to_s}" if MonsoonOpenstackAuth.configuration.debug
+        begin
+          result = @connection.post( body: auth_params.to_json, headers: {"Content-Type" => "application/json"}) 
+          
+          body = JSON.parse(result.body)
+          raise MonsoonOpenstackAuth::ConnectionDriver::AuthenticationError.new(body.to_s) unless body['token']
+
+          token = body['token']
+          token["value"] = result.headers["X-Subject-Token"]
+          HashWithIndifferentAccess.new(token)
+        rescue =>e
+          MonsoonOpenstackAuth.logger.error e.to_s
+          nil
         end
       end
-  
-      def authenticate_with_credentials(username,password, scope=nil)
+      
+      def validate_token(auth_token)
+        cache.fetch key:auth_token,scope:nil do
+          begin
+            headers = {
+              "Content-Type" => "application/json",
+              "X-Auth-Token" => auth_token,
+              "X-Subject-Token" => auth_token
+            }
+            
+            result = @connection.get( headers: headers) 
+            token = JSON.parse(result.body)['token']
+            token["value"] = result.headers["X-Subject-Token"]
+            HashWithIndifferentAccess.new(token)
+          rescue =>e
+            MonsoonOpenstackAuth.logger.error e.to_s
+            nil
+          end
+        end
+      end
+        
+      def authenticate_with_credentials(username,password, user_domain_params=nil)
         # build auth hash
         auth = { auth: { identity: { methods: ["password"], password:{} } } }
         
         # Do not set scope. User may not registered yet and so no member of the domain.
         # Using scope will fail the authentication for new users. 
         # build domain params. Authenticate user in given domain.
-        if scope # scope is given
-          domain_params = if scope[:domain]
-            {domain: {id: scope[:domain]}}
+        if user_domain_params # scope is given
+          domain_params = if user_domain_params[:domain]
+            { domain: { id: user_domain_params[:domain] } }
+          elsif user_domain_params[:domain_name]
+            { domain: { name: user_domain_params[:domain_name] } }
           else
-            nil
+            {}
           end
           # try to authenticate with user name and password for given scope
           auth[:auth][:identity][:password] = { user:{ name: username,password: password }.merge(domain_params) }
@@ -114,8 +119,10 @@ module MonsoonOpenstackAuth
           # try to authenticate with user id and password
           auth[:auth][:identity][:password] = { user:{ id: username,password: password } }
         end   
-        #MonsoonOpenstackAuth.logger.info "authenticate_with_credentials -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
-        HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)      
+
+        auth[:auth][:scope] = domain_params if user_domain_params and user_domain_params[:scoped_token]  
+     
+        authenticate(auth)
       end
 
       def authenticate_with_token(token, scope=nil)
@@ -123,38 +130,35 @@ module MonsoonOpenstackAuth
         auth[:auth][:scope]=scope if scope
         
         MonsoonOpenstackAuth.logger.info "authenticate_with_token -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
-        HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
+        authenticate(auth)
       end
 
-      def authenticate_external_user(username, scope=nil)
+      def authenticate_external_user(username, user_domain_params={})
         #TODO: authenticate external user
         #REMOTE_USER=d000000
         #REMOTE_DOMAIN=test
-
-        domain_params = if scope && scope[:domain]
-          {domain: {id: scope[:domain]}}
+        
+        domain_params = if user_domain_params[:domain]
+          { domain: { id: user_domain_params[:domain] } }
+        elsif user_domain_params[:domain_name]
+          { domain: { name: user_domain_params[:domain_name] } }
         else
           {}
         end
         
         auth = { auth: { identity: {methods: ["external"], external:{user: username }.merge(domain_params) }}}    
-            
-        #auth[:auth][:scope]=scope if scope
+
         MonsoonOpenstackAuth.logger.info "authenticate_external_user -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
-        HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
+        authenticate(auth)
       end
 
       def authenticate_with_access_key(access_key, scope=nil)
         auth = {auth:{identity: {methods: ["access-key"],access_key:{key:access_key}}}}
         auth[:auth][:scope]=scope if scope
         MonsoonOpenstackAuth.logger.info "authenticate_with_access_key -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
-        HashWithIndifferentAccess.new(@fog.tokens.authenticate(auth).attributes)
+        
+        authenticate(auth)
       rescue Excon::Errors::Unauthorized
-
-      end
-      
-      def user_details(id)
-        @fog.users.find_by_id(id)
       end
       
       protected

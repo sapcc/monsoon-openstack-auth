@@ -11,7 +11,7 @@ module AuthenticationStub
   end
   
   def self.test_token
-    @test_token ||= HashWithIndifferentAccess.new(ApiStub.keystone_token.merge("expires_at" => (Time.now+1.hour).to_s))
+    @test_token ||= HashWithIndifferentAccess.new(ApiStub.keystone_token.clone.merge("expires_at" => (Time.now+1.hour).to_s))
   end
   
   def self.domain_id
@@ -21,42 +21,39 @@ module AuthenticationStub
   def self.project_id
     @project_id ||= test_token.fetch("project",{}).fetch("id",nil)
   end
-  
-  def self.default_domain_id
-    domain_id
-  end
-  
+
   module ClassMethods
     
     def stub_auth_configuration
       MonsoonOpenstackAuth.configure do |config|
         config.connection_driver.api_endpoint = "http://localhost:8183/v3/auth/tokens"
-        config.connection_driver.api_userid   = "u-admin"
-        config.connection_driver.api_password = "secret"
       end
-      
-      allow(Fog::IdentityV3::OpenStack).to receive(:new)
-      default_domain = double('default domain')
-      allow(default_domain).to receive(:id).and_return(AuthenticationStub.default_domain_id)
-      allow(MonsoonOpenstackAuth).to receive(:default_domain).and_return(default_domain)
-      allow(MonsoonOpenstackAuth).to receive(:default_region).and_return('europe')
     end
 
   
-    def stub_authentication(options={})
-
+    def stub_authentication(options={},&block)
       stub_auth_configuration
-      
-      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token).
-        with(AuthenticationStub.test_token["value"], domain: {id: AuthenticationStub.domain_id})
+
+      # stub validate_token 
+      # stub validate_token for any parameters
+      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).and_return(nil)         
+      # stub validate_token for test_token
+      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).
+        with(AuthenticationStub.test_token["value"]).and_return(AuthenticationStub.test_token)  
+
+      # stub authenticate. This method is called from api_client on :authenticate_with_credentials, :authenticate_with_token,
+      # :authenticate_with_access_key, :authenticate_external_user  
+      allow_any_instance_of(MonsoonOpenstackAuth.configuration.connection_driver).to receive(:authenticate)
         .and_return(AuthenticationStub.test_token)
+        
+      # stub session token (so authenticate_with_credentials is never called)
+      begin
+        @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
+        @session_store.token=AuthenticationStub.test_token
+        block.call(@session_store.token) if block_given?
+      rescue
+      end
       
-      allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token).
-        with(AuthenticationStub.test_token["value"], domain: {id: AuthenticationStub.bad_domain_id})
-        .and_raise{StandardError.new}
-          
-      @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
-      @session_store.token=AuthenticationStub.test_token
     end
 
     def stub_authentication_with_token(token_hash)

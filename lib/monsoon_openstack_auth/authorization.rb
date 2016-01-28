@@ -24,9 +24,8 @@ module MonsoonOpenstackAuth
     end
     
     ################ NEW action-level permissions ######################
-    def self.determine_rule_name(controller_name, action_name)
+    def self.determine_rule_name(application_name, controller_name, action_name)
       authorization_action = authorization_action_map[action_name.to_sym] || action_name
-      application_name = MonsoonOpenstackAuth.configuration.authorization.context
       rule_name = "#{application_name}:#{controller_name.singularize}_#{authorization_action.to_s}"
     end
     
@@ -111,6 +110,12 @@ module MonsoonOpenstackAuth
 
     module ClassMethods
 
+      def authorization_context(context,options={})
+        prepend_before_filter options do
+          @authorization_context = context
+        end
+      end
+      
       def skip_authorization(options={})
         prepend_before_filter options do
           @_skip_authorization=true
@@ -122,6 +127,7 @@ module MonsoonOpenstackAuth
         id_alias                  = options.delete(:id_alias)
         ignore_params             = options.delete(:ignore_params)
         additional_policy_params  = options.delete(:additional_policy_params)
+        context                   = options.delete(:context)
         
         additional_options = {}
         additional_options[:id_alias] = id_alias if id_alias
@@ -130,7 +136,8 @@ module MonsoonOpenstackAuth
         
         before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authorization") }) do
           # get the rule_name for requested action
-          policy_rule_name  = ::MonsoonOpenstackAuth::Authorization.determine_rule_name(controller_name,action_name)
+          application_name = context || @authorization_context || MonsoonOpenstackAuth.configuration.authorization.context
+          policy_rule_name  = ::MonsoonOpenstackAuth::Authorization.determine_rule_name(application_name,controller_name,action_name)
           # build policy params (including: params and target objects like user)
           # params = {user_id: 1} -> target[:user] = User.where(id_alias=>1)
           policy_params     = ::MonsoonOpenstackAuth::Authorization.build_policy_params(self, params, additional_options) || {}
@@ -200,17 +207,19 @@ module MonsoonOpenstackAuth
       # enforce_permissions(:user_read,{user: UserObject})
       # enforce_permissions(user: UserObject), rule_name is determined based on the controller and action names 
       def enforce_permissions(*options)
-        context = "#{MonsoonOpenstackAuth.configuration.authorization.context}:"
+        #context = "#{MonsoonOpenstackAuth.configuration.authorization.context}:"
+        application_name = @authorization_context || MonsoonOpenstackAuth.configuration.authorization.context
 
         policy_rules = [] 
         policy_params = {}
 
         if options.first.is_a?(Hash)
-          policy_rules = [MonsoonOpenstackAuth::Authorization.determine_rule_name(self.controller_name,self.action_name)]
+          # application_name = context || @authorization_context || MonsoonOpenstackAuth.configuration.authorization.context
+          policy_rules = [MonsoonOpenstackAuth::Authorization.determine_rule_name(application_name,self.controller_name,self.action_name)]
           policy_params = options.first
         else
           policy_rules = options.first.is_a?(Array) ? options.first : [options.first]
-          policy_rules = policy_rules.collect{|n| n.to_s.start_with?(context) ? n.to_s : "#{context}#{n.to_s}" }
+          policy_rules = policy_rules.collect{|n| (n.to_s.include?(':') and n.to_s.start_with?(application_name)) ? n.to_s : "#{application_name}:#{n.to_s}" }
           policy_params = options.second
         end
                   
