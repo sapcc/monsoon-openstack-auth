@@ -21,11 +21,7 @@ module AuthenticationStub
   def self.project_id
     @project_id ||= test_token.fetch("project",{}).fetch("id",nil)
   end
-  
-  def self.default_domain_id
-    domain_id
-  end
-  
+
   module ClassMethods
     
     def stub_auth_configuration
