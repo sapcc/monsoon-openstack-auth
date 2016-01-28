@@ -11,7 +11,8 @@ module AuthenticationStub
   end
   
   def self.test_token
-    @test_token ||= HashWithIndifferentAccess.new(ApiStub.keystone_token.clone.merge("expires_at" => (Time.now+1.hour).to_s))
+    @test_token ||= HashWithIndifferentAccess.new(ApiStub.keystone_token.merge("expires_at" => (Time.now+1.hour).to_s))
+    @test_token.clone
   end
   
   def self.domain_id
