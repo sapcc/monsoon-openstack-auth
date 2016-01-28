@@ -3,10 +3,12 @@ require 'spec_helper'
 describe MonsoonOpenstackAuth::Authorization, :type => :controller do
 
   before :each do
+    
     auth_session = double("auth_session").as_null_object
     auth_session.stub(:user).and_return(FactoryGirl.build_stubbed(:user, :member))
     MonsoonOpenstackAuth::Authentication::AuthSession.stub(:check_authentication) { auth_session }
     MonsoonOpenstackAuth.configuration.authorization.policy_file_path = Rails.root.join("../config/policy_test.json")
+    MonsoonOpenstackAuth.configuration.authorization.context='identity'
     MonsoonOpenstackAuth.load_policy
     MonsoonOpenstackAuth.stub(:api_client)
   end
@@ -15,7 +17,7 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
     #before { skip }
     controller do # anonymous subclass of ActionController::Base
       authentication_required region: -> c { c.params[:region_id] }, domain: -> c { c.params[:domain_id] }, project_id: -> c { c.params[:project_id] }
-      authorization_required
+      authorization_required(context:'identity')
 
       def index
         head :ok
@@ -45,14 +47,14 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
     it "should require authorization" do
       expect {
         expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to receive(:enforce)
-        get 'index', region_id: 'europe'
+        get 'index'
       }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
     it "should require authorization" do
       expect {
         expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to receive(:enforce)
-        get 'new', region_id: 'europe'
+        get 'new'
       }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
@@ -91,14 +93,14 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
     it "should NOT require authorization" do
       expect {
         expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).not_to receive(:enforce)
-        get 'index', region_id: 'europe'
+        get 'index'
       }.not_to raise_error
     end
 
     it "should require authorization" do
       expect {
         expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to receive(:enforce)
-        get 'new', region_id: 'europe'
+        get 'new'
       }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
     end
 
@@ -139,14 +141,14 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
     it "should NOT require authorization" do
       expect {
         expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to_not receive(:enforce)
-        get 'index', region_id: 'europe'
+        get 'index'
       }.not_to raise_error
     end
 
     it "should require authorization" do
       expect {
         expect_any_instance_of(MonsoonOpenstackAuth::Authorization::PolicyEngine::Policy).to receive(:enforce)
-        get 'new', region_id: 'europe'
+        get 'new'
       }.to raise_error(MonsoonOpenstackAuth::Authorization::SecurityViolation)
 
     end
@@ -176,7 +178,7 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
       allow(MonsoonOpenstackAuth::Authorization).to receive(:authorization_action_map).and_return({})
 
       app_name = MonsoonOpenstackAuth.configuration.authorization.context
-      rule_name = -> controller_name, action_name { MonsoonOpenstackAuth::Authorization.determine_rule_name(controller_name, action_name) }
+      rule_name = -> controller_name, action_name { MonsoonOpenstackAuth::Authorization.determine_rule_name(app_name,controller_name, action_name) }
 
       expect(rule_name.call("credentials", "index")).to eq("#{app_name}:credential_index")
       expect(rule_name.call("users", "create")).to eq("#{app_name}:user_create")
@@ -197,7 +199,7 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
                                                                                                   })
 
       app_name = MonsoonOpenstackAuth.configuration.authorization.context
-      rule_name = -> controller_name, action_name { MonsoonOpenstackAuth::Authorization.determine_rule_name(controller_name, action_name) }
+      rule_name = -> controller_name, action_name { MonsoonOpenstackAuth::Authorization.determine_rule_name(app_name,controller_name, action_name) }
 
       expect(rule_name.call("credentials", "index")).to eq("#{app_name}:credential_list")
       expect(rule_name.call("users", "create")).to eq("#{app_name}:user_create")
@@ -222,7 +224,7 @@ describe MonsoonOpenstackAuth::Authorization, :type => :controller do
 
       it "should complete rule_name if context is missing" do
         expect_any_instance_of(policy_class).to receive(:enforce).with(["identity:credential_list"], {})
-        controller.enforce_permissions("credential_list", {})
+        controller.enforce_permissions("identity:credential_list", {})
       end
 
       it "should complete rule_name if context is missing and name is symbol" do

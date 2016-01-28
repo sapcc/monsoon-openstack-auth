@@ -1,5 +1,4 @@
 require "monsoon_openstack_auth/authentication/errors"
-require "monsoon_openstack_auth/authentication/auth_default_domain"
 require "monsoon_openstack_auth/authentication/auth_user"
 require "monsoon_openstack_auth/authentication/session_store"
 require "monsoon_openstack_auth/authentication/auth_session"
@@ -11,7 +10,7 @@ module MonsoonOpenstackAuth
       base.send :extend, ClassMethods
       base.send :include, InstanceMethods
     
-      base.send :helper_method, :current_user, :logged_in?, :services, :auth_default_domain
+      base.send :helper_method, :current_user, :logged_in?, :services
     end
     
     def self.get_filter_value(controller,method_name)
@@ -37,28 +36,25 @@ module MonsoonOpenstackAuth
         authentication_required options.merge raise_error:true
       end
 
-      def authentication_required(options={})
+      def authentication_required(options={})      
         raise_error = options[:raise_error]
 
-        reg = options.delete(:region)
-        org = options.delete(:organization)
-        org = options.delete(:domain) unless org
-        prj = options.delete(:project)
+        org       = options.delete(:organization)
+        org       = options.delete(:domain) unless org
+        prj       = options.delete(:project)
+        org_name  = options.delete(:domain_name)
         
         do_rescope = options.delete(:rescope)
         do_rescope = do_rescope.nil? ? true : do_rescope 
-        
-        # use default region from config
-        reg = -> c {MonsoonOpenstackAuth.configuration.default_region} unless reg
 
-        before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") }) do
-          region        = Authentication.get_filter_value(self,reg)
-          
-          # region is required
-          raise MonsoonOpenstackAuth::Authentication::InvalidRegion.new("A region should be provided") unless region
-            
-          @auth_session = AuthSession.check_authentication(self, region, {
+        before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") }) do       
+          if !raise_error and session and !session.loaded?
+            session[:init] = true 
+          end
+             
+          @auth_session = AuthSession.check_authentication(self, {
             domain: Authentication.get_filter_value(self,org), 
+            domain_name: Authentication.get_filter_value(self,org_name), 
             project: Authentication.get_filter_value(self,prj),
             raise_error:raise_error
           })
@@ -98,13 +94,6 @@ module MonsoonOpenstackAuth
         @auth_session.redirect_to_login_form if @auth_session
       end
       
-      def auth_default_domain
-        begin
-          MonsoonOpenstackAuth.default_domain
-        rescue MonsoonOpenstackAuth::ApiError => e
-          nil
-        end
-      end
     end
   end
 end

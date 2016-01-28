@@ -1,3 +1,3 @@
 module MonsoonOpenstackAuth
-  VERSION = "0.7.16"
+  VERSION = "0.8.2"
 end

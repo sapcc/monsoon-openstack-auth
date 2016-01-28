@@ -1,10 +1,7 @@
 MonsoonOpenstackAuth.configure do |config|
   # connection driver, default MonsoonOpenstackAuth::Driver::Default (Fog)
   # config.connection_driver = DriverClass
-  config.connection_driver.api_endpoint = ENV['MONSOON_OPENSTACK_AUTH_API_ENDPOINT']
-  config.connection_driver.api_userid   = ENV['MONSOON_OPENSTACK_AUTH_API_USERID']
-  config.connection_driver.api_password = ENV['MONSOON_OPENSTACK_AUTH_API_PASSWORD']
-  config.connection_driver.api_domain   = ENV['MONSOON_OPENSTACK_AUTH_DOMAIN']
+  config.connection_driver.api_endpoint = Rails.application.config.keystone_endpoint
   
   # optional, default=true
   config.token_auth_allowed = true
@@ -16,9 +13,7 @@ MonsoonOpenstackAuth.configure do |config|
   config.form_auth_allowed  = true
   # optional, default=false
   config.access_key_auth_allowed = false
-  
-  config.default_region = 'europe'
-  
+    
   config.provide_sso_domain = true
   
   # optional, default= last url before redirected to form

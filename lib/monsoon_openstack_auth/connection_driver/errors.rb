@@ -5,5 +5,6 @@ module MonsoonOpenstackAuth
     class ConfigurationError < StandardError; end
     class InterfaceNotImplementedError < NoMethodError; end
     class ConnectionError < StandardError; end
+    class AuthenticationError < StandardError; end
   end
 end

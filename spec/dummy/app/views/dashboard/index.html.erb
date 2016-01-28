@@ -1,7 +1,3 @@
 <%= content_for :title do%>
   Dashboard
 <%end%>
-
-<%if logged_in?%>
-<p><%= link_to 'Domains', domains_path(@region) %></p>
-<%end%>
