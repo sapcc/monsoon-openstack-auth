@@ -2,13 +2,12 @@ module MonsoonOpenstackAuth
   class Configuration    
     METHODS = [
       :connection_driver, :token_auth_allowed, :basic_auth_allowed,:access_key_auth_allowed, :sso_auth_allowed, :provide_sso_domain,
-      :form_auth_allowed, :login_redirect_url, :debug, :logger, :authorization, :default_domain_name, :token_cache
+      :form_auth_allowed, :login_redirect_url, :debug, :logger, :authorization, :token_cache
     ]
     
     attr_accessor *METHODS
 
     def initialize
-      @default_domain_name      = 'sap_default'
       @connection_driver        = MonsoonOpenstackAuth::ConnectionDriver::Default
       @token_auth_allowed       = true
       @basic_auth_allowed       = true

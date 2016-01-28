@@ -52,9 +52,6 @@ MonsoonOpenstackAuth.configure do |config|
   config.form_auth_allowed  = true
   # optional, default=false
   config.access_key_auth_allowed = false
-  
-  # optional, default='sap_default'
-  config.default_domain_name='sap_default'
 
   # optional, default= last url before redirected to form
   #config.login_redirect_url = '/'

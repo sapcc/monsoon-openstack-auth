@@ -41,7 +41,6 @@
     <% end -%>
         
     <% if logged_in?%><p class="token">Token: <%=current_user.token%></p><%end%>
-	  <p class="token">Default Domain: name=<%=MonsoonOpenstackAuth.configuration.default_domain_name%></p>
     <% if logged_in?%>
 	  <%= @region%>	
 	  <%end%>
