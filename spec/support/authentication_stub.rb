@@ -50,7 +50,9 @@ module AuthenticationStub
       # stub session token (so authenticate_with_credentials is never called)
       begin
         @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
+      
         @session_store.token=AuthenticationStub.test_token
+
         block.call(@session_store.token) if block_given?
       rescue
       end
