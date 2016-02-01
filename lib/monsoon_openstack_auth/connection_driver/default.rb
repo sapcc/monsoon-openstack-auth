@@ -122,7 +122,17 @@ module MonsoonOpenstackAuth
           auth[:auth][:identity][:password] = { user:{ id: username,password: password } }
         end   
 
-        auth[:auth][:scope] = domain_params if user_domain_params and user_domain_params[:scoped_token]  
+        # obsolete
+        #auth[:auth][:scope] = domain_params if user_domain_params and user_domain_params[:scoped_token]  
+        
+        if user_domain_params
+          if user_domain_params[:scoped_token]==true
+            auth[:auth][:scope] = domain_params
+          elsif user_domain_params[:scoped_token].is_a?(Hash)
+            auth[:auth][:scope] = user_domain_params[:scoped_token]
+          end
+        end
+        
         authenticate(auth)
       end
 

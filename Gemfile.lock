@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    monsoon-openstack-auth (0.8.2)
+    monsoon-openstack-auth (0.8.4)
       excon
       hashie
       rails
