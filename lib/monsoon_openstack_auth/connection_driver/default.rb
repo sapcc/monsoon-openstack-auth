@@ -61,8 +61,9 @@ module MonsoonOpenstackAuth
       end  
 
       def authenticate(auth_params)
-
-        MonsoonOpenstackAuth.logger.info "MonsoonOpenstackAuth#authenticate, #{auth_params.to_s}" if MonsoonOpenstackAuth.configuration.debug
+        if MonsoonOpenstackAuth.configuration.debug
+          MonsoonOpenstackAuth.logger.info "MonsoonOpenstackAuth#authenticate, #{filter_params(auth_params)}" 
+        
         begin
           result = @connection.post( body: auth_params.to_json, headers: {"Content-Type" => "application/json"}) 
           
@@ -121,15 +122,12 @@ module MonsoonOpenstackAuth
         end   
 
         auth[:auth][:scope] = domain_params if user_domain_params and user_domain_params[:scoped_token]  
-     
         authenticate(auth)
       end
 
       def authenticate_with_token(token, scope=nil)
         auth = {auth:{identity: {methods: ["token"],token:{ id: token}}}}
         auth[:auth][:scope]=scope if scope
-        
-        MonsoonOpenstackAuth.logger.info "authenticate_with_token -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         authenticate(auth)
       end
 
@@ -147,16 +145,12 @@ module MonsoonOpenstackAuth
         end
         
         auth = { auth: { identity: {methods: ["external"], external:{user: username }.merge(domain_params) }}}    
-
-        MonsoonOpenstackAuth.logger.info "authenticate_external_user -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
         authenticate(auth)
       end
 
       def authenticate_with_access_key(access_key, scope=nil)
         auth = {auth:{identity: {methods: ["access-key"],access_key:{key:access_key}}}}
         auth[:auth][:scope]=scope if scope
-        MonsoonOpenstackAuth.logger.info "authenticate_with_access_key -> #{auth}" if MonsoonOpenstackAuth.configuration.debug
-        
         authenticate(auth)
       rescue Excon::Errors::Unauthorized
       end
@@ -166,6 +160,13 @@ module MonsoonOpenstackAuth
         def cache
           impl = MonsoonOpenstackAuth.configuration.token_cache
           impl.new
+        end
+        
+        def filter_params(params,filters=[:password])
+          filter = lambda do |hash,f=[:password]| 
+            hash.inject({}){|h,(k,v)| h[k] = v.is_a?(Hash) ? filter[v,f] : (f.include?(k.to_sym) && v.is_a?(String) ? "FILTERED" : v); h }
+          end
+          filter[params,filters]
         end
 
     end
