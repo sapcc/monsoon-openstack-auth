@@ -12,8 +12,7 @@ require "monsoon_openstack_auth/cache/rails_memory_cache"
 require "monsoon_openstack_auth/cache/noop_cache"
 
 module MonsoonOpenstackAuth
-  class ApiError < StandardError;
-  end
+  class ApiError < StandardError; end
 
   class LoggerWrapper
     def initialize(logger)

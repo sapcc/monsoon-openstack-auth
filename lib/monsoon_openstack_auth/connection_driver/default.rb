@@ -63,6 +63,7 @@ module MonsoonOpenstackAuth
       def authenticate(auth_params)
         if MonsoonOpenstackAuth.configuration.debug
           MonsoonOpenstackAuth.logger.info "MonsoonOpenstackAuth#authenticate, #{filter_params(auth_params)}" 
+        end
         
         begin
           result = @connection.post( body: auth_params.to_json, headers: {"Content-Type" => "application/json"}) 
