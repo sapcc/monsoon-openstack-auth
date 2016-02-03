@@ -5,49 +5,32 @@ module MonsoonOpenstackAuth
     class Default < MonsoonOpenstackAuth::ConnectionDriver::Interface
       class << self
         attr_accessor :api_endpoint, :ssl_verify_peer, :ssl_ca_path, :ssl_ca_file
+        @@endpoint_mutex = Mutex.new
+        @@conection_options_mutex = Mutex.new
       
         def connection_options
-          result = { ssl_verify_peer: (ssl_verify_peer.nil? ? true : ssl_verify_peer) }
-          result[:ssl_ca_file] = ssl_ca_file unless ssl_ca_file.nil?
-          result[:ssl_ca_path] = ssl_ca_path unless ssl_ca_path.nil?  
-          result[:debug] = MonsoonOpenstackAuth.configuration.debug
-          result
+          return @connection_options if @connection_options
+          
+          @@conection_options_mutex.synchronize do
+            @connection_options = { ssl_verify_peer: (ssl_verify_peer.nil? ? true : ssl_verify_peer) }
+            @connection_options[:ssl_ca_file] = ssl_ca_file unless ssl_ca_file.nil?
+            @connection_options[:ssl_ca_path] = ssl_ca_path unless ssl_ca_path.nil?  
+            @connection_options[:debug] = MonsoonOpenstackAuth.configuration.debug
+          end
+          @connection_options
         end
       
         def endpoint
           return @endpoint if @endpoint
           begin
-            version = URI(api_endpoint).path.split('/')[1]
-            @endpoint = URI.join(api_endpoint, "/#{version}/auth/tokens").to_s
+            @@endpoint_mutex.synchronize do
+              version = URI(api_endpoint).path.split('/')[1]
+              @endpoint = URI.join(api_endpoint, "/#{version}/auth/tokens").to_s
+            end
+            @endpoint
           rescue => e
             Rails.logger.info("api_endpoint: #{api_endpoint}")
             raise MalformedApiEndpoint.new(e)
-          end
-        end
-        
-        def auth_params
-          if api_userid or api_password
-
-            auth_params = { 
-              auth: { 
-                identity: { 
-                  methods: ["password"],
-                  password: {
-                    user: { 
-                      id: api_userid,
-                      password: api_password
-                    }
-                  }
-                }
-              }
-            }
-          
-            if api_domain
-              user_credentials = auth_params[:auth][:identity][:password][:user]
-              user_credentials[:name] = user_credentials.delete(:id)
-              user_credentials[:domain] = {name: api_domain}
-            end
-            auth_params
           end
         end
       end
