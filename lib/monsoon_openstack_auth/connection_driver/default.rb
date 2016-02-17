@@ -15,7 +15,7 @@ module MonsoonOpenstackAuth
             @connection_options = { ssl_verify_peer: (ssl_verify_peer.nil? ? true : ssl_verify_peer) }
             @connection_options[:ssl_ca_file] = ssl_ca_file unless ssl_ca_file.nil?
             @connection_options[:ssl_ca_path] = ssl_ca_path unless ssl_ca_path.nil?  
-            @connection_options[:debug] = MonsoonOpenstackAuth.configuration.debug_api_calls
+            @connection_options[:debug_request] = @connection_options[:debug_response] = MonsoonOpenstackAuth.configuration.debug_api_calls
           end
           @connection_options
         end
