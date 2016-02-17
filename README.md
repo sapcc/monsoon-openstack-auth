@@ -82,6 +82,8 @@ MonsoonOpenstackAuth.configure do |config|
   ########## Plugin ##########
   # optional, default=false
   config.debug=false
+  # optional Excon request and response debug, default=false
+  config.debug_api_calls=false
 end
 ```
 
