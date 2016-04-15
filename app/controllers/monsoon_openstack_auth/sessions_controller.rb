@@ -4,7 +4,6 @@ module MonsoonOpenstackAuth
   class SessionsController < ActionController::Base
         
     def new
-      session_store = MonsoonOpenstackAuth::Authentication::AuthSession.session_store(self)
       @domain_id = params[:domain_id]
       @domain_name = params[:domain_name]
       redirect_to main_app.root_path, alert: 'Not allowed!' and return unless MonsoonOpenstackAuth.configuration.form_auth_allowed?

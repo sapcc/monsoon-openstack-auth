@@ -5,7 +5,8 @@ require "monsoon_openstack_auth/authentication/auth_session"
 
 module MonsoonOpenstackAuth
   # This module is included in a rails controller
-  module Authentication
+  module Authentication  
+    
     def self.included(base)
       base.send :extend, ClassMethods
       base.send :include, InstanceMethods
@@ -39,10 +40,19 @@ module MonsoonOpenstackAuth
       def authentication_required(options={})      
         raise_error = options[:raise_error]
 
-        org       = options.delete(:organization)
-        org       = options.delete(:domain) unless org
-        prj       = options.delete(:project)
-        org_name  = options.delete(:domain_name)
+        org             = options.delete(:organization)
+        org             = options.delete(:domain) unless org
+        prj             = options.delete(:project)
+        org_name        = options.delete(:domain_name)
+
+        # The redirect_to parameter defines a string or callback which returns a string.
+        # This callback is called after user has logged on.
+        # There is a problem with this callback. The before filter "authentication_required" is called
+        # in context of the host app. Then it redirects to the sessions controller of the auth gem 
+        # if user isn't logged in. Thus, the host app loses the control and the callback is not available
+        # in the sessions controller. In order to make the callback abailable in other context we save 
+        # it in a static variable of AuthSession and give the key (id) to the session.
+        redirect_to_callback_id = AuthSession.add_redirect_to_callback(options.delete(:redirect_to))
         
         do_rescope = options.delete(:rescope)
         do_rescope = do_rescope.nil? ? true : do_rescope 
@@ -51,13 +61,17 @@ module MonsoonOpenstackAuth
           if !raise_error and session and !session.loaded?
             session[:init] = true 
           end
-             
-          @auth_session = AuthSession.check_authentication(self, {
+          
+          auth_session_params = {
             domain: Authentication.get_filter_value(self,org), 
             domain_name: Authentication.get_filter_value(self,org_name), 
             project: Authentication.get_filter_value(self,prj),
             raise_error:raise_error
-          })
+          } 
+          # add the id of callback to session params  
+          auth_session_params[:redirect_to_callback_id] = redirect_to_callback_id if redirect_to_callback_id
+          
+          @auth_session = AuthSession.check_authentication(self, auth_session_params)
           
           # @current_user = @auth_session.user if @auth_session
           
