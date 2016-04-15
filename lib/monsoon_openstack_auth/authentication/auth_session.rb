@@ -1,9 +1,32 @@
 module MonsoonOpenstackAuth
   module Authentication
     class AuthSession
+      @@redirect_to_callbacks_mutex = Mutex.new
+      
       attr_reader :session_store
+      attr_accessor :redirect_to_callback
+           
+      class << self        
+          
+        # This methods saves callback urls in a static hash. 
+        # In this way, it is possible to access the callbacks across different controllers.
+        # See it in action in authentication.rb:38   
+        def add_redirect_to_callback(url)
+          return nil unless url
+          @@redirect_to_callbacks_mutex.synchronize do
+            @redirect_to_callbacks ||= {}
+            new_id = @redirect_to_callbacks.keys.length + 1
+            @redirect_to_callbacks[new_id] = url
+            return new_id
+          end
+        end
     
-      class << self
+        def get_redirect_to_callback(id)
+          return nil unless @redirect_to_callbacks
+          return nil unless id
+          @redirect_to_callbacks[id]
+        end
+        
         
         def load_user_from_session(controller)
           session = AuthSession.new(controller,session_store(controller), nil)
@@ -15,7 +38,11 @@ module MonsoonOpenstackAuth
         def check_authentication(controller, scope_and_options={})
           raise_error = scope_and_options.delete(:raise_error)
 
-          session = AuthSession.new(controller,session_store(controller), scope_and_options)
+          session_store = session_store(controller)
+          # save redirect_to callback id
+          session_store.redirect_to_callback_id=(scope_and_options.delete(:redirect_to_callback_id))
+          
+          session = AuthSession.new(controller,session_store, scope_and_options)
           
           # return session if already authenticated
           return session if session.authenticated?
@@ -41,8 +68,14 @@ module MonsoonOpenstackAuth
             nil
           end
 
+          session_store = session_store(controller)      
           session = AuthSession.new(controller, session_store(controller), scope)
+          # get redirect_to_callback and save it in session
+          # this callback is used in session to determine the redirect_url 
+          session.redirect_to_callback=AuthSession.get_redirect_to_callback(session_store.redirect_to_callback_id)
+          
           redirect_to_url = session.login_form_user(username,password)
+          session_store.delete_redirect_to_callback_id
           return redirect_to_url
         end
       
@@ -356,7 +389,7 @@ module MonsoonOpenstackAuth
         end
       
         begin          
-          redirect_to_url = (MonsoonOpenstackAuth.configuration.login_redirect_url || @session_store.redirect_to || @controller.main_app.root_path)
+          redirect_to_url = (MonsoonOpenstackAuth.configuration.login_redirect_url || self.redirect_to_callback || @session_store.requested_url || @controller.main_app.root_path)
           token = @api_client.authenticate_with_credentials(username, password, @scope)
 
           save_token_in_session_store(token) 
@@ -364,9 +397,11 @@ module MonsoonOpenstackAuth
                   
           # redirect_url is a Proc (defined in initializer)
           if redirect_to_url.is_a?(Proc)
-            redirect_to_url = redirect_to_url.call(@session_store.redirect_to, @user)
+            redirect_to_url = redirect_to_url.call(@user, @session_store.requested_url, @session_store.referer_url)
           end
-          @session_store.delete_redirect_to
+          @session_store.delete_requested_url
+          @session_store.delete_referer_url
+
           return redirect_to_url
         rescue => e
           MonsoonOpenstackAuth.logger.error "login_form_user -> failed. #{e}"
@@ -377,14 +412,19 @@ module MonsoonOpenstackAuth
     
       def redirect_to_login_form
         if MonsoonOpenstackAuth.configuration.form_auth_allowed? and @session_store
-          @session_store.redirect_to = @controller.request.env['REQUEST_URI'] if @session_store
+          
+          if @session_store
+            # save request und referer urls in session
+            @session_store.requested_url= @controller.request.env['REQUEST_URI']
+            @session_store.referer_url= @controller.request.referer
+          end
           
           if @scope[:domain_name]
             @controller.redirect_to @controller.monsoon_openstack_auth.login_path(domain_name: @scope[:domain_name])
           else  
             @controller.redirect_to @controller.monsoon_openstack_auth.new_session_path(domain_id: @scope[:domain])
           end
-          #@controller.redirect_to @controller.monsoon_openstack_auth.login_path(domain_id: @scope[:domain])
+
           return true
         else
           return false

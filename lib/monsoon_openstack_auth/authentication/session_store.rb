@@ -37,16 +37,40 @@ module MonsoonOpenstackAuth
         @session.delete SESSION_NAME
       end
     
-      def redirect_to=(url)
-        @session[:redirect_to]=url
+      def requested_url=(url)
+        @session[:monsoon_openstack_auth_requested_url]=url
       end
     
-      def redirect_to
-        @session[:redirect_to]
+      def requested_url
+        @session[:monsoon_openstack_auth_requested_url]
       end
       
-      def delete_redirect_to
-        @session.delete :redirect_to
+      def delete_requested_url
+        @session.delete :monsoon_openstack_auth_requested_url
+      end
+      
+      def referer_url=(url)
+        @session[:monsoon_openstack_auth_referer_url]=url
+      end
+    
+      def referer_url
+        @session[:monsoon_openstack_auth_referer_url]
+      end
+      
+      def delete_referer_url
+        @session.delete :monsoon_openstack_auth_referer_url
+      end
+      
+      def redirect_to_callback_id=(callback_id)
+        @session[:monsoon_openstack_auth_redirect_to_callback]=callback_id
+      end
+    
+      def redirect_to_callback_id
+        @session[:monsoon_openstack_auth_redirect_to_callback]
+      end
+      
+      def delete_redirect_to_callback_id
+        @session.delete :monsoon_openstack_auth_redirect_to_callback
       end
     end
   end
