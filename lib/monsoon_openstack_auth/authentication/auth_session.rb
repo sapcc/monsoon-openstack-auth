@@ -75,7 +75,8 @@ module MonsoonOpenstackAuth
           session.redirect_to_callback=AuthSession.get_redirect_to_callback(session_store.redirect_to_callback_id)
           
           redirect_to_url = session.login_form_user(username,password)
-          session_store.delete_redirect_to_callback_id
+          # delete redirect_to_callback_id from session if succesfully logged in.
+          session_store.delete_redirect_to_callback_id unless redirect_to_url.nil?
           return redirect_to_url
         end
       
