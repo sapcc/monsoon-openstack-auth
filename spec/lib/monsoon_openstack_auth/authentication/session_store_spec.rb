@@ -50,6 +50,32 @@ describe MonsoonOpenstackAuth::Authentication::SessionStore do
       end
     end
     
+    describe "token_almost_expired?" do
+      context "token exipres in less than 5 minutes" do
+        let(:session) { MonsoonOpenstackAuth::Authentication::SessionStore.new({ monsoon_openstack_auth_token: ApiStub.keystone_token.merge(expires_at:(Time.now+4.minutes).to_s )}) }
+      
+        it "should return true" do
+          expect(session.token_almost_expired?).to eq(true)
+        end
+      end
+      
+      context "token is expired" do
+        let(:session) { MonsoonOpenstackAuth::Authentication::SessionStore.new({ monsoon_openstack_auth_token: ApiStub.keystone_token.merge(expires_at:(Time.now-4.minutes).to_s )}) }
+        it "should return false" do
+          expect(session.token_almost_expired?).to eq(false)
+        end
+      end
+
+      context "token is not expired yet but expires immediately " do
+        let(:session) { MonsoonOpenstackAuth::Authentication::SessionStore.new({ monsoon_openstack_auth_token: ApiStub.keystone_token.merge(expires_at:(Time.now+30.seconds).to_s ) }) }
+        
+        it "should return false" do
+          expect(session.token_almost_expired?).to eq(false)
+        end
+      end
+    end
+    
+    
     describe "token_eql?" do
       let(:session) { MonsoonOpenstackAuth::Authentication::SessionStore.new({ monsoon_openstack_auth_token: ApiStub.keystone_token.merge(value:ApiStub.keystone_token["value"])}) }
       

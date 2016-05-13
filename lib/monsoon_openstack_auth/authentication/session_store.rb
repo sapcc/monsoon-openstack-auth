@@ -20,6 +20,16 @@ module MonsoonOpenstackAuth
         @session[SESSION_NAME][:expires_at] and 
         DateTime.parse(@session[SESSION_NAME][:expires_at]) > Time.now
       end
+      
+      def token_almost_expired?
+        # almost expired means the token expires in less than 5 minutes but after 30 seconds
+        if token_presented? and @session[SESSION_NAME][:expires_at]
+          rest_time = (DateTime.parse(@session[SESSION_NAME][:expires_at]).to_time-Time.now)/60
+          return (rest_time>0.5 and rest_time<5)
+        else
+          return false
+        end
+      end
   
       def token_eql?(auth_token)
         @session[SESSION_NAME][:value]==auth_token

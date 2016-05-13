@@ -325,10 +325,42 @@ module MonsoonOpenstackAuth
         end
 
         if @session_store.token_valid?
-          create_user_from_session_store
-          if logged_in?
-            MonsoonOpenstackAuth.logger.info "validate_session_token -> successful (username=#{@user.name})." if @debug
-            return true
+          # check if token is almost expired
+          # renew token automatically
+          if @session_store.token_almost_expired?
+            # renew token
+            begin
+              auth_token = @session_store.token["value"]
+              scope = @session_store.token["project"] || @session_store.token["domain"] 
+              token = @api_client.authenticate_with_token(auth_token,scope)
+              if token
+                # token is valid -> create user from token and save token in session store
+                create_user_from_token(token)
+                save_token_in_session_store(token)
+          
+                if logged_in?
+                  MonsoonOpenstackAuth.logger.info("reauthenticate using session token -> successful (username=#{@user.name}).") if @debug
+                  return true
+                end
+              end
+              #rescue Excon::Errors::Unauthorized, Fog::Identity::OpenStack::NotFound => e   
+              #MonsoonOpenstackAuth.logger.error "token validation failed #{e}."
+              #end  
+            rescue => e   
+              class_name = e.class.name
+              if class_name.start_with?('Excon') or class_name.start_with?('Fog')
+                MonsoonOpenstackAuth.logger.error "token validation failed #{e}."
+              else
+                MonsoonOpenstackAuth.logger.error "unknown error #{e}."
+                raise e
+              end  
+            end
+          else
+            create_user_from_session_store
+            if logged_in?
+              MonsoonOpenstackAuth.logger.info "validate_session_token -> successful (username=#{@user.name})." if @debug
+              return true
+            end
           end
         end
         MonsoonOpenstackAuth.logger.info "validate_session_token -> failed." if @debug
