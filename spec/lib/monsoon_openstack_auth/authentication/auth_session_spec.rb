@@ -268,6 +268,14 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         expect(controller.current_user).not_to be(nil)
         expect(controller.current_user.token).to eq(test_token[:value])
       end
+      
+      it "reauthenticate if almost expired" do
+        @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
+        @session_store.token=test_token.merge(expires_at:(Time.now+4.minutes).to_s )
+        
+        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token)
+        get "index", { domain: test_token_domain, project: test_token_project }
+      end
 
       it "authenticates from auth token" do
         request.headers["X-Auth-Token"]=test_token[:value]
