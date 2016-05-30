@@ -92,7 +92,8 @@ module MonsoonOpenstackAuth
         if auth_session
           auth_session.user
         else
-          AuthSession.load_user_from_session(self).user rescue nil
+          return @authentication_current_session_user if @authentication_current_session_user 
+          @authentication_current_session_user = AuthSession.load_user_from_session(self).user rescue nil
         end
       end
 
