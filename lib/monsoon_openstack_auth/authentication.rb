@@ -101,8 +101,14 @@ module MonsoonOpenstackAuth
         !current_user.nil?
       end
       
-      def authentication_rescope_token
-        @auth_session.rescope_token if @auth_session
+      def authentication_rescope_token(scope=nil)
+        if @auth_session
+          if scope
+            @auth_session.rescope_token(scope)
+          else
+            @auth_session.rescope_token
+          end
+        end
       end
       
       def redirect_to_login_form

@@ -118,36 +118,33 @@ module MonsoonOpenstackAuth
         return true if validate_http_basic
       end
     
-      def rescope_token
+      def rescope_token(requested_scope=@scope)
         if @session_store and @session_store.token_valid? and !@scope.empty?
           token = @session_store.token
           domain =  token[:domain] 
           project = token[:project]
 
-          if @scope[:project]
-            return if project && project["id"]==@scope[:project]
+          if requested_scope[:project]
+            return if project && project["id"]==requested_scope[:project]
             # scope= {project: {domain:{id: @scope[:domain]},id: @scope[:project]}}
-            scope= if @scope[:domain] 
-              {project: {domain:{id: @scope[:domain]},id: @scope[:project]}}
-            elsif @scope[:domain_name]
-              {project: {domain:{name: @scope[:domain_name]},id: @scope[:project]}}
+            scope= if requested_scope[:domain] 
+              {project: {domain:{id: requested_scope[:domain]},id: requested_scope[:project]}}
+            elsif requested_scope[:domain_name]
+              {project: {domain:{name: requested_scope[:domain_name]},id: requested_scope[:project]}}
             end
-          elsif @scope[:domain]
-            return if domain && domain["id"]==@scope[:domain] && (project.nil? or project["id"].nil?)
-            scope = {domain:{id:@scope[:domain]}}
-          elsif @scope[:domain_name]
-            return if domain && domain["name"]==@scope[:domain_name] && (project.nil? or project["id"].nil?)
-            scope = {domain:{name:@scope[:domain_name]}}  
+          elsif requested_scope[:domain]
+            return if domain && domain["id"]==requested_scope[:domain] && (project.nil? or project["id"].nil?)
+            scope = {domain:{id:requested_scope[:domain]}}
+          elsif requested_scope[:domain_name]
+            return if domain && domain["name"]==requested_scope[:domain_name] && (project.nil? or project["id"].nil?)
+            scope = {domain:{name:requested_scope[:domain_name]}}  
           else
 
             # scope is empty -> no domain and project provided
             # return if token scope is also empty
             return if (domain.nil? and project.nil?)
-                        
-            # user has a default domain. If the default domain is equal to the token domain then do not rescope and return
-            user_domain_id = token.fetch(:user,{}).fetch("domain",{}).fetch("id",nil) 
 
-            # did not returned -> get new unscoped token                       
+            # did not return -> get new unscoped token                       
             scope="unscoped"
           end
         
