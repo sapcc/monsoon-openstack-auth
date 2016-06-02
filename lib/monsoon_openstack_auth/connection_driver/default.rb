@@ -124,6 +124,16 @@ module MonsoonOpenstackAuth
         auth[:auth][:scope]=scope if scope
         authenticate(auth)
       end
+      
+      def revoke_token(token)
+        headers = {
+          "Content-Type" => "application/json",
+          "X-Auth-Token" => token,
+          "X-Subject-Token" => token
+        }
+        
+        result = @connection.delete( headers: headers) 
+      end
 
       def authenticate_external_user(username, user_domain_params={})
         #TODO: authenticate external user
