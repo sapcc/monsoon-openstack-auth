@@ -18,6 +18,10 @@ module MonsoonOpenstackAuth
         @token ||= @context["value"]
       end
 
+      def is_admin_project_token?
+        @is_admin_project_token ||= read_value("is_admin_project")
+      end
+
       def id
         @id ||= read_value("user.id")
       end
