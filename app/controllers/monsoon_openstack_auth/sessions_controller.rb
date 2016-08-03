@@ -8,6 +8,7 @@ module MonsoonOpenstackAuth
       @domain_name = params[:domain_name]
       redirect_to main_app.root_path, alert: 'Not allowed!' and return unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
       MonsoonOpenstackAuth::Authentication::AuthSession.logout(self)
+      session[:after_login_url] = params[:after_login]
     end
   
     def create
@@ -16,9 +17,10 @@ module MonsoonOpenstackAuth
       @password = params[:password]
       @domain_id = params[:domain_id]
       @domain_name = params[:domain_name]
-      redirect_to_url = MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(self,@username,@password, @domain_id,@domain_name)
-      if redirect_to_url 
-        redirect_to redirect_to_url#, notice: 'Signed on!'
+      
+      after_login_url = (params[:after_login] || session[:after_login_url] || :back)
+      if MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(self,@username,@password, @domain_id,@domain_name) 
+        redirect_to after_login_url
       else
         @error = 'Invalid username/password combination'
         flash.now[:alert] = @error
