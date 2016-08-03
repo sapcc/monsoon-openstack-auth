@@ -268,14 +268,6 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         expect(controller.current_user).not_to be(nil)
         expect(controller.current_user.token).to eq(test_token[:value])
       end
-      
-      it "reauthenticate if almost expired" do
-        @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
-        @session_store.token=test_token.merge(expires_at:(Time.now+4.minutes).to_s )
-        
-        expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_token)
-        get "index", { domain: test_token_domain, project: test_token_project }
-      end
 
       it "authenticates from auth token" do
         request.headers["X-Auth-Token"]=test_token[:value]
@@ -394,44 +386,6 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
           
           MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(controller, {domain:'aaa',project:'bbb'})
         end
-      end
-
-      context 'redirect_to parameter is presented' do      
-        before :each do
-          allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:authenticated?).and_return(true)
-          @callback_id = MonsoonOpenstackAuth::Authentication::AuthSession.add_redirect_to_callback(-> current_user, requested_url, referer_url {'test2'})
-        end
-
-        it "sets the redirect_to_callback_id attribute" do
-          expect_any_instance_of(MonsoonOpenstackAuth::Authentication::SessionStore).to receive(:redirect_to_callback_id=).with(1)
-          MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(controller, {domain:'aaa',project:'bbb',redirect_to_callback_id: 1})
-        end
-        
-        it "should save the callback" do
-          @current_callback =  MonsoonOpenstackAuth::Authentication::AuthSession.get_redirect_to_callback(@callback_id)
-          expect(@current_callback).to be_a(Proc)          
-        end
-        
-        it "should get the callback url" do
-          @current_callback =  MonsoonOpenstackAuth::Authentication::AuthSession.get_redirect_to_callback(@callback_id)   
-          expect(@current_callback.call(nil,nil,nil)).to eq('test2')          
-        end
-
-        it "returns redirect_to url after login" do
-          # gegt session object with redirect_to attribute
-          session = MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(controller, {domain:'aaa',project:'bbb',redirect_to_callback_id:@callback_id})
-
-          # simulate redirection to login form
-          # do not call redirect_to on controller
-          allow(controller).to receive(:redirect_to).and_return(true)
-          # the redirect_to value should be saved in session store
-          session.redirect_to_login_form
-
-          # get a new session object
-          redirect_to_url = MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(controller, 'test','test')
-          expect(redirect_to_url).to eq('test2')
-        end
-
       end
     end  
       

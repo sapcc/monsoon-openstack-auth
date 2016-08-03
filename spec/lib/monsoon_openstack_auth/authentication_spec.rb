@@ -7,58 +7,6 @@ describe MonsoonOpenstackAuth::Authentication, :type => :controller do
     MonsoonOpenstackAuth::Authentication::AuthSession.stub(:check_authentication) {auth_session}
   end
   
-  context 'redirect_to parameter is presented' do    
-    controller do # anonymous subclass of ActionController::Base
-      authentication_required({
-        region: -> c {c.params[:region_id]}, 
-        domain: -> c {c.params[:domain_id]}, 
-        project: -> c {c.params[:project_id]}, 
-        redirect_to: -> current_user, requested_url, referer_url {'http://test.de'}
-      })
-    
-      def index
-        head :ok
-      end
-    end
-    
-    it "initializes auth session object with redirect_to" do
-      expect(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:check_authentication).with(anything, {
-        domain: nil, 
-        domain_name: nil, 
-        project: nil, 
-        raise_error:nil, 
-        redirect_to_callback_id: instance_of(Fixnum)
-      })
-        
-      get 'index'
-    end
-    
-    it "should increase redirect_to_url_callback_id value" do
-      expect {
-        controller.class.send( :authentication_required, {
-          region: -> c {c.params[:region_id]}, 
-          domain: -> c {c.params[:domain_id]}, 
-          project: -> c {c.params[:project_id]}, 
-          redirect_to: -> current_user, requested_url, referer_url {'http://test2.de'}
-        })
-      }.to change(MonsoonOpenstackAuth::Authentication::AuthSession.instance_variable_get("@redirect_to_callbacks"), :size).by (1)
-    end
-    
-    it "should return callback for id" do
-      controller.class.send( :authentication_required, {
-        region: -> c {c.params[:region_id]}, 
-        domain: -> c {c.params[:domain_id]}, 
-        project: -> c {c.params[:project_id]}, 
-        redirect_to: -> current_user, requested_url, referer_url {'http://test2.de'}
-      })
-        
-      id = MonsoonOpenstackAuth::Authentication::AuthSession.instance_variable_get("@redirect_to_callbacks").keys.last
-      callback = MonsoonOpenstackAuth::Authentication::AuthSession.get_redirect_to_callback(id)
-      expect(callback).to be_a(Proc)   
-      expect(callback.call(nil,nil,nil)).to eq('http://test2.de') 
-    end
-  end
-  
   context "skip authentication for an action" do
     controller do # anonymous subclass of ActionController::Base
       authentication_required region: -> c {c.params[:region_id]}, domain: -> c {c.params[:domain_id]}, project: -> c {c.params[:project_id]}
