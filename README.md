@@ -1,7 +1,7 @@
 Monsoon Openstack Auth
 ======================
 
-This gem enables authentication for Ruby on Rails applications against Openstack Keystone Service using the Identity API v3.
+This gem enables authentication for Ruby on Rails applications against Openstack Keystone Service using the Identity API v3. Further it implements a Policy Engine to allow permission cheks.
 
 Example
 -------
