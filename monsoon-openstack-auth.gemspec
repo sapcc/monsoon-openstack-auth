@@ -9,9 +9,9 @@ Gem::Specification.new do |s|
   s.version     = MonsoonOpenstackAuth::VERSION
   s.authors     = ["Andreas Pfau"]
   s.email       = ["andreas.pfau@sap.com"]
-  s.homepage    = "https://github.com/sapcc/monsoon/monsoon-identity"
-  s.summary     = "Summary of MonsoonOpenstackAuth."
-  s.description = "Description of MonsoonOpenstackAuth."
+  s.homepage    = "https://github.com/sapcc/monsoon-openstack-auth"
+  s.summary     = "Authenticate against Openstack Keystone."
+  s.description = "This gem enables authentication for Ruby on Rails applications against Openstack Keystone Service using the Identity API v3."
 
   s.files = Dir["{app,config,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["spec/**/*"]

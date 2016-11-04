@@ -136,10 +136,6 @@ module MonsoonOpenstackAuth
       end
 
       def authenticate_external_user(username, user_domain_params={})
-        #TODO: authenticate external user
-        #REMOTE_USER=d000000
-        #REMOTE_DOMAIN=test
-        
         domain_params = if user_domain_params[:domain]
           { domain: { id: user_domain_params[:domain] } }
         elsif user_domain_params[:domain_name]

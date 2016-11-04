@@ -1,9 +1,32 @@
 Monsoon Openstack Auth
 ======================
 
-Implements the authentication functionality using Keystone API.
+This gem enables authentication for Ruby on Rails applications against Openstack Keystone Service using the Identity API v3.
 
-[![Build Status](https://travis-ci.mo.sap.corp/monsoon/monsoon-openstack-auth.svg?token=zmx4pwNHg8RYRGSuWuM2&branch=authorization)](https://travis-ci.mo.sap.corp/monsoon/monsoon-openstack-auth)
+Example
+-------
+
+```ruby
+class DashboardController < ::ScopeController
+    authentication_required domain:  :get_domain_id,
+                            project: :get_project_id,
+                            except: :terms_of_use
+    
+    def index
+    end
+    
+    def terms_of_use
+    end
+    
+    protected
+    def get_domain_id
+        params[:domain_id]
+    end
+    
+    def get_project_id
+        params[:project_id]
+    end
+```
 
 Install
 -------
@@ -16,7 +39,7 @@ $ [sudo] gem install monsoon-openstack-auth
 
 
 ```
-gem 'monsoon-openstack-auth', git: 'git://github.com/sapcc/monsoon/monsoon-openstack-auth.git'
+gem 'monsoon-openstack-auth', git: 'git://github.com/sapcc/monsoon-openstack-auth.git'
 ```
 
 Setup
@@ -37,7 +60,7 @@ MonsoonOpenstackAuth.configure do |config|
 
   ############# Authentication ################
   # connection driver, default MonsoonOpenstackAuth::Driver::Default (Fog)
-  config.connection_driver = DriverClass
+  # config.connection_driver = DriverClass
 
   # api auth endpoint
   config.connection_driver.api_endpoint = ENV['MONSOON_OPENSTACK_AUTH_API_ENDPOINT']
@@ -54,7 +77,7 @@ MonsoonOpenstackAuth.configure do |config|
   config.access_key_auth_allowed = false
 
   # optional, default= last url before redirected to form
-  #config.login_redirect_url = '/'
+  # config.login_redirect_url = '/'
 
   ########## Authorization #########  
   # policy_file_path: path to policy file
@@ -81,9 +104,9 @@ MonsoonOpenstackAuth.configure do |config|
 
   ########## Plugin ##########
   # optional, default=false
-  config.debug=false
+  # config.debug = true
   # optional Excon request and response debug, default=false
-  config.debug_api_calls=false
+  # config.debug_api_calls = true (Deprecated, use environment variable EXCON_DEBUG = true)
 end
 ```
 
@@ -129,35 +152,27 @@ include MonsoonOpenstackAuth::Authentication
 
 ##### authentication_required
 
-Class method which is called in controllers.
+Class method which is called in controllers. This method is based on the before_filter method and therefore it accepts the common options such as :except, :only, and :if
 
 ```ruby
 authentication_required options
 ```
 options:
 
-* **domain**, optional. Example: 'o-ghghad'
-* **project**, optional. Example: 'p-jhjhhj'
-* **only**, optional. Example only: [:index,:show]
+* **rescope**, boolean (optional). Default is true. If rescope is true the user token will be scoped to domain or/and project.
+* **domain**, symbol, value or Proc (optional?). Provides user domain id. This option is used for both the user domain and the scope domain (if rescope = false). One of options domain_id or domain_name should be provided!
+* **domain_name**, string or Proc (optional?). Use this option instead of domain_id. One of options domain_id or domain_name should be provided!
+* **project**, symbol, value or Proc (optional). Provides project id. This option is used for scope project (if rescope = true).
+* **only**, array (optional). Example only: [:index,:show]
 * **except**, optional. Example except: [:index,:show]
 * **if**, optional. Example if: -> c {c.params[:region_id].nil?}
 * **unless**, optional
 
-Example:
+**Example for unscoped token authentication**. User is redirected to the login page, where he/she is prompted to enter his/her credentials.
 
 ```ruby
 DashboardController < ApplicationController
-  authentication_required
-
-  def index
-  end
-
-end
-
-
-```ruby
-DashboardController < ApplicationController
-  authentication_required 
+  authentication_required domain: 'DOMAIN_ID', rescope: false
 
   def index
   end
@@ -165,7 +180,18 @@ DashboardController < ApplicationController
 end
 ```
 
-Example:
+**Example for project scoped token authentication**.
+```ruby
+DashboardController < ApplicationController
+  authentication_required domain_name: DOMAIN_NAME, project: PROJECT_ID, rescope: true
+
+  def index
+  end
+
+end
+```
+
+**Example for only option**
 
 ```ruby
 DashboardController < ApplicationController
@@ -175,20 +201,18 @@ DashboardController < ApplicationController
   end
 
   def get_domain
-    @domain_id = (controller_name == 'organizations') ? params[:id] : params[:domain_id]
+    @domain_id = params[:domain_id]
   end
 
   def get_project
-    @project_id = (controller_name == 'projects') ? params[:id] : params[:project_id]
+    @project_id = params[:project_id]
   end
 end
 ```
 
-[Example from Dummy Application](https://github.com/sapcc/monsoon/monsoon-openstack-auth/blob/master/spec/dummy/app/controllers/dashboard_controller.rb)
-
 ##### skip_authentication
 
-Class method which is called in controllers.
+Class method which is called in controllers. This method allows you to skip authentication in subclasses.
 
 ```ruby
 skip_authentication options
@@ -200,23 +224,42 @@ options:
 * **if**, optional. Example if: -> c {!c.params[:domain].nil?}
 * **unless**, optional
 
+##### Prevent rescoping
+
+It is possible to prevent automatic rescoping. 
+
+```ruby
+DashboardController < ApplicationController
+  authentication_required domain_name: -> c {c.params[:domain_id]}, project: project_id, rescope: false
+  before_filter do
+    # user is authenticated with unscoped token. Check if user has read permission for project_id
+    user_projects = service_user.user_projects(current_user.id)
+    redirect_to not_allowed_url unless user_projects.collect{|project| project.id}.include?(project_id)
+  end
+  
+  before_filter do
+    authentication_rescope_token
+    # now current_user is rescoped to project_id
+  end
+  
+  def index
+  end
+  
+  protected
+  def project_id
+    @project_id ||= params[:project_id]
+  end
+end
+```
 
 ##### current_user
 
-Instance method, available in controller instances and views. Returns current logged in user or nil.
-
-```ruby
-current_user
-```
+Instance method, available in controller instances and views. Returns current logged in user or nil. To get current_user the authentication_required method should be called first.
 
 ##### logged_in?
 
 Instance method, available in controller instances and views. Returns true if current logged in user is
 presented.
-
-```ruby
-logged_in?
-```
 
 #### User Class (current_user)
 
@@ -363,7 +406,7 @@ Example:
 Develop
 -------
 ```
-git clone https://github.com/sapcc/monsoon/monsoon-openstack-auth.git
+git clone https://github.com/sapcc/monsoon-openstack-auth.git
 cd monsoon-openstack-auth
 bundle install
 cd spec/dummy
