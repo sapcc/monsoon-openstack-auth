@@ -7,8 +7,8 @@ require "monsoon_openstack_auth/version"
 Gem::Specification.new do |s|
   s.name        = "monsoon-openstack-auth"
   s.version     = MonsoonOpenstackAuth::VERSION
-  s.authors     = ["Andreas Pfau"]
-  s.email       = ["andreas.pfau@sap.com"]
+  s.authors     = ["Andreas Pfau", "Torsten Lesmann"]
+  s.email       = ["andreas.pfau@sap.com", "torsten.lesmann@sap.com"]
   s.homepage    = "https://github.com/sapcc/monsoon-openstack-auth"
   s.summary     = "Authenticate against Openstack Keystone."
   s.description = "This gem enables authentication for Ruby on Rails applications against Openstack Keystone Service using the Identity API v3."
