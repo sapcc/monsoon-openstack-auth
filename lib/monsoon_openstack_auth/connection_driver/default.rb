@@ -57,6 +57,8 @@ module MonsoonOpenstackAuth
           token = body['token']
           token["value"] = result.headers["X-Subject-Token"]
           HashWithIndifferentAccess.new(token)
+        rescue Excon::Error => excon_error
+          raise(excon_error)
         rescue =>e
           MonsoonOpenstackAuth.logger.error e.to_s
           nil
