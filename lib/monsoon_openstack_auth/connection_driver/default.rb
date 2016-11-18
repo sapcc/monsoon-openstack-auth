@@ -17,6 +17,7 @@ module MonsoonOpenstackAuth
             @connection_options[:ssl_ca_path] = ssl_ca_path unless ssl_ca_path.nil?  
             @connection_options[:debug_request] = @connection_options[:debug_response] = MonsoonOpenstackAuth.configuration.debug_api_calls
           end
+
           @connection_options
         end
       
@@ -48,21 +49,20 @@ module MonsoonOpenstackAuth
           MonsoonOpenstackAuth.logger.info "MonsoonOpenstackAuth#authenticate, #{filter_params(auth_params)}" 
         end
         
-        begin
-          result = @connection.post( body: auth_params.to_json, headers: {"Content-Type" => "application/json"}) 
-          
-          body = JSON.parse(result.body)
-          raise MonsoonOpenstackAuth::ConnectionDriver::AuthenticationError.new(body.to_s) unless body['token']
+        result = @connection.post( body: auth_params.to_json, headers: {"Content-Type" => "application/json"}) 
+        
+        body = JSON.parse(result.body)
 
-          token = body['token']
-          token["value"] = result.headers["X-Subject-Token"]
-          HashWithIndifferentAccess.new(token)
-        rescue Excon::Error => excon_error
-          raise(excon_error)
-        rescue =>e
-          MonsoonOpenstackAuth.logger.error e.to_s
-          nil
+        unless body['token']
+          message = body['error']['message'] rescue "Response does not contain token. #{body.to_s}"
+          code = body['error']['code'] rescue nil
+          error = MonsoonOpenstackAuth::ConnectionDriver::AuthenticationError.new(message,code) 
+          raise error
         end
+          
+        token = body['token']
+        token["value"] = result.headers["X-Subject-Token"]
+        HashWithIndifferentAccess.new(token)
       end
       
       def validate_token(auth_token)
