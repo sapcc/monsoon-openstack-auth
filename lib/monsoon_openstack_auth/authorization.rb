@@ -219,10 +219,20 @@ module MonsoonOpenstackAuth
           policy_params = options.first
         else
           policy_rules = options.first.is_a?(Array) ? options.first : [options.first]
-          policy_rules = policy_rules.collect{|n| (n.to_s.include?(':') and n.to_s.start_with?(application_name)) ? n.to_s : "#{application_name}:#{n.to_s}" }
+          policy_rules = policy_rules.collect do |n| 
+            rule_name = n.to_s
+            if rule_name.start_with?('::')
+              rule_name[2..-1]
+            elsif (rule_name.include?(':') and rule_name.start_with?(application_name))
+              rule_name
+            else
+              "#{application_name}:#{rule_name}"
+            end 
+          end
           policy_params = options.second
         end
-                  
+      
+        policy_params ||= {}            
         result = if MonsoonOpenstackAuth.configuration.authorization.trace_enabled
           policy_trace = policy.enforce_with_trace(policy_rules, policy_params)
           policy_trace.print
@@ -230,8 +240,8 @@ module MonsoonOpenstackAuth
         else
           policy.enforce(policy_rules, policy_params)
         end
-
-        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(authorization_user, policy_rules, policy_params) unless result
+        
+        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(authorization_user, policy_rules, policy_params, policy) unless result
       end
       
       ################### END Andreas ###################
@@ -308,8 +318,8 @@ module MonsoonOpenstackAuth
         else
           policy.enforce([os_action], hashed_resource)
         end
-      
-        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(authorization_user, os_action, authorization_resource) unless result
+
+        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(authorization_user, os_action, authorization_resource, policy) unless result
       end
 
 
@@ -341,7 +351,7 @@ module MonsoonOpenstackAuth
           policy.enforce(policy_rules, mashed_resource)
         end
 
-        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(authorization_user, policy_rules, mashed_resource) unless result
+        raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(authorization_user, policy_rules, mashed_resource, policy) unless result
       end
 
       # Renders a static file to minimize the chances of further errors.

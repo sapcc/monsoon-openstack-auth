@@ -1,16 +1,28 @@
 module MonsoonOpenstackAuth
   module Authorization
     class SecurityViolation < StandardError
-      attr_reader :user, :action, :resource
+      attr_reader :user, :action, :resource, :policy_rules, :involved_roles
 
-      def initialize(user, action, resource)
-        @user     = user
-        @action   = action
-        @resource = resource
+      def initialize(user, action, resource, policy)
+        @policy       = policy
+        @user         = user
+        @action       = action
+        @resource     = resource
+        if action and policy
+          @policy_rules = action.is_a?(Array) ? action.collect{|r| policy.rules.get(r)} : policy.rules.get(action)
+          @involved_roles = @policy_rules.collect{|r| r.involved_roles} rescue []
+        end
       end
 
       def message
-        "#{@user.nil? ? 'User' : @user.name} is not authorized for action #{@action}  on resource: #{@resource}"
+        action = @action.is_a?(Array) ? @action.join(', ') : @action
+        resource_name = if @resource && (!@resource.respond_to?(:keys) or @resource.keys.length>0)
+          @resource.to_s
+        else
+          nil
+        end
+        
+        "#{@user.nil? ? 'User' : @user.name} is not authorized for action #{action}#{" on resource: #{resource_name}" if resource_name}."
       end
     end
     

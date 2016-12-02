@@ -9,7 +9,6 @@ module MonsoonOpenstackAuth
 
       def initialize(policy_hash)
         @rules = RulesContainer.new
-        @parsed_policy = {}
         @required_locals = []
         parse_rules(policy_hash)
       end
@@ -23,9 +22,8 @@ module MonsoonOpenstackAuth
       def parse_rules(policy_hash)
         begin
           policy_hash.each do |name, rule|
-            parsed_rule = Rule.parse(@rules, name, rule)
+            parsed_rule = Rule.parse(policy_hash,@rules, name, rule)
             @rules.add(name, parsed_rule)
-            @parsed_policy[name] = Rule.parse(@rules, name, rule)
             @required_locals += parsed_rule.required_locals
           end
 
@@ -105,6 +103,10 @@ module MonsoonOpenstackAuth
 
           trace
         end
+        
+        def rules
+          @rules
+        end
 
         def enforce(rule_names=[], params = {})
           params = ::MonsoonOpenstackAuth::Authorization::PolicyParams.build(params)
@@ -160,11 +162,11 @@ module MonsoonOpenstackAuth
       end
 
       class Rule
-        attr_reader :name, :rule, :parsed_rule, :required_locals, :required_params
-
+        attr_reader :name, :rule, :parsed_rule, :required_locals, :required_params, :resolved_rule, :involved_roles
+          
         class << self
-          def parse(all_rules, name, rule)
-
+          def parse(policy_hash,all_rules, name, rule)   
+       
             ############ normalize rule ############
             # replace %(text)s with params["text"]
             parsed_rule = rule.gsub(/%\(/, 'params["').gsub(/\)s/, '"]')
@@ -202,7 +204,7 @@ module MonsoonOpenstackAuth
             # replace <-> with :
             parsed_rule.gsub!("<->", ":")
 
-            self.new(all_rules, name, rule, parsed_rule)
+            self.new(policy_hash,all_rules, name, rule, parsed_rule)
           end
 
           def default_rule
@@ -210,15 +212,32 @@ module MonsoonOpenstackAuth
           end
         end
 
-        def initialize(all_rules, name, rule, parsed_rule)
+        def initialize(policy_hash,all_rules, name, rule, parsed_rule)
+          @policy_hash = policy_hash
           @name = name
           @rules = all_rules
           @rule = rule
           @parsed_rule = parsed_rule
+          @resolved_rule = resolve_rule_dependencies(name)
+          @involved_roles = @resolved_rule.scan(/role:([^\s]+)/).uniq rescue []
           @required_locals = extract_required_locals
           @required_params = extract_required_params
           @executable = eval("lambda {|locals={},params={},trace=nil| #{@parsed_rule} }")
         end
+        
+        def resolve_rule_dependencies(name)
+          begin
+            return "" if name=='cloud_admin'
+            rule = @policy_hash[name] 
+            return "" unless rule
+            depended_rules = rule.scan(/rule:(?<name>[^\s]+)/).flatten
+            depended_rules.each{|name| rule = rule.gsub(/rule:#{name}/, "( #{resolve_rule_dependencies(name)} ) ") }
+            return rule
+          rescue => e
+            ""
+          end
+        end
+        
 
         def to_s
           "name: #{@name} \nrule: #{@rule} \nparsed rule: #{@parsed_rule}"
