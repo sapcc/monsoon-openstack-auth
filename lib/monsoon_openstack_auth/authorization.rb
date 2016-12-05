@@ -232,7 +232,12 @@ module MonsoonOpenstackAuth
           policy_params = options.second
         end
       
-        policy_params ||= {}            
+        policy_params ||= {}  
+        
+        if @policy_default_params and @policy_default_params.is_a?(Hash)
+          policy_params = @policy_default_params.merge(policy_params)
+        end
+                  
         result = if MonsoonOpenstackAuth.configuration.authorization.trace_enabled
           policy_trace = policy.enforce_with_trace(policy_rules, policy_params)
           policy_trace.print
