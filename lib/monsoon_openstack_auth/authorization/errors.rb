@@ -10,7 +10,7 @@ module MonsoonOpenstackAuth
         @resource     = resource
         if action and policy
           @policy_rules = action.is_a?(Array) ? action.collect{|r| policy.rules.get(r)} : policy.rules.get(action)
-          @involved_roles = @policy_rules.collect{|r| r.involved_roles} rescue []
+          @involved_roles = @policy_rules.collect{|r| r.involved_roles}.flatten rescue []
         end
       end
 
