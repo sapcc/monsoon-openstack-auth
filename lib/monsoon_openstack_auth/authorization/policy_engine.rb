@@ -230,7 +230,7 @@ module MonsoonOpenstackAuth
             return "" if name=='cloud_admin'
             rule = @policy_hash[name] 
             return "" unless rule
-            depended_rules = rule.scan(/rule:(?<name>[^\s]+)/).flatten
+            depended_rules = rule.scan(/rule:(?<name>[^\s|\)]+)/).flatten
             depended_rules.each{|name| rule = rule.gsub(/rule:#{name}/, "( #{resolve_rule_dependencies(name)} ) ") }
             return rule
           rescue => e
