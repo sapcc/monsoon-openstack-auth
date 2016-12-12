@@ -8,6 +8,7 @@ module MonsoonOpenstackAuth
       @domain_name = params[:domain_name]
       redirect_to main_app.root_path, alert: 'Not allowed!' and return unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
       MonsoonOpenstackAuth::Authentication::AuthSession.logout(self)
+      reset_session
       session[:after_login_url] = params[:after_login]
     end
   
@@ -30,6 +31,7 @@ module MonsoonOpenstackAuth
   
     def destroy
       MonsoonOpenstackAuth::Authentication::AuthSession.logout(self)
+      reset_session
       logout_url = (params[:redirect_to] || self.main_app.root_url)  
       redirect_to logout_url
     end
