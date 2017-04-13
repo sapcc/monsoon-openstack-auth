@@ -20,10 +20,10 @@ describe MonsoonOpenstackAuth::Authorization::PolicyEngine do
       it "raises no error if empty params" do
         expect{
           @policy.enforce(["owner"],{})
-        }.not_to raise_error(MonsoonOpenstackAuth::Authorization::RuleExecutionError)
+        }.not_to raise_error #(MonsoonOpenstackAuth::Authorization::RuleExecutionError)
       end
     end
-    
+
     context "policy gets enforced when user is admin" do
       before :each do |x|
         @current_user = FactoryGirl.build_stubbed(:user, :admin)

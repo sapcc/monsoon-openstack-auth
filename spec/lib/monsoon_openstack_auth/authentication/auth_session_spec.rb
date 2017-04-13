@@ -5,12 +5,12 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
   test_token_domain = test_token.fetch("domain",{}).fetch("id",nil)
   test_token_project = test_token.fetch("project",{}).fetch("id",nil)
 
-  before :each do    
+  before :each do
     MonsoonOpenstackAuth.configure do |config|
       config.connection_driver.api_endpoint = "http://localhost:5000/v3/auth/tokens"
     end
 
-    allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).with(test_token[:value]).and_return(test_token) 
+    allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).with(test_token[:value]).and_return(test_token)
     allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).with("INVALID_TOKEN").and_return(nil)
     allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_credentials).with("test","secret").and_return(test_token)
     allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_credentials).with("me","me").and_return(nil)
@@ -20,22 +20,73 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
     allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_access_key).with("good_key").and_return(test_token)
     allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_access_key).with("bad_key").and_return(nil)
   end
-  
+
+  context 'two factor is required'do
+    subject { MonsoonOpenstackAuth::Authentication::AuthSession }
+    describe '::check_authentication' do
+      before :each do
+        @controller = double('controller',
+          request: double("request").as_null_object,
+          monsoon_openstack_auth: double("auth",
+            new_session_path: 'http://localhost/auth/sessions/new',
+            two_factor_path: 'http://localhost/auth/sessions/passcode'
+          ),
+          params: {}
+        )
+      end
+
+      context 'user is not authenticated' do
+        before :each do
+          allow_any_instance_of(subject).to receive(:authenticated?).and_return false
+        end
+
+        it "should redirect user to login form" do
+          expect(@controller.monsoon_openstack_auth).to receive(:new_session_path).with(:domain_id=>anything,after_login: anything)
+          expect(@controller).to receive(:redirect_to).with("http://localhost/auth/sessions/new", {:two_factor=>true})
+          subject.check_authentication(@controller, two_factor: true)
+        end
+      end
+
+      context 'user is authenticated but without two factor' do
+        before :each do
+          allow_any_instance_of(subject).to receive(:authenticated?).and_return true
+        end
+
+        it "should redirect user to login form" do
+          expect(@controller.monsoon_openstack_auth).to receive(:two_factor_path).with(after_login: anything)
+          expect(@controller).to receive(:redirect_to).with("http://localhost/auth/sessions/passcode")
+          subject.check_authentication(@controller, two_factor: true)
+        end
+      end
+
+      context 'user is authenticated and two factor is ok' do
+        before :each do
+          allow_any_instance_of(subject).to receive(:authenticated?).and_return true
+          allow(subject).to receive(:two_factor_cookie_valid?).and_return true
+        end
+
+        it "should redirect user to login form" do
+          expect(subject.check_authentication(@controller, two_factor: true)).to be_a(subject)
+        end
+      end
+    end
+  end
+
   context "included in controller", :type => :controller do
     before do
-      controller.main_app.stub(:root_path).and_return('/')  
+      controller.main_app.stub(:root_path).and_return('/')
       controller.monsoon_openstack_auth.stub(:new_session_path).and_return('/auth/sessions/new')
       controller.monsoon_openstack_auth.stub(:login_path).and_return('/auth/sessions/new')
     end
-    
+
     controller do # anonymous subclass of ActionController::Base
       authentication_required region: -> c {c.params[:region_id]}, domain: -> c {c.params[:domain]}, project: -> c {c.params[:project]}
-  
+
       def index
         head :ok
       end
     end
-    
+
     context "token auth is allowed" do
 
       before :each do
@@ -45,15 +96,15 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         MonsoonOpenstackAuth.configuration.stub(:form_auth_allowed?) { false }
         MonsoonOpenstackAuth.configuration.stub(:access_key_auth_allowed?)  { false }
       end
-    
+
       context "no auth token presented" do
         it "should redirect to main app's root path" do
           get "index"
           expect(response).to redirect_to(controller.main_app.root_path)
           expect(flash[:notice]).to eq "User is not authenticated!"
         end
-      end  
-    
+      end
+
       context "invalid auth token" do
         it "should redirect to main app's root path" do
           request.headers["X-Auth-Token"]="INVALID_TOKEN"
@@ -62,7 +113,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
           expect(flash[:notice]).to eq "User is not authenticated!"
         end
       end
-    
+
       context "session token not presented" do
         it "should authenticate user from auth token" do
           request.headers["X-Auth-Token"]=test_token[:value]
@@ -71,7 +122,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
           expect(controller.current_user.token).to eq(test_token[:value])
         end
       end
-    
+
       context "session token presented" do
         before do
           @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
@@ -85,7 +136,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         end
       end
     end
-  
+
     context "basic auth is allowed" do
       before :each do
         MonsoonOpenstackAuth.configuration.stub(:token_auth_allowed?){ false  }
@@ -217,7 +268,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
           get "index"
           expect(response).to redirect_to(controller.monsoon_openstack_auth.login_path)
         end
-        
+
         it "should authenticate user from auth token by given domain_id" do
           get "index", { region_id: 'europe', domain: 'default' }
           expect(response).to redirect_to(controller.monsoon_openstack_auth.login_path('default'))
@@ -258,7 +309,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=test"
 
         #allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:get_rescoped_token).and_return(true)
-        
+
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_token)
@@ -290,9 +341,9 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         MonsoonOpenstackAuth.configuration.provide_sso_domain=true
         domain = double("domain")
         domain.stub(:id).and_return('o-sap_default')
-        
+
         allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:domain_by_name).with('sap_default').and_return(domain)
-        
+
         request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
         request.env['HTTP_SSL_CLIENT_S_DN'] = "/O=SAP-AG/CN=test"
@@ -307,15 +358,15 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         expect(controller.current_user.token).to eq(test_token[:value])
         expect(MonsoonOpenstackAuth.api_client).to have_received(:authenticate_external_user).with("test",{domain_name: 'sap_default'})
       end
-      
+
       it "authenticate from sso ignoring domain" do
         MonsoonOpenstackAuth.configuration.provide_sso_domain=false
-        
+
         domain = double("domain")
         domain.stub(:id).and_return('o-sap_default')
-        
+
         allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:domain_by_name).with('sap_default').and_return(domain)
-        
+
         request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
         request.env['HTTP_SSL_CLIENT_S_DN'] = "/O=SAP-AG/CN=test"
@@ -328,7 +379,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         get "index", { domain: test_token_domain, project: test_token_project }
         expect(controller.current_user).not_to be(nil)
         expect(controller.current_user.token).to eq(test_token[:value])
-        
+
         expect(MonsoonOpenstackAuth.api_client).to have_received(:authenticate_external_user).with("test",nil)
       end
 
@@ -346,48 +397,49 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
       end
 
     end
-    
+
     describe "::create_from_login_form" do
       context "domain_name is nil" do
         it "should call authenticate using id and password" do
           expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_credentials).with("test","test",nil)
-          MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(controller,'test','test')  
+          MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(controller,'test','test')
         end
       end
       context "domain_id is not nil" do
         it "should call authenticate using id and password" do
           expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_credentials).with("test","test", domain: 'test_domain')
-          MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(controller,'test','test','test_domain',nil)  
+          MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(controller,'test','test', domain_id: 'test_domain')
         end
-      end      
+      end
       context "domain_name is not nil" do
         it "should call authenticate using id and password" do
           #allow(@driver).to receive(:authenticate).with({ auth: { identity: { methods: ["password"], password:{user: {name: 'test', password: 'test', domain: {id: 'test_domain'} } } } } })
           expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_with_credentials).with("test","test", domain_name: 'test_domain')
-          MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(controller,'test','test',nil,'test_domain')  
+          MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(controller,'test','test', domain_name: 'test_domain')
         end
       end
     end
-    
+
     describe '::check_authentication' do
-      
+
       context "not authenticated" do
         it "raise not_authorized_error if not authenticated" do
           allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:authenticated?).and_return(false)
-        
+
           expect {
             MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(controller, {domain:'aaa',project:'bbb',raise_error:true})
-          }.to raise_error
+          }.to raise_error(MonsoonOpenstackAuth::Authentication::NotAuthorized)
         end
-        
+
         it "redirect if not authenticated" do
+          c = double('controller').as_null_object
           allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:authenticated?).and_return(false)
-          expect_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:redirect_to_login_form).and_return(true)
-          
-          MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(controller, {domain:'aaa',project:'bbb'})
+          expect_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:redirect_to_login_form_url).and_return 'http://localhost/auth/sessions/new'
+          expect(c).to receive(:redirect_to).with("http://localhost/auth/sessions/new", {:two_factor=>nil})
+          MonsoonOpenstackAuth::Authentication::AuthSession.check_authentication(c, {domain:'aaa',project:'bbb'})
         end
       end
-    end  
-      
+    end
+
   end
 end

@@ -21,7 +21,10 @@ Dir[Rails.root.join("../factories/**/*.rb")].each {|f| require f}
 ActiveRecord::Migration.maintain_test_schema!
 
 RSpec.configure do |config|
-  
+  config.mock_with :rspec do |c|
+    c.syntax = [:should, :expect]
+  end
+
   # ## Mock Framework
   #
   # If you prefer to use mocha, flexmock or RR, uncomment the appropriate line:
@@ -65,8 +68,3 @@ RSpec.configure do |config|
   config.infer_spec_type_from_file_location!
   config.include FactoryGirl::Syntax::Methods
 end
-
-
-
-
-
