@@ -2,7 +2,8 @@ module MonsoonOpenstackAuth
   class Configuration
     METHODS = [
       :connection_driver, :token_auth_allowed, :basic_auth_allowed,:access_key_auth_allowed, :sso_auth_allowed, :provide_sso_domain,
-      :form_auth_allowed, :login_redirect_url, :debug, :debug_api_calls, :logger, :authorization, :token_cache, :two_factor_authentication_method
+      :form_auth_allowed, :login_redirect_url, :debug, :debug_api_calls, :logger, :authorization, :token_cache,
+      :two_factor_authentication_method,:two_factor_enabled
     ]
 
     attr_accessor *METHODS
@@ -14,6 +15,7 @@ module MonsoonOpenstackAuth
       @sso_auth_allowed         = true
       @form_auth_allowed        = true
       @access_key_auth_allowed  = false
+      @two_factor_enabled       = false
       @two_factor_authentication_method = -> username,passcode { raise 'No two_factor_authentication_method given! Please provide a method for two factor authentication (config.two_factor_authentication_method=Proc).' }
 
       @provide_sso_domain       = true
@@ -42,6 +44,7 @@ module MonsoonOpenstackAuth
     def sso_auth_allowed?; @sso_auth_allowed; end
     def form_auth_allowed?; @form_auth_allowed; end
     def debug?; @debug; end
+    def two_factor_enabled?; @two_factor_enabled; end
   end
 
   class AuthorizationConfig

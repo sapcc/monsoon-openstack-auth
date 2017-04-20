@@ -16,6 +16,7 @@ module MonsoonOpenstackAuth
         def check_authentication(controller, scope_and_options={})
           raise_error = scope_and_options.delete(:raise_error)
           two_factor = scope_and_options.delete(:two_factor)
+          two_factor = false unless MonsoonOpenstackAuth.configuration.two_factor_enabled?
 
           session_store = session_store(controller)
           session = AuthSession.new(controller,session_store, scope_and_options)

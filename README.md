@@ -11,18 +11,18 @@ class DashboardController < ::ScopeController
     authentication_required domain:  :get_domain_id,
                             project: :get_project_id,
                             except: :terms_of_use
-    
+
     def index
     end
-    
+
     def terms_of_use
     end
-    
+
     protected
     def get_domain_id
         params[:domain_id]
     end
-    
+
     def get_project_id
         params[:project_id]
     end
@@ -102,6 +102,12 @@ MonsoonOpenstackAuth.configure do |config|
   # You can specify another handler or overwrite "authorization_forbidden" method in controller.
   security_violation_handler = :authorization_forbidden
 
+  # enable or disable two factor authentication
+  config.two_factor_enabled       = false
+  # two factor auth method should return a Proc with params username and passcode
+  config.two_factor_authentication_method = -> username,passcode { }
+
+
   ########## Plugin ##########
   # optional, default=false
   # config.debug = true
@@ -135,13 +141,13 @@ Rails.application.config.session_store :active_record_store, :key => '_monsoon_a
 
 #### ActionController::API
 
-ActionController::API does not include http basic functionality. So you have to include it manually if you want to support http basic. 
+ActionController::API does not include http basic functionality. So you have to include it manually if you want to support http basic.
 
 ```ruby
 include ActionController::HttpAuthentication::Basic::ControllerMethods
 ```
 
-ActionController::API does not include MonsoonOpenstackAuth::Authentication. So you have to include it manually. 
+ActionController::API does not include MonsoonOpenstackAuth::Authentication. So you have to include it manually.
 
 ```ruby
 include MonsoonOpenstackAuth::Authentication
@@ -226,7 +232,7 @@ options:
 
 ##### Prevent rescoping
 
-It is possible to prevent automatic rescoping. 
+It is possible to prevent automatic rescoping.
 
 ```ruby
 DashboardController < ApplicationController
@@ -236,15 +242,15 @@ DashboardController < ApplicationController
     user_projects = service_user.user_projects(current_user.id)
     redirect_to not_allowed_url unless user_projects.collect{|project| project.id}.include?(project_id)
   end
-  
+
   before_filter do
     authentication_rescope_token
     # now current_user is rescoped to project_id
   end
-  
+
   def index
   end
-  
+
   protected
   def project_id
     @project_id ||= params[:project_id]
