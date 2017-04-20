@@ -232,6 +232,7 @@ describe MonsoonOpenstackAuth::Authentication, :type => :controller do
       allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:authenticated?).and_return(false)
       allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:rescope_token).and_raise(MonsoonOpenstackAuth::Authentication::NotAuthorized)
       allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:redirect_to_login_form).and_return true
+      allow(controller.monsoon_openstack_auth).to receive(:new_session_path).and_return ''
 
       expect { get 'index', domain_id: 'aaa', project_id: 'bbb' }.not_to raise_error
     end
