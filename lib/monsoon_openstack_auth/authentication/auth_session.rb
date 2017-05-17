@@ -66,7 +66,6 @@ module MonsoonOpenstackAuth
           session_store = session_store(controller)
           session = AuthSession.new(controller, session_store(controller), scope)
           session.login_form_user(username,password)
-          session
         end
 
         def check_two_factor(controller,username,passcode)
@@ -399,7 +398,7 @@ module MonsoonOpenstackAuth
       def login_form_user(username,password)
         unless @session_store
           MonsoonOpenstackAuth.logger.info "login_form_user -> session store not presented." if @debug
-          return nil
+          return false
         end
 
         begin
