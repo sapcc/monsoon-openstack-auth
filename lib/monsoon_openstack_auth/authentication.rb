@@ -1,6 +1,6 @@
 require "monsoon_openstack_auth/authentication/errors"
 require "monsoon_openstack_auth/authentication/auth_user"
-require "monsoon_openstack_auth/authentication/session_store"
+require "monsoon_openstack_auth/authentication/token_store"
 require "monsoon_openstack_auth/authentication/auth_session"
 
 module MonsoonOpenstackAuth
@@ -25,7 +25,6 @@ module MonsoonOpenstackAuth
           result = controller.send(method_name.to_sym)
         end
       end
-      #byebug
       (result.is_a?(String) and result.empty?) ? nil : result
     end
 
@@ -85,9 +84,9 @@ module MonsoonOpenstackAuth
       def current_user
         if auth_session
           auth_session.user
-        else
-          return @authentication_current_session_user if @authentication_current_session_user
-          @authentication_current_session_user = AuthSession.load_user_from_session(self).user rescue nil
+        # else
+        #   return @authentication_current_session_user if @authentication_current_session_user
+        #   @authentication_current_session_user = AuthSession.load_user_from_session(self).user rescue nil
         end
       end
 

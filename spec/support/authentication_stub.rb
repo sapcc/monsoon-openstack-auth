@@ -49,7 +49,7 @@ module AuthenticationStub
         
       # stub session token (so authenticate_with_credentials is never called)
       begin
-        @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
+        @session_store = MonsoonOpenstackAuth::Authentication::TokenStore.new(controller.session)
       
         @session_store.token=AuthenticationStub.test_token
 
@@ -62,7 +62,7 @@ module AuthenticationStub
     def stub_authentication_with_token(token_hash)
       stub_auth_configuration
 
-      @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
+      @session_store = MonsoonOpenstackAuth::Authentication::TokenStore.new(controller.session)
       @session_store.token = token_hash
     end
   end

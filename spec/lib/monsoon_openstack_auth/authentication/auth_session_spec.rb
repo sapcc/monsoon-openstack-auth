@@ -5,6 +5,13 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
   test_token_domain = test_token.fetch("domain",{}).fetch("id",nil)
   test_token_project = test_token.fetch("project",{}).fetch("id",nil)
 
+  test_token_scope = {
+    domain_id: (test_token.fetch("project",{}).fetch("domain",nil) || test_token.fetch("domain",{}))["id"],
+    domain_name: (test_token.fetch("project",{}).fetch("domain",nil) || test_token.fetch("domain",{}))["name"],
+    project_id: test_token.fetch("project",{})["id"],
+    project_name: test_token.fetch("project",{})["name"]
+  }
+
   before :each do
     MonsoonOpenstackAuth.configure do |config|
       config.connection_driver.api_endpoint = "http://localhost:5000/v3/auth/tokens"
@@ -125,8 +132,8 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
 
       context "session token presented" do
         before do
-          @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
-          @session_store.token=test_token
+          @token_store = MonsoonOpenstackAuth::Authentication::TokenStore.new(controller.session)
+          @token_store.set_token test_token
         end
 
         it "should authenticate user from session token" do
@@ -277,12 +284,12 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
 
       context "session token presented" do
         before do
-          @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
-          @session_store.token=test_token
+          @token_store = MonsoonOpenstackAuth::Authentication::TokenStore.new(controller.session)
+          @token_store.set_token test_token
         end
 
         it "should authenticate user from session token" do
-          get "index"
+          get "index", domain: test_token_scope[:domain_id], project: test_token_scope[:project_id]
           expect(controller.current_user).not_to be(nil)
           expect(controller.current_user.token).to eq(test_token[:value])
         end
@@ -300,8 +307,8 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
 
 
       it "authenticates from session" do
-        @session_store = MonsoonOpenstackAuth::Authentication::SessionStore.new(controller.session)
-        @session_store.token=test_token
+        @token_store = MonsoonOpenstackAuth::Authentication::TokenStore.new(controller.session)
+        @token_store.set_token(test_token)
 
         request.headers["X-Auth-Token"]=test_token[:value]
         request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")

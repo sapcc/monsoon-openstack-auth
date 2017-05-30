@@ -9,30 +9,18 @@ module MonsoonOpenstackAuth
       @two_factor = (params[:two_factor] && (params[:two_factor]=='true' or params[:two_factor]==true))
 
       redirect_to main_app.root_path, alert: 'Not allowed!' and return unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
-      MonsoonOpenstackAuth::Authentication::AuthSession.logout(self)
-
-      reset_session
-      session[:login_data] = {
-        two_factor: @two_factor,
-        after_login_url: params[:after_login],
-        domain_id: @domain_id,
-        domain_name: @domain_name
-      }
+      MonsoonOpenstackAuth::Authentication::AuthSession.logout(self, (@domain_id || @domain_name))
     end
 
     def create
-      login_data = session[:login_data] || {}
-      domain_id = (params[:domain_id] || login_data[:domain_id])
-      domain_name = (params[:domain_name] || login_data[:domain_name])
-
       redirect_to main_app.root_path, alert: 'Not allowed!' and return unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
       @username = params[:username]
       @password = params[:password]
-      @domain_id = domain_id.blank? ? nil : domain_id
-      @domain_name = domain_name.blank? ? nil : domain_name
-      @two_factor = (params[:two_factor] && (params[:two_factor]=='true' or params[:two_factor]==true)) or login_data[:two_factor]
+      @domain_id = params[:domain_id].blank? ? nil : params[:domain_id]
+      @domain_name = params[:domain_name].blank? ? nil : params[:domain_name]
+      @two_factor = (params[:two_factor] && (params[:two_factor]=='true' or params[:two_factor]==true))
 
-      after_login_url = (params[:after_login] || login_data[:after_login_url] || main_app.root_url(domain_id: (@domain_id || @domain_name)))
+      after_login_url = (params[:after_login] || main_app.root_url(domain_id: (@domain_id || @domain_name)))
 
       if MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(self,@username,@password, domain_id: @domain_id, domain_name: @domain_name)
         if !@two_factor or MonsoonOpenstackAuth::Authentication::AuthSession.two_factor_cookie_valid?(self)
@@ -48,16 +36,12 @@ module MonsoonOpenstackAuth
     end
 
     def check_passcode
-      login_data = session[:login_data] || {}
-      domain_id = (params[:domain_id] || login_data[:domain_id])
-      domain_name = (params[:domain_name] || login_data[:domain_name])
-
       @username = params[:username]
       @passcode = params[:passcode]
-      @domain_id = domain_id.blank? ? nil : domain_id
-      @domain_name = domain_name.blank? ? nil : domain_name
+      @domain_id = params[:domain_id].blank? ? nil : params[:domain_id]
+      @domain_name = params[:domain_name].blank? ? nil : params[:domain_name]
 
-      after_login_url = (params[:after_login] || login_data[:after_login_url] || main_app.root_url(domain_id: (@domain_id || @domain_name)))
+      after_login_url = (params[:after_login] || main_app.root_url(domain_id: (@domain_id || @domain_name)))
 
       @error = begin
         unless MonsoonOpenstackAuth::Authentication::AuthSession.check_two_factor(self,@username,@passcode)
@@ -78,10 +62,12 @@ module MonsoonOpenstackAuth
     end
 
     def destroy
-      MonsoonOpenstackAuth::Authentication::AuthSession.logout(self)
-      reset_session
+      MonsoonOpenstackAuth::Authentication::AuthSession.logout(self,params[:auth_domain])
       logout_url = (params[:redirect_to] || self.main_app.root_url)
       redirect_to logout_url
     end
+
+    private
+
   end
 end

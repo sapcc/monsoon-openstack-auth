@@ -129,27 +129,27 @@ module MonsoonOpenstackAuth
         end
         @is_admin
       end
-      
-      
+
+
       def service_url(type, options={})
         region = options[:region] || default_services_region
         interface = options[:interface] || 'public'
-        
+
         service = service_catalog.select do |service|
           service["type"]==type.to_s
         end.first
-        
+
         return nil unless service
 
         endpoint = service["endpoints"].select do |endpoint|
           endpoint["region_id"]==region.to_s and endpoint["interface"]==interface.to_s
         end.first
-        
+
         return nil unless endpoint
-        
+
         endpoint["url"]
       end
-      
+
 
       # Returns the first endpoint region for first non-identity service
       # in the service catalog
