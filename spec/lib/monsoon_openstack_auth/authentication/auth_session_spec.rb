@@ -133,7 +133,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
       context "session token presented" do
         before do
           @token_store = MonsoonOpenstackAuth::Authentication::TokenStore.new(controller.session)
-          @token_store.add_token test_token
+          @token_store.set_token test_token
         end
 
         it "should authenticate user from session token" do
@@ -285,7 +285,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
       context "session token presented" do
         before do
           @token_store = MonsoonOpenstackAuth::Authentication::TokenStore.new(controller.session)
-          @token_store.add_token test_token
+          @token_store.set_token test_token
         end
 
         it "should authenticate user from session token" do
@@ -308,7 +308,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
 
       it "authenticates from session" do
         @token_store = MonsoonOpenstackAuth::Authentication::TokenStore.new(controller.session)
-        @token_store.add_token(test_token)
+        @token_store.set_token(test_token)
 
         request.headers["X-Auth-Token"]=test_token[:value]
         request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")

@@ -45,38 +45,38 @@ describe MonsoonOpenstackAuth::Authentication::TokenStore do
     end
   end
 
-  describe '#find_token_by_scope' do
+  describe '#find_by_scope' do
     # find_token_by_scope(scope={domain_id:nil,domain_name:nil,project_id:nil,project_name:nil})
     it "should find one token by domain name" do
-      expect(@store.find_token_by_scope(domain_name: 'domain0')).to eq(HashWithIndifferentAccess.new(@tokens["token0"]))
+      expect(@store.find_by_scope(domain_name: 'domain0')).to eq(HashWithIndifferentAccess.new(@tokens["token0"]))
     end
 
     it "should find one token by domain id" do
-      expect(@store.find_token_by_scope(domain_id: 'id2')).to eq(HashWithIndifferentAccess.new(@tokens["token2"]))
+      expect(@store.find_by_scope(domain_id: 'id2')).to eq(HashWithIndifferentAccess.new(@tokens["token2"]))
     end
 
     it "should find one token by domain name and project id" do
-      expect(@store.find_token_by_scope(domain_name: 'domain0', project_id: 'id1')).to eq(HashWithIndifferentAccess.new(@tokens["token1"]))
+      expect(@store.find_by_scope(domain_name: 'domain0', project_id: 'id1')).to eq(HashWithIndifferentAccess.new(@tokens["token1"]))
     end
 
     it "should find one token by domain id and project id" do
-      expect(@store.find_token_by_scope(domain_id: 'id0', project_id: 'id1')).to eq(HashWithIndifferentAccess.new(@tokens["token1"]))
+      expect(@store.find_by_scope(domain_id: 'id0', project_id: 'id1')).to eq(HashWithIndifferentAccess.new(@tokens["token1"]))
     end
 
     it "should find one token by domain name and project name" do
-      expect(@store.find_token_by_scope(domain_name: 'domain2', project_name: 'project3')).to eq(HashWithIndifferentAccess.new(@tokens["token3"]))
+      expect(@store.find_by_scope(domain_name: 'domain2', project_name: 'project3')).to eq(HashWithIndifferentAccess.new(@tokens["token3"]))
     end
 
     it "should find one token by domain id and project name" do
-      expect(@store.find_token_by_scope(domain_id: 'id2', project_name: 'project3')).to eq(HashWithIndifferentAccess.new(@tokens["token3"]))
+      expect(@store.find_by_scope(domain_id: 'id2', project_name: 'project3')).to eq(HashWithIndifferentAccess.new(@tokens["token3"]))
     end
 
     it "should not find token by domain id" do
-      expect(@store.find_token_by_scope(domain_id: 'id3')).to be(nil)
+      expect(@store.find_by_scope(domain_id: 'id3')).to be(nil)
     end
   end
 
-  describe 'add_token' do
+  describe 'set_token' do
 
     context "token store is empty" do
 
@@ -91,7 +91,7 @@ describe MonsoonOpenstackAuth::Authentication::TokenStore do
           value: "token0"
         }
         expect(@store.instance_variable_get(:@tokens)).not_to receive(:[]=)
-        @store.add_token(token)
+        @store.set_token(token)
       end
 
       it "should update existing token by domain" do
@@ -102,7 +102,7 @@ describe MonsoonOpenstackAuth::Authentication::TokenStore do
         }
         expect {
           expect(@store.instance_variable_get(:@tokens)).to receive(:[]=).and_call_original
-          @store.add_token(token)
+          @store.set_token(token)
         }.not_to change(@store.instance_variable_get(:@tokens), :size)
       end
 
@@ -114,7 +114,7 @@ describe MonsoonOpenstackAuth::Authentication::TokenStore do
         }
         expect {
           expect(@store.instance_variable_get(:@tokens)).to receive(:[]=).and_call_original
-          @store.add_token(token)
+          @store.set_token(token)
         }.not_to change(@store.instance_variable_get(:@tokens), :size)
       end
 
@@ -126,7 +126,7 @@ describe MonsoonOpenstackAuth::Authentication::TokenStore do
         }
         expect {
           expect(@store.instance_variable_get(:@tokens)).to receive(:[]=).and_call_original
-          @store.add_token(token)
+          @store.set_token(token)
         }.to change(@store.instance_variable_get(:@tokens), :size).by(1)
       end
 
