@@ -18,26 +18,26 @@ module MonsoonOpenstackAuth
         self.send(MonsoonOpenstackAuth.configuration.authorization.security_violation_handler, exception)
       end
     end
-    
+
     def self.authorization_action_map
       @authorization_action_map ||= MonsoonOpenstackAuth.configuration.authorization.controller_action_map.dup
     end
-    
+
     ################ NEW action-level permissions ######################
     def self.determine_rule_name(application_name, controller_name, action_name)
       authorization_action = authorization_action_map[action_name.to_sym] || action_name
       rule_name = "#{application_name}:#{controller_name.singularize}_#{authorization_action.to_s}"
     end
-    
+
     # build policy relevant parameters based on controller params
     def self.build_policy_params(controller, params={},options = {})
-      policy_params             = {target: {}}      
+      policy_params             = {target: {}}
       # ignore_params             = options.fetch(:ignore_params,[:page,:per_page,:action, :controller])
       ignore_params             = options.fetch(:ignore_params,[])
       id_alias                  = options.fetch(:id_alias,'id')
       additional_policy_params  = options.fetch(:additional_policy_params,{})
       controller_name           = controller.controller_name
-      
+
       # convert params to policy params
       relevant_params = params.inject({}) do |hash, name_value_pair|
         name = name_value_pair[0].to_sym
@@ -48,27 +48,27 @@ module MonsoonOpenstackAuth
 
       relevant_params.each do |name,value|#
         # add parameter to policy_params
-        policy_params[name.to_sym] = value  
+        policy_params[name.to_sym] = value
 
         name_as_string = name.to_s
-        
+
         if name_as_string.end_with?("_id") or name_as_string=='id'
           class_name = if name_as_string.end_with?("_id")
             name_as_string.gsub("_id",'')
           else
             controller_name.singularize
           end
-          
+
           begin
             target_name = class_name.downcase.to_sym
-            
+
             # Caching: try to find already loaded object -> load from db unless found
             object = controller.instance_variable_get("@#{target_name.to_s}")
             unless object
               klazz = eval(class_name.capitalize)
               object = klazz.where(id_alias => value).first
             end
-            
+
             policy_params[:target][target_name] = object if object
           rescue => e
             #puts "Authorization: could not load object #{class_name}, param name: #{name_as_string}"
@@ -79,8 +79,8 @@ module MonsoonOpenstackAuth
       additional_policy_params.each do |target_name, object|
         value = if object.is_a?(Proc)
           controller.instance_eval(&object)
-        elsif object.is_a?(Symbol) 
-          if object.to_s.start_with?('@') 
+        elsif object.is_a?(Symbol)
+          if object.to_s.start_with?('@')
             controller.instance_variable_get(object.to_s) || object
           elsif controller.repond_to?(object)
             controller.send(object)
@@ -101,9 +101,9 @@ module MonsoonOpenstackAuth
     included do
       extend ClassMethods
       include InstanceMethods
-      
-      helper_method :enforce_permissions
-    
+
+      helper_method :enforce_permissions, :policy
+
       rescue_from(MonsoonOpenstackAuth::Authorization::SecurityViolation, :with => MonsoonOpenstackAuth::Authorization.security_violation_callback)
       class_attribute :authorization_resource, :instance_reader => false
     end
@@ -115,7 +115,7 @@ module MonsoonOpenstackAuth
           @authorization_context = context
         end
       end
-      
+
       def skip_authorization(options={})
         prepend_before_filter options do
           @_skip_authorization=true
@@ -128,12 +128,12 @@ module MonsoonOpenstackAuth
         ignore_params             = options.delete(:ignore_params)
         additional_policy_params  = options.delete(:additional_policy_params)
         context                   = options.delete(:context)
-        
+
         additional_options = {}
         additional_options[:id_alias] = id_alias if id_alias
-        additional_options[:ignore_params] = ignore_params if ignore_params 
+        additional_options[:ignore_params] = ignore_params if ignore_params
         additional_options[:additional_policy_params] = additional_policy_params if additional_policy_params
-        
+
         before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authorization") }) do
           # get the rule_name for requested action
           application_name = context || @authorization_context || MonsoonOpenstackAuth.configuration.authorization.context
@@ -146,9 +146,9 @@ module MonsoonOpenstackAuth
         end
       end
       ################# END #####################
-      
-      
-      
+
+
+
       # Sets up before_filter to ensure user is allowed to perform a given controller action
       #
       # @param [Class OR Symbol] resource_or_finder - class whose authorizer
@@ -205,12 +205,12 @@ module MonsoonOpenstackAuth
       # enforce_permissions("identity:user_read", {user: UserObject})
       # enforce_permissions(["identity:user_read","user_create"], {user: UserObject})
       # enforce_permissions(:user_read,{user: UserObject})
-      # enforce_permissions(user: UserObject), rule_name is determined based on the controller and action names 
+      # enforce_permissions(user: UserObject), rule_name is determined based on the controller and action names
       def enforce_permissions(*options)
         #context = "#{MonsoonOpenstackAuth.configuration.authorization.context}:"
         application_name = @authorization_context || MonsoonOpenstackAuth.configuration.authorization.context
 
-        policy_rules = [] 
+        policy_rules = []
         policy_params = {}
 
         if options.first.is_a?(Hash)
@@ -219,7 +219,7 @@ module MonsoonOpenstackAuth
           policy_params = options.first
         else
           policy_rules = options.first.is_a?(Array) ? options.first : [options.first]
-          policy_rules = policy_rules.collect do |n| 
+          policy_rules = policy_rules.collect do |n|
             rule_name = n.to_s
             if rule_name.start_with?('::')
               rule_name[2..-1]
@@ -227,17 +227,17 @@ module MonsoonOpenstackAuth
               rule_name
             else
               "#{application_name}:#{rule_name}"
-            end 
+            end
           end
           policy_params = options.second
         end
-      
-        policy_params ||= {}  
-        
+
+        policy_params ||= {}
+
         if @policy_default_params and @policy_default_params.is_a?(Hash)
           policy_params = @policy_default_params.merge(policy_params)
         end
-                  
+
         result = if MonsoonOpenstackAuth.configuration.authorization.trace_enabled
           policy_trace = policy.enforce_with_trace(policy_rules, policy_params)
           policy_trace.print
@@ -245,15 +245,15 @@ module MonsoonOpenstackAuth
         else
           policy.enforce(policy_rules, policy_params)
         end
-        
+
         raise MonsoonOpenstackAuth::Authorization::SecurityViolation.new(authorization_user, policy_rules, policy_params, policy) unless result
       end
-      
+
       ################### END Andreas ###################
-    
-    
-    
-    
+
+
+
+
       attr_writer :authorization_performed
 
       def authorization_performed?
@@ -319,7 +319,7 @@ module MonsoonOpenstackAuth
         result = if session[:policy_trace] || MonsoonOpenstackAuth.configuration.authorization.trace_enabled
           @policy_trace = policy.enforce_with_trace([os_action], hashed_resource)
           @policy_trace.print
-          @policy_trace.result     
+          @policy_trace.result
         else
           policy.enforce([os_action], hashed_resource)
         end
@@ -393,7 +393,7 @@ module MonsoonOpenstackAuth
         end
         return @policy
       end
-      
+
       def policy=(policy)
         @policy = policy
       end
@@ -412,6 +412,6 @@ module MonsoonOpenstackAuth
       end
 
     end
-    
+
   end
 end
