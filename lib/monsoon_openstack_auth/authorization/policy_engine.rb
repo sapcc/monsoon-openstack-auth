@@ -9,12 +9,13 @@ module MonsoonOpenstackAuth
 
       def initialize(policy_hash)
         @rules = RulesContainer.new
+        @js_rules = {}
         @required_locals = []
         parse_rules(policy_hash)
       end
 
       def policy(current_user)
-        Policy.new(@rules, current_user)
+        Policy.new(@rules, current_user, @js_rules)
       end
 
       protected
@@ -24,6 +25,7 @@ module MonsoonOpenstackAuth
           policy_hash.each do |name, rule|
             parsed_rule = Rule.parse(policy_hash,@rules, name, rule)
             @rules.add(name, parsed_rule)
+            @js_rules[name] = parsed_rule.js_parsed_rule
             @required_locals += parsed_rule.required_locals
           end
 
@@ -50,18 +52,18 @@ module MonsoonOpenstackAuth
         end
 
         def get(name)
-          # Return default rule unless the requested rule name is presented. 
-          # Default rule can be defined in policy file or the default rule from Rule is used. 
+          # Return default rule unless the requested rule name is presented.
+          # Default rule can be defined in policy file or the default rule from Rule is used.
           # The Rule.default_rule returns false on execute.
           (@hash[name] || @hash[DEFAULT_RULE_NAME] || Rule.default_rule)
         end
 
-        delegate :each, to: :@hash
+        delegate :each, :keys, :size, to: :@hash
       end
 
       class Policy
 
-        attr_reader :user
+        attr_reader :user, :rules
 
         LOCALS = {
             'roles' => lambda { |current_user| current_user.role_names },
@@ -81,10 +83,21 @@ module MonsoonOpenstackAuth
           end
         end
 
-        def initialize(rules, current_user)
+        def initialize(rules, current_user,js_rules=nil)
           @rules = rules
+          @js_rules = js_rules
           @user = current_user
           @locals = Policy.locals(@user)
+        end
+
+        def to_js
+          unless @js_policy
+            @js_policy = {
+              rules: @js_rules,
+              locals: @locals
+            }.to_json
+          end
+          return @js_policy
         end
 
         def enforce_with_trace(rule_names=[], params = {})
@@ -103,7 +116,7 @@ module MonsoonOpenstackAuth
 
           trace
         end
-        
+
         def rules
           @rules
         end
@@ -162,11 +175,11 @@ module MonsoonOpenstackAuth
       end
 
       class Rule
-        attr_reader :name, :rule, :parsed_rule, :required_locals, :required_params, :resolved_rule, :involved_roles
-          
+        attr_reader :name, :rule, :parsed_rule, :required_locals, :required_params, :resolved_rule, :involved_roles, :js_parsed_rule
+
         class << self
-          def parse(policy_hash,all_rules, name, rule)   
-       
+          def parse(policy_hash,all_rules, name, rule)
+
             ############ normalize rule ############
             # replace %(text)s with params["text"]
             parsed_rule = rule.gsub(/%\(/, 'params["').gsub(/\)s/, '"]')
@@ -189,7 +202,7 @@ module MonsoonOpenstackAuth
             # replace "False" and "!" with "false"
             parsed_rule.gsub!(/False|!/i, 'false')
 
-            #********* save rules which name's contain ":" 
+            #********* save rules which name's contain ":"
             # replace rule:part1:part2:partn with rule:part1<->part2<->part3
             parsed_rule.gsub!(/rule:([^\s]+)/) { |m| "rule:#{$1.gsub(/\:/, '<->')}" }
 
@@ -204,31 +217,50 @@ module MonsoonOpenstackAuth
             # replace <-> with :
             parsed_rule.gsub!("<->", ":")
 
-            self.new(policy_hash,all_rules, name, rule, parsed_rule)
+            js_parsed_rule = parse_js(parsed_rule)
+
+            self.new(policy_hash,all_rules, name, rule, parsed_rule, js_parsed_rule)
           end
 
           def default_rule
             @default_rule ||= self.new(nil, 'default_rule', '!', 'false')
           end
+
+          protected
+
+          def parse_js(parsed_rule)
+            js_rule = parsed_rule.gsub(/@rules\.get\((?<rule>[^\)]+)\)\.execute\([^\)]+\)/,'rules[\k<rule>](rules,locals,params)')
+            js_rule.gsub!(/locals\["roles"\]\.include\?\((?<role>[^\)]+)\)/,'locals["roles"].indexOf(\k<role>)>=0')
+            js_rule.gsub!(/begin;(?<expresion>[^;]+);\s*rescue;(?<rescue>[^;]+);\s*end/, 'function(){try { return \k<expresion>;} catch(e){ return \k<rescue>;} }() ')
+            js_rule.gsub!(/\.to_sym/,'')
+            js_rule.gsub!(/\sor\s/,' || ')
+            js_rule.gsub!(/\sand\s/,' && ')
+            js_rule.gsub!(/not\s*/,'!')
+            js_rule.gsub!(/nil/,'null')
+            js_rule.gsub!(/\?/,'')
+            "(function(rules,locals,params){ return #{js_rule} })"
+          end
+
         end
 
-        def initialize(policy_hash,all_rules, name, rule, parsed_rule)
+        def initialize(policy_hash,all_rules, name, rule, parsed_rule,js_parsed_rule=nil)
           @policy_hash = policy_hash
           @name = name
           @rules = all_rules
           @rule = rule
           @parsed_rule = parsed_rule
+          @js_parsed_rule = js_parsed_rule
           @resolved_rule = resolve_rule_dependencies(name)
           @involved_roles = @resolved_rule.scan(/role:([^\s]+)/).uniq rescue []
           @required_locals = extract_required_locals
           @required_params = extract_required_params
           @executable = eval("lambda {|locals={},params={},trace=nil| #{@parsed_rule} }")
         end
-        
+
         def resolve_rule_dependencies(name)
           begin
             return "" if name=='cloud_admin'
-            rule = @policy_hash[name] 
+            rule = @policy_hash[name]
             return "" unless rule
             depended_rules = rule.scan(/rule:(?<name>[^\s|\)]+)/).flatten
             depended_rules.each{|name| rule = rule.gsub(/rule:#{name}/, "( #{resolve_rule_dependencies(name)} ) ") }
@@ -237,7 +269,7 @@ module MonsoonOpenstackAuth
             ""
           end
         end
-        
+
 
         def to_s
           "name: #{@name} \nrule: #{@rule} \nparsed rule: #{@parsed_rule}"
