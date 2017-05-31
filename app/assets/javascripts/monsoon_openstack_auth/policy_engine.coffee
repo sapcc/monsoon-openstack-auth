@@ -7,7 +7,9 @@ class @PolicyEngine
 
     @rules = data.rules
     for name,rule of @rules
-      @rules[name]=eval(rule)
+      try
+        @rules[name]=eval(rule)
+      catch e  
 
     @locals = data.locals
 
