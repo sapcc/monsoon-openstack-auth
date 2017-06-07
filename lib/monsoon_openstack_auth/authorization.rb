@@ -389,7 +389,7 @@ module MonsoonOpenstackAuth
 
       def policy
         if !@policy || (authorization_user and authorization_user.id != @policy.user.id)
-          @policy = MonsoonOpenstackAuth.policy_engine.policy(authorization_user)
+          @policy = MonsoonOpenstackAuth.policy_engine.policy(authorization_user) if authorization_user
         end
         return @policy
       end
