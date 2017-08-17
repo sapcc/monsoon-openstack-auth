@@ -30,7 +30,7 @@ module MonsoonOpenstackAuth
 
     module ClassMethods
       def skip_authentication(options={})
-        prepend_before_filter options do
+        prepend_before_action options do
           @_skip_authentication=true
         end
       end
@@ -51,7 +51,7 @@ module MonsoonOpenstackAuth
         do_rescope = options.delete(:rescope)
         do_rescope = do_rescope.nil? ? true : do_rescope
 
-        before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") }) do
+        before_action options.merge(unless: -> c { c.instance_variable_get("@_skip_authentication") }) do
           if !raise_error and session and !session.loaded?
             session[:init] = true
           end

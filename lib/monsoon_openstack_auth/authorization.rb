@@ -111,13 +111,13 @@ module MonsoonOpenstackAuth
     module ClassMethods
 
       def authorization_context(context,options={})
-        prepend_before_filter options do
+        prepend_before_action options do
           @authorization_context = context
         end
       end
 
       def skip_authorization(options={})
-        prepend_before_filter options do
+        prepend_before_action options do
           @_skip_authorization=true
         end
       end
@@ -134,7 +134,7 @@ module MonsoonOpenstackAuth
         additional_options[:ignore_params] = ignore_params if ignore_params
         additional_options[:additional_policy_params] = additional_policy_params if additional_policy_params
 
-        before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authorization") }) do
+        before_action options.merge(unless: -> c { c.instance_variable_get("@_skip_authorization") }) do
           # get the rule_name for requested action
           application_name = context || @authorization_context || MonsoonOpenstackAuth.configuration.authorization.context
           policy_rule_name  = ::MonsoonOpenstackAuth::Authorization.determine_rule_name(application_name,controller_name,action_name)
@@ -149,19 +149,19 @@ module MonsoonOpenstackAuth
 
 
 
-      # Sets up before_filter to ensure user is allowed to perform a given controller action
+      # Sets up before_action to ensure user is allowed to perform a given controller action
       #
       # @param [Class OR Symbol] resource_or_finder - class whose authorizer
       # should be consulted, or instance method on the controller which will
       # determine that class when the request is made
       # @param [Hash] options - can contain :actions to
       # be merged with existing
-      # ones and any other options applicable to a before_filter
+      # ones and any other options applicable to a before_action
       # <b>DEPRECATED:</b> Please use <tt>authorization_required</tt> instead.
       def authorization_actions_for(resource_or_finder, options = {})
         self.authorization_resource = resource_or_finder
         authorization_actions(overridden_actions(options))
-        before_filter options.merge(unless: -> c { c.instance_variable_get("@_skip_authorization") }) do
+        before_action options.merge(unless: -> c { c.instance_variable_get("@_skip_authorization") }) do
           run_authorization_check options
         end
       end
@@ -269,7 +269,7 @@ module MonsoonOpenstackAuth
 
       protected
 
-      # To be run in a `before_filter`; ensure this controller action is allowed for the user
+      # To be run in a `before_action`; ensure this controller action is allowed for the user
       # Can be used directly within a controller action as well, given an instance or class with or
       # without options to delegate to the authorizer.
       #
@@ -369,7 +369,7 @@ module MonsoonOpenstackAuth
 
       private
 
-      # The `before_filter` that will be setup to run when the class method
+      # The `before_action` that will be setup to run when the class method
       # `authorize_actions_for` is called
       def run_authorization_check options
         authorization_action_for instance_authorization_resource, options

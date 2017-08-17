@@ -263,7 +263,7 @@ describe MonsoonOpenstackAuth::Authentication, :type => :controller do
                               project: -> c {c.params[:project_id]},
                               rescope: false
 
-      before_filter :authentication_rescope_token
+      before_action :authentication_rescope_token
       def index; head :ok; end
     end
 

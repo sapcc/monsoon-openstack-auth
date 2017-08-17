@@ -158,7 +158,7 @@ include MonsoonOpenstackAuth::Authentication
 
 ##### authentication_required
 
-Class method which is called in controllers. This method is based on the before_filter method and therefore it accepts the common options such as :except, :only, and :if
+Class method which is called in controllers. This method is based on the before_action method and therefore it accepts the common options such as :except, :only, and :if
 
 ```ruby
 authentication_required options
@@ -237,13 +237,13 @@ It is possible to prevent automatic rescoping.
 ```ruby
 DashboardController < ApplicationController
   authentication_required domain_name: -> c {c.params[:domain_id]}, project: project_id, rescope: false
-  before_filter do
+  before_action do
     # user is authenticated with unscoped token. Check if user has read permission for project_id
     user_projects = service_user.user_projects(current_user.id)
     redirect_to not_allowed_url unless user_projects.collect{|project| project.id}.include?(project_id)
   end
 
-  before_filter do
+  before_action do
     authentication_rescope_token
     # now current_user is rescoped to project_id
   end
@@ -372,7 +372,7 @@ You can check authorization in your controllers in one of two ways:
 
 `authorization_actions_for ModelClass [, :name => 'ModelNameUsedInPolicy', :actions => {:action_name => 'policy_action_name'}, <StandardBeforeFilterOptions> ]`
 
-protects multiple controller actions with a before_filter, which performs a class-level check. If the current user is never allowed to delete a ModelClass, he'll never even get to the controller's destroy method.
+protects multiple controller actions with a before_action, which performs a class-level check. If the current user is never allowed to delete a ModelClass, he'll never even get to the controller's destroy method.
 
 `authorization_action_for @model [, :name => 'ModelNameUsedInPolicy' ]`
 

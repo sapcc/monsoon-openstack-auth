@@ -1,7 +1,7 @@
 class DashboardController < ApplicationController
   authentication_required project: :get_project, domain: :get_domain, two_factor: :two_factor
 
-  prepend_before_filter do
+  prepend_before_action do
     @domain_id ||= (controller_name == 'domains') ? params[:id] : params[:domain_id]
     @project_id ||= (controller_name == 'projects') ? params[:id] : params[:project_id]
   end
