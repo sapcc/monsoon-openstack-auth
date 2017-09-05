@@ -112,14 +112,14 @@ module MonsoonOpenstackAuth
         # check if cookie for two factor authentication is valid
         def two_factor_cookie_valid?(controller)
           return false unless controller.request.cookies[TWO_FACTOR_AUTHENTICATION]
-          crypt = ActiveSupport::MessageEncryptor.new(Rails.application.secrets.secret_key_base)
+          crypt = ActiveSupport::MessageEncryptor.new(Rails.application.secrets.secret_key_base[0..31])
           value = crypt.decrypt_and_verify(controller.request.cookies[TWO_FACTOR_AUTHENTICATION]) rescue nil
           return value=='valid'
         end
 
         # set cookie for two factor authentication
         def set_two_factor_cookie(controller)
-          crypt = ActiveSupport::MessageEncryptor.new(Rails.application.secrets.secret_key_base)
+          crypt = ActiveSupport::MessageEncryptor.new(Rails.application.secrets.secret_key_base[0..31])
           value = crypt.encrypt_and_sign('valid')
           controller.response.set_cookie(TWO_FACTOR_AUTHENTICATION, {value: value, expires: Time.now+1.day, path: '/'})
         end
