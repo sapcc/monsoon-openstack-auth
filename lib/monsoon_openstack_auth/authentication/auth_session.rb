@@ -77,7 +77,7 @@ module MonsoonOpenstackAuth
         end
 
         # clear session_store if request session is presented
-        def logout(controller,domain)
+        def logout(controller, domain)
           token_store = token_store(controller)
           if token_store
             if domain
@@ -448,14 +448,13 @@ module MonsoonOpenstackAuth
         if @scope[:domain_name]
           @controller.monsoon_openstack_auth.login_path(domain_name: @scope[:domain_name], after_login: after_login_url)
         else
-          @controller.monsoon_openstack_auth.new_session_path(domain_id: @scope[:domain], after_login: after_login_url)
+          @controller.monsoon_openstack_auth.new_session_path(domain_name: @scope[:domain], domain_id: @scope[:domain], after_login: after_login_url)
         end
       end
 
       def params
         @controller.params
       end
-
     end
   end
 end
