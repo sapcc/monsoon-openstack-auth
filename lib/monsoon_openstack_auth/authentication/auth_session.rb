@@ -99,7 +99,8 @@ module MonsoonOpenstackAuth
         end
 
         def session_id_presented?(controller)
-          not controller.request.session_options[:id].blank?
+          #not controller.request.session_options[:id].blank?
+          not controller.request.session.blank? && controller.request.session.id.blank?
         end
 
         def token_store(controller)

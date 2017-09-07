@@ -30,7 +30,8 @@ module MonsoonOpenstackAuth
     end
 
     # build policy relevant parameters based on controller params
-    def self.build_policy_params(controller, params={},options = {})
+    def self.build_policy_params(controller, controller_params={},options = {})
+      params =  controller_params.is_a?(ActionController::Parameters) ? controller_params.to_unsafe_hash : controller_params
       policy_params             = {target: {}}
       # ignore_params             = options.fetch(:ignore_params,[:page,:per_page,:action, :controller])
       ignore_params             = options.fetch(:ignore_params,[])
