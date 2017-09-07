@@ -48,7 +48,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         end
 
         it "should redirect user to login form" do
-          expect(@controller.monsoon_openstack_auth).to receive(:new_session_path).with(:domain_id=>anything,after_login: anything)
+          expect(@controller.monsoon_openstack_auth).to receive(:new_session_path).with(:domain_name=>anything,:domain_id=>anything,after_login: anything)
           expect(@controller).to receive(:redirect_to).with("http://localhost/auth/sessions/new", {:two_factor=>true})
           subject.check_authentication(@controller, two_factor: true)
         end

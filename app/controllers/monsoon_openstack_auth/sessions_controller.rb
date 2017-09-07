@@ -1,29 +1,41 @@
-require_dependency "monsoon_openstack_auth/application_controller"
+# frozen_string_literal: true
+
+require_dependency 'monsoon_openstack_auth/application_controller'
 
 module MonsoonOpenstackAuth
+  # Sessions Handler
   class SessionsController < ActionController::Base
+    before_action :load_auth_params, except: %i[destroy]
 
     def new
-      @domain_id = params[:domain_id]
-      @domain_name = params[:domain_name]
-      @two_factor = (params[:two_factor] && (params[:two_factor]=='true' or params[:two_factor]==true))
+      unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
+        redirect_to main_app.root_path, alert: 'Not allowed!'
+        return
+      end
 
-      redirect_to main_app.root_path, alert: 'Not allowed!' and return unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
-      MonsoonOpenstackAuth::Authentication::AuthSession.logout(self, (@domain_id || @domain_name))
+      MonsoonOpenstackAuth::Authentication::AuthSession.logout(
+        self, (@domain_id || @domain_name)
+      )
     end
 
     def create
-      redirect_to main_app.root_path, alert: 'Not allowed!' and return unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
-      @username = params[:username]
-      @password = params[:password]
-      @domain_id = params[:domain_id].blank? ? nil : params[:domain_id]
-      @domain_name = params[:domain_name].blank? ? nil : params[:domain_name]
-      @two_factor = (params[:two_factor] && (params[:two_factor]=='true' or params[:two_factor]==true))
+      unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
+        redirect_to main_app.root_path, alert: 'Not allowed!'
+        return
+      end
 
-      after_login_url = (params[:after_login] || main_app.root_url(domain_id: (@domain_id || @domain_name)))
+      after_login_url = (params[:after_login] || main_app.root_url(
+        domain_id: (@domain_id || @domain_name)
+      ))
 
-      if MonsoonOpenstackAuth::Authentication::AuthSession.create_from_login_form(self,@username,@password, domain_id: @domain_id, domain_name: @domain_name)
-        if !@two_factor or MonsoonOpenstackAuth::Authentication::AuthSession.two_factor_cookie_valid?(self)
+      auth_session = MonsoonOpenstackAuth::Authentication::AuthSession
+                     .create_from_login_form(
+                       self, @username, @password,
+                       domain_id: @domain_id, domain_name: @domain_name
+                     )
+
+      if auth_session
+        if !@two_factor || MonsoonOpenstackAuth::Authentication::AuthSession.two_factor_cookie_valid?(self)
           redirect_to after_login_url
         else
           render action: :two_factor
@@ -36,15 +48,12 @@ module MonsoonOpenstackAuth
     end
 
     def check_passcode
-      @username = params[:username]
-      @passcode = params[:passcode]
-      @domain_id = params[:domain_id].blank? ? nil : params[:domain_id]
-      @domain_name = params[:domain_name].blank? ? nil : params[:domain_name]
-
-      after_login_url = (params[:after_login] || main_app.root_url(domain_id: (@domain_id || @domain_name)))
+      after_login_url = (params[:after_login] || main_app.root_url(
+        domain_id: (@domain_id || @domain_name)
+      ))
 
       @error = begin
-        unless MonsoonOpenstackAuth::Authentication::AuthSession.check_two_factor(self,@username,@passcode)
+        unless MonsoonOpenstackAuth::Authentication::AuthSession.check_two_factor(self, @username, @passcode)
           'Invalid SecurID Passcode.'
         else
           nil
@@ -62,12 +71,21 @@ module MonsoonOpenstackAuth
     end
 
     def destroy
-      MonsoonOpenstackAuth::Authentication::AuthSession.logout(self,params[:auth_domain])
-      logout_url = (params[:redirect_to] || self.main_app.root_url)
+      MonsoonOpenstackAuth::Authentication::AuthSession.logout(
+        self, params[:domain_name]
+      )
+      logout_url = (params[:redirect_to] || main_app.root_url)
       redirect_to logout_url
     end
 
     private
 
+    def load_auth_params
+      @username = params[:username]
+      @password = params[:password]
+      @domain_id = params[:domain_id]
+      @domain_name = params[:domain_name]
+      @two_factor = params[:two_factor].to_s == 'true'
+    end
   end
 end
