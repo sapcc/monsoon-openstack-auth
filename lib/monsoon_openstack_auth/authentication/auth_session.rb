@@ -448,7 +448,7 @@ module MonsoonOpenstackAuth
         url_params = { after_login: after_login_url }
         # assume that current parameter domain_id of the controller is the
         # friendly id. This parameter is used as url prefix which is used as
-        # session cookie path
+        # session cookie path.
         if @controller.params[:domain_id]
           url_params[:domain_fid] = @controller.params[:domain_id]
         end
