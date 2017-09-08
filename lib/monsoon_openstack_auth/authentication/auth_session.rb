@@ -445,10 +445,18 @@ module MonsoonOpenstackAuth
       def redirect_to_login_form_url
         return nil unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
 
+        url_params = { after_login: after_login_url }
+        # assume that current parameter domain_id of the controller is the
+        # friendly id. This parameter is used as url prefix which is used as
+        # session cookie path
+        if @controller.params[:domain_id]
+          url_params[:domain_fid] = @controller.params[:domain_id]
+        end
+
         if @scope[:domain_name]
-          @controller.monsoon_openstack_auth.login_path(domain_name: @scope[:domain_name], after_login: after_login_url)
+          @controller.monsoon_openstack_auth.login_path(url_params.merge(domain_name: @scope[:domain_name]) )
         else
-          @controller.monsoon_openstack_auth.new_session_path(domain_name: @scope[:domain], domain_id: @scope[:domain], after_login: after_login_url)
+          @controller.monsoon_openstack_auth.new_session_path(url_params.merge(domain_id: @scope[:domain]) )
         end
       end
 
