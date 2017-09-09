@@ -27,7 +27,9 @@ module MonsoonOpenstackAuth
               return session
             else
               # redirect to two factor login form
-              controller.redirect_to controller.monsoon_openstack_auth.two_factor_path(after_login: session.after_login_url)
+              url_options = { after_login: session.after_login_url }
+              url_options[:domain_fid] = controller.params[:domain_id] if controller.params[:domain_id]
+              controller.redirect_to controller.monsoon_openstack_auth.two_factor_path(url_options)
               return nil
             end
           else
@@ -67,8 +69,8 @@ module MonsoonOpenstackAuth
           session.login_form_user(username,password)
         end
 
-        def check_two_factor(controller,username,passcode)
-          if MonsoonOpenstackAuth.configuration.two_factor_authentication_method.call(username,passcode)
+        def check_two_factor(controller, username, passcode)
+          if MonsoonOpenstackAuth.configuration.two_factor_authentication_method.call(username, passcode)
             set_two_factor_cookie(controller)
             return true
           else

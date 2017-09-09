@@ -83,6 +83,7 @@ module MonsoonOpenstackAuth
     def load_auth_params
       @username = params[:username]
       @password = params[:password]
+      @passcode = params[:passcode]
       @domain_id = params[:domain_id]
       @domain_name = params[:domain_name]
       @two_factor = params[:two_factor].to_s == 'true'
