@@ -292,6 +292,8 @@ module MonsoonOpenstackAuth
       end
 
       def validate_sso_certificate
+        headers = {}
+
         # return false if not allowed.
         unless MonsoonOpenstackAuth.configuration.sso_auth_allowed?
           MonsoonOpenstackAuth.logger.info "validate_sso_certificate -> not allowed." if @debug
@@ -300,36 +302,45 @@ module MonsoonOpenstackAuth
 
         # return false if invalid sso certificate.
         unless @controller.request.env['HTTP_SSL_CLIENT_VERIFY'] == 'SUCCESS'
-          MonsoonOpenstackAuth.logger.info "validate_sso_certificate -> certificate not presented." if @debug
+          MonsoonOpenstackAuth.logger.info "validate_sso_certificate -> certificate has not been verified." if @debug
           return false
         end
+        headers['SSL-Client-Verify'] = @controller.request.env['HTTP_SSL_CLIENT_VERIFY']
 
-        # sso user is presented
-        # get username from certificate
-        username = @controller.request.env['HTTP_SSL_CLIENT_S_DN'].match('CN=([^,]*)')[1]
-
-        # return false if no username given.
-        if username.nil? or username.empty?
-          MonsoonOpenstackAuth.logger.info "validate_sso_certificate -> user not presented." if @debug
+        # get x509 certificate
+        certificate = @controller.request.env['HTTP_SSL_CLIENT_CERTIFICATE']
+        # return false if no certificate given.
+        if certificate.nil? or certificate.empty?
+          MonsoonOpenstackAuth.logger.info "validate_sso_certificate -> certificate is missing." if @debug
           return false
         end
+        headers['SSL-Client-Certificate'] = @controller.request.env['HTTP_SSL_CLIENT_CERTIFICATE']
 
-        scope = nil
+        # set user domain request headers
+        if @scope[:domain_name]
+          headers['X-User-Domain-Name'] = @scope[:domain_name]
+        elsif @scope[:domain]
+          headers['X-User-Domain-Id'] = @scope[:domain]
+        end
 
-        if MonsoonOpenstackAuth.configuration.provide_sso_domain
-          begin
-            domain_name_math = @controller.request.env['HTTP_SSL_CLIENT_S_DN'].match('O=([^\/]*)')
-            domain_name = domain_name_math[1] if domain_name_math
-            domain_name = "sap_default" if (domain_name && domain_name=~/SAP-AG/i)
-            scope = { domain_name: domain_name }
-          rescue => e
-            MonsoonOpenstackAuth.logger.error "Could not find Domain for name=#{domain_name}. #{e}"
-          end
+        # evaluate auth scope
+        if @scope[:project]
+          scope= if @scope[:domain]
+                   {project: {domain:{id: @scope[:domain]},id: @scope[:project]}}
+                 elsif @scope[:domain_name]
+                   {project: {domain:{name: @scope[:domain_name]},id: @scope[:project]}}
+                 end
+        elsif @scope[:domain]
+          scope = {domain:{id: @scope[:domain]}}
+        elsif @scope[:domain_name]
+          scope = {domain:{name:@scope[:domain_name]}}
+        else
+          scope = 'unscoped'
         end
 
         # authenticate user as external user
         begin
-          token = @api_client.authenticate_external_user(username,scope)
+          token = @api_client.authenticate_external_user(headers, scope)
           # create user from token and save token in session store
           create_user_from_token(token)
           save_in_token_store(token)
