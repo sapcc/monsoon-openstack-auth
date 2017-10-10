@@ -308,13 +308,13 @@ module MonsoonOpenstackAuth
         headers['SSL-Client-Verify'] = @controller.request.env['HTTP_SSL_CLIENT_VERIFY']
 
         # get x509 certificate
-        certificate = @controller.request.env['HTTP_SSL_CLIENT_CERTIFICATE']
+        certificate = @controller.request.env['HTTP_SSL_CLIENT_CERT']
         # return false if no certificate given.
         if certificate.nil? or certificate.empty?
           MonsoonOpenstackAuth.logger.info "validate_sso_certificate -> certificate is missing." if @debug
           return false
         end
-        headers['SSL-Client-Certificate'] = @controller.request.env['HTTP_SSL_CLIENT_CERTIFICATE']
+        headers['SSL-Client-Cert'] = @controller.request.env['HTTP_SSL_CLIENT_CERT']
 
         # set user domain request headers
         if @scope[:domain_name]
