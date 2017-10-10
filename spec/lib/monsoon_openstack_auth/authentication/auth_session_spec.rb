@@ -317,7 +317,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
         #todo
-        request.env['HTTP_SSL_CLIENT_CERTIFICATE'] = "--a certificate--"
+        request.env['HTTP_SSL_CLIENT_CERT'] = "--a certificate--"
 
         #allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:get_rescoped_token).and_return(true)
 
@@ -336,7 +336,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
         #todo
-        request.env['HTTP_SSL_CLIENT_CERTIFICATE'] = "--a certificate--"
+        request.env['HTTP_SSL_CLIENT_CERT'] = "--a certificate--"
 
         allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).and_return(test_token)
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
@@ -358,7 +358,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials('test', 'secret')
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
         # TODO
-        request.env['HTTP_SSL_CLIENT_CERTIFICATE'] = '--a certificate--'
+        request.env['HTTP_SSL_CLIENT_CERT'] = '--a certificate--'
 
         allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_external_user).and_return(test_token)
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
@@ -373,7 +373,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         ).with(
           {
             'SSL-Client-Verify' => 'SUCCESS',
-            'SSL-Client-Certificate' => '--a certificate--'
+            'SSL-Client-Cert' => '--a certificate--'
           }, nil
         )
       end
@@ -392,7 +392,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
           )
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
         #todo
-        request.env['HTTP_SSL_CLIENT_CERTIFICATE'] = '--a certificate--'
+        request.env['HTTP_SSL_CLIENT_CERT'] = '--a certificate--'
 
         allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_external_user).and_return(test_token)
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
@@ -408,7 +408,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         ).with(
           {
             'SSL-Client-Verify' => 'SUCCESS',
-            'SSL-Client-Certificate' => '--a certificate--'
+            'SSL-Client-Cert' => '--a certificate--'
           }, nil
         )
       end
