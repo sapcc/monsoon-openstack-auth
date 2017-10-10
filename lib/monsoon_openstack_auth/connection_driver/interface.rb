@@ -18,7 +18,7 @@ module MonsoonOpenstackAuth
       end
 
       # returns a token as hash
-      def authenticate_external_user(username, scope=nil)
+      def authenticate_external_user(headers, scope=nil)
         raise MonsoonOpenstackAuth::ConnectionDriver::InterfaceNotImplementedError.new("authenticate_external_user is not implemented yet!")
       end
     

@@ -38,18 +38,19 @@ module MonsoonOpenstackAuth
 
       def initialize
         unless self.class.api_endpoint
-          raise MonsoonOpenstackAuth::ConnectionDriver::ConfigurationError.new("No API endpoint provided!")
+          raise MonsoonOpenstackAuth::ConnectionDriver::ConfigurationError.new('No API endpoint provided!')
         end
 
         @connection = ::Excon.new(self.class.endpoint,self.class.connection_options)
       end
 
-      def authenticate(auth_params)
+      def authenticate(auth_params, headers = {})
         if MonsoonOpenstackAuth.configuration.debug
           MonsoonOpenstackAuth.logger.info "MonsoonOpenstackAuth#authenticate, #{filter_params(auth_params)}"
         end
 
-        result = @connection.post( body: auth_params.to_json, headers: {"Content-Type" => "application/json"})
+        headers = headers.merge({'Content-Type' => 'application/json'})
+        result = @connection.post( body: auth_params.to_json, headers: headers)
 
         if result and result.respond_to?(:status)
           if result.status>=500
@@ -67,7 +68,7 @@ module MonsoonOpenstackAuth
         end
 
         token = body['token']
-        token["value"] = result.headers["X-Subject-Token"]
+        token['value'] = result.headers['X-Subject-Token']
         HashWithIndifferentAccess.new(token)
       end
 
@@ -75,14 +76,14 @@ module MonsoonOpenstackAuth
         cache.fetch key:auth_token,scope:nil do
           begin
             headers = {
-              "Content-Type" => "application/json",
-              "X-Auth-Token" => auth_token,
-              "X-Subject-Token" => auth_token
+              'Content-Type' => 'application/json',
+              'X-Auth-Token' => auth_token,
+              'X-Subject-Token' => auth_token
             }
 
             result = @connection.get( headers: headers)
             token = JSON.parse(result.body)['token']
-            token["value"] = result.headers["X-Subject-Token"]
+            token['value'] = result.headers['X-Subject-Token']
             HashWithIndifferentAccess.new(token)
           rescue =>e
             MonsoonOpenstackAuth.logger.error e.to_s
@@ -93,7 +94,7 @@ module MonsoonOpenstackAuth
 
       def authenticate_with_credentials(username,password, user_domain_params=nil)
         # build auth hash
-        auth = { auth: { identity: { methods: ["password"], password:{} } } }
+        auth = { auth: { identity: { methods: ['password'], password:{} } } }
 
         # Do not set scope. User may not registered yet and so no member of the domain.
         # Using scope will fail the authentication for new users.
@@ -128,36 +129,34 @@ module MonsoonOpenstackAuth
       end
 
       def authenticate_with_token(token, scope=nil)
-        auth = {auth:{identity: {methods: ["token"],token:{ id: token}}}}
+        auth = {auth:{identity: {methods: ['token'],token:{ id: token}}}}
         auth[:auth][:scope]=scope if scope
         authenticate(auth)
       end
 
       def revoke_token(token)
         headers = {
-          "Content-Type" => "application/json",
-          "X-Auth-Token" => token,
-          "X-Subject-Token" => token
+          'Content-Type' => 'application/json',
+          'X-Auth-Token' => token,
+          'X-Subject-Token' => token
         }
 
         result = @connection.delete( headers: headers)
       end
 
-      def authenticate_external_user(username, user_domain_params={})
-        domain_params = if user_domain_params[:domain]
-          { domain: { id: user_domain_params[:domain] } }
-        elsif user_domain_params[:domain_name]
-          { domain: { name: user_domain_params[:domain_name] } }
+      def authenticate_external_user(headers, scope=nil)
+        auth = { auth: { identity: {methods: ['external'], external:{}}}}
+        if scope
+          auth[:auth][:scope] = scope
         else
-          {}
+          auth[:auth][:scope] = 'unscoped'
         end
 
-        auth = { auth: { identity: {methods: ["external"], external:{user: username }.merge(domain_params) }}}
-        authenticate(auth)
+        authenticate(auth, headers)
       end
 
       def authenticate_with_access_key(access_key, scope=nil)
-        auth = {auth:{identity: {methods: ["access-key"],access_key:{key:access_key}}}}
+        auth = {auth:{identity: {methods: ['access-key'],access_key:{key:access_key}}}}
         auth[:auth][:scope]=scope if scope
         authenticate(auth)
       rescue Excon::Errors::Unauthorized

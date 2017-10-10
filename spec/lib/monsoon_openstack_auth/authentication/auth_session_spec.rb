@@ -47,9 +47,11 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
           allow_any_instance_of(subject).to receive(:authenticated?).and_return false
         end
 
-        it "should redirect user to login form" do
-          expect(@controller.monsoon_openstack_auth).to receive(:new_session_path).with(:domain_name=>anything,:domain_id=>anything,after_login: anything)
-          expect(@controller).to receive(:redirect_to).with("http://localhost/auth/sessions/new", {:two_factor=>true})
+        it 'should redirect user to login form' do
+          expect(@controller.monsoon_openstack_auth).to receive(
+            :new_session_path
+          ).with(domain_id: anything, after_login: anything)
+          expect(@controller).to receive(:redirect_to).with('http://localhost/auth/sessions/new', {:two_factor=>true})
           subject.check_authentication(@controller, two_factor: true)
         end
       end
@@ -201,7 +203,8 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         it "should authenticate user" do
           expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_external_user).and_return({})
           request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
-          request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=test"
+          #todo
+          request.env['HTTP_SSL_CLIENT_CERTIFICATE'] = "--a certificate--"
 
           get "index"
           expect(controller.current_user).not_to be(nil)
@@ -313,7 +316,8 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         request.headers["X-Auth-Token"]=test_token[:value]
         request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
-        request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=test"
+        #todo
+        request.env['HTTP_SSL_CLIENT_CERTIFICATE'] = "--a certificate--"
 
         #allow_any_instance_of(MonsoonOpenstackAuth::Authentication::AuthSession).to receive(:get_rescoped_token).and_return(true)
 
@@ -331,7 +335,8 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         request.headers["X-Auth-Token"]=test_token[:value]
         request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
-        request.env['HTTP_SSL_CLIENT_S_DN'] = "CN=test"
+        #todo
+        request.env['HTTP_SSL_CLIENT_CERTIFICATE'] = "--a certificate--"
 
         allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:validate_token).and_return(test_token)
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
@@ -344,50 +349,68 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         expect(MonsoonOpenstackAuth.api_client).to have_received(:validate_token)
       end
 
-      it "authenticates from sso" do
-        MonsoonOpenstackAuth.configuration.provide_sso_domain=true
-        domain = double("domain")
-        domain.stub(:id).and_return('o-sap_default')
+      it 'authenticates from sso' do
+        domain = double('domain')
+        domain.stub(:id).and_return('o-default')
 
-        allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:domain_by_name).with('sap_default').and_return(domain)
+        allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:domain_by_name).with('default').and_return(domain)
 
-        request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
+        request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials('test', 'secret')
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
-        request.env['HTTP_SSL_CLIENT_S_DN'] = "/O=SAP-AG/CN=test"
+        # TODO
+        request.env['HTTP_SSL_CLIENT_CERTIFICATE'] = '--a certificate--'
 
         allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_external_user).and_return(test_token)
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_token)
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
 
-        get "index", { domain: test_token_domain, project: test_token_project }
+        get 'index', domain: test_token_domain, project: test_token_project
         expect(controller.current_user).not_to be(nil)
         expect(controller.current_user.token).to eq(test_token[:value])
-        expect(MonsoonOpenstackAuth.api_client).to have_received(:authenticate_external_user).with("test",{domain_name: 'sap_default'})
+        expect(MonsoonOpenstackAuth.api_client).to have_received(
+          :authenticate_external_user
+        ).with(
+          {
+            'SSL-Client-Verify' => 'SUCCESS',
+            'SSL-Client-Certificate' => '--a certificate--'
+          }, nil
+        )
       end
 
-      it "authenticate from sso ignoring domain" do
-        MonsoonOpenstackAuth.configuration.provide_sso_domain=false
+      it 'authenticate from sso ignoring domain' do
+        domain = double('domain')
+        domain.stub(:id).and_return('o-default')
 
-        domain = double("domain")
-        domain.stub(:id).and_return('o-sap_default')
+        allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(
+          :domain_by_name
+        ).with('default').and_return(domain)
 
-        allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:domain_by_name).with('sap_default').and_return(domain)
-
-        request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("test","secret")
+        request.env['HTTP_AUTHORIZATION'] =
+          ActionController::HttpAuthentication::Basic.encode_credentials(
+            'test', 'secret'
+          )
         request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
-        request.env['HTTP_SSL_CLIENT_S_DN'] = "/O=SAP-AG/CN=test"
+        #todo
+        request.env['HTTP_SSL_CLIENT_CERTIFICATE'] = '--a certificate--'
 
         allow_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_external_user).and_return(test_token)
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:validate_token)
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_token)
         expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).not_to receive(:authenticate_with_credentials)
 
-        get "index", { domain: test_token_domain, project: test_token_project }
+        get 'index', domain: test_token_domain, project: test_token_project
         expect(controller.current_user).not_to be(nil)
         expect(controller.current_user.token).to eq(test_token[:value])
 
-        expect(MonsoonOpenstackAuth.api_client).to have_received(:authenticate_external_user).with("test",nil)
+        expect(MonsoonOpenstackAuth.api_client).to have_received(
+          :authenticate_external_user
+        ).with(
+          {
+            'SSL-Client-Verify' => 'SUCCESS',
+            'SSL-Client-Certificate' => '--a certificate--'
+          }, nil
+        )
       end
 
       it "authenticates from access_key" do

@@ -11,7 +11,6 @@ describe MonsoonOpenstackAuth::Configuration do
     :basic_auth_allowed,
     :access_key_auth_allowed,
     :sso_auth_allowed,
-    :provide_sso_domain,
     :form_auth_allowed,
     :login_redirect_url,
     :debug,
