@@ -57,7 +57,7 @@ module MonsoonOpenstackAuth
             raise MonsoonOpenstackAuth::ConnectionDriver::AuthenticationError.new(result.body,result.status)
           end
         end
-        
+
         body = JSON.parse(result.body)
 
         unless body['token']
@@ -169,8 +169,8 @@ module MonsoonOpenstackAuth
           impl.new
         end
 
-        def filter_params(params,filters=[:password])
-          filter = lambda do |hash,f=[:password]|
+        def filter_params(params,filters=[:password,:passcode])
+          filter = lambda do |hash,f=[:password,:passcode]|
             hash.inject({}){|h,(k,v)| h[k] = v.is_a?(Hash) ? filter[v,f] : (f.include?(k.to_sym) && v.is_a?(String) ? "FILTERED" : v); h }
           end
           filter[params,filters]
