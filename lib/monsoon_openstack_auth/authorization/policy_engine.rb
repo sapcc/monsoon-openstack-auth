@@ -90,6 +90,15 @@ module MonsoonOpenstackAuth
           @locals = Policy.locals(@user)
         end
 
+        def involved_roles(rule_names)
+          policy_rules = if rule_names.is_a?(Array)
+                           rule_names.collect { |name| rules.get(name) }
+                         else
+                           [rules.get(rule_names)]
+                         end
+          policy_rules.collect(&:involved_roles).flatten
+        end
+
         def to_js
           unless @js_policy
             @js_policy = {

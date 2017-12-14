@@ -196,6 +196,11 @@ module MonsoonOpenstackAuth
         return result
       end
 
+      def required_roles(rules)
+        @policy ||= MonsoonOpenstackAuth.policy_engine.policy(self)
+        @policy.involved_roles(rules)
+      end
+
       protected
 
       # Returns a value from context for given key.

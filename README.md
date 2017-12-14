@@ -298,6 +298,8 @@ Instance methods:
 * **admin?**, true if user is a superuser (can do anything)
 * **default_services_region**, returns the first endpoint region for first non-identity service in the service catalog
 * **available_services_regions**, returns list of unique region name values found in service catalog
+* **is_allowed?(RULE_NAMES)**, returns true or false
+* **required_roles(RULE_NAMES)**, returns an array of required roles
 
 
 ### Authorization
