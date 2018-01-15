@@ -47,6 +47,13 @@ module MonsoonOpenstackAuth
       end
     end
 
+    def two_factor
+      session = MonsoonOpenstackAuth::Authentication::AuthSession.load_user_from_session(
+        self, domain: @domain_id, domain_name: @domain_name
+      )
+      @username = session.user.name if session && session.user
+    end
+
     def check_passcode
       after_login_url = (params[:after_login] || main_app.root_url(
         domain_id: (@domain_id || @domain_name)
