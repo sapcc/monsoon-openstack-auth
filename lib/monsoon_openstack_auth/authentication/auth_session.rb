@@ -69,7 +69,6 @@ module MonsoonOpenstackAuth
 
           session = AuthSession.new(controller, token_store(controller), scope)
           session.login_form_user(username,password)
-          session
         end
 
         def check_two_factor(controller, username, passcode)
