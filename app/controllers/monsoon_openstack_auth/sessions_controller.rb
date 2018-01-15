@@ -53,8 +53,14 @@ module MonsoonOpenstackAuth
       ))
 
       @error = begin
-        unless MonsoonOpenstackAuth::Authentication::AuthSession.check_two_factor(self, @username, @passcode)
-          'Invalid SecurID Passcode.'
+        session = MonsoonOpenstackAuth::Authentication::AuthSession.load_user_from_session(
+          self, domain: @domain_id, domain_name: @domain_name
+        )
+
+        if session.user.name != @username
+          "Provided user doesn't match logged in user"
+        elsif !MonsoonOpenstackAuth::Authentication::AuthSession.check_two_factor(self, @username, @passcode)
+          'Invalid user or SecurID passcode.'
         else
           nil
         end

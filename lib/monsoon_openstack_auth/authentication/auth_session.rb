@@ -6,10 +6,10 @@ module MonsoonOpenstackAuth
       class << self
         TWO_FACTOR_AUTHENTICATION = 'two_factor_authentication'
 
-        def load_user_from_session(controller)
-          session = AuthSession.new(controller,token_store(controller), nil)
+        def load_user_from_session(controller, scope_and_options = {})
+          session = AuthSession.new(controller, token_store(controller), scope_and_options)
           session.validate_session_token
-          return session
+          session
         end
 
         # check if valid token, basic auth, sso or session token is presented
@@ -29,6 +29,8 @@ module MonsoonOpenstackAuth
               # redirect to two factor login form
               url_options = { after_login: session.after_login_url }
               url_options[:domain_fid] = controller.params[:domain_id] if controller.params[:domain_id]
+              url_options[:domain_id] = scope_and_options[:domain]
+              url_options[:domain_name] = scope_and_options[:domain_name]
               controller.redirect_to controller.monsoon_openstack_auth.two_factor_path(url_options)
               return nil
             end
@@ -67,6 +69,7 @@ module MonsoonOpenstackAuth
 
           session = AuthSession.new(controller, token_store(controller), scope)
           session.login_form_user(username,password)
+          session
         end
 
         def check_two_factor(controller, username, passcode)
@@ -124,7 +127,7 @@ module MonsoonOpenstackAuth
         def set_two_factor_cookie(controller)
           crypt = ActiveSupport::MessageEncryptor.new(Rails.application.secrets.secret_key_base[0..31])
           value = crypt.encrypt_and_sign('valid')
-          controller.response.set_cookie(TWO_FACTOR_AUTHENTICATION, {value: value, expires: Time.now+1.day, path: '/'})
+          controller.response.set_cookie(TWO_FACTOR_AUTHENTICATION, {value: value, expires: Time.now+4.hours, path: '/'})
         end
       end
 
