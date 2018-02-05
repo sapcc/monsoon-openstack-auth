@@ -325,20 +325,21 @@ module MonsoonOpenstackAuth
           headers['X-User-Domain-Id'] = @scope[:domain]
         end
 
-        # evaluate auth scope
-        if @scope[:project]
-          scope= if @scope[:domain]
-                   {project: {domain:{id: @scope[:domain]},id: @scope[:project]}}
-                 elsif @scope[:domain_name]
-                   {project: {domain:{name: @scope[:domain_name]},id: @scope[:project]}}
-                 end
-        elsif @scope[:domain]
-          scope = {domain:{id: @scope[:domain]}}
-        elsif @scope[:domain_name]
-          scope = {domain:{name:@scope[:domain_name]}}
-        else
-          scope = 'unscoped'
-        end
+        # # evaluate auth scope
+        # if @scope[:project]
+        #   scope= if @scope[:domain]
+        #            {project: {domain:{id: @scope[:domain]},id: @scope[:project]}}
+        #          elsif @scope[:domain_name]
+        #            {project: {domain:{name: @scope[:domain_name]},id: @scope[:project]}}
+        #          end
+        # elsif @scope[:domain]
+        #   scope = {domain:{id: @scope[:domain]}}
+        # elsif @scope[:domain_name]
+        #   scope = {domain:{name:@scope[:domain_name]}}
+        # else
+        #   scope = 'unscoped'
+        # end
+        scope = 'unscope'
 
         # authenticate user as external user
         begin
