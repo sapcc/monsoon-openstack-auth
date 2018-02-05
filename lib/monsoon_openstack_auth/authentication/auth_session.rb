@@ -339,7 +339,7 @@ module MonsoonOpenstackAuth
         # else
         #   scope = 'unscoped'
         # end
-        scope = 'unscope'
+        scope = 'unscoped'
 
         # authenticate user as external user
         begin
