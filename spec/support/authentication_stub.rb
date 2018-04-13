@@ -51,9 +51,11 @@ module AuthenticationStub
       begin
         @token_store = MonsoonOpenstackAuth::Authentication::TokenStore.new(controller.session)
 
-        @token_store.set_token AuthenticationStub.test_token
+        test_token = AuthenticationStub.test_token
+        test_token = block.call(test_token) if block_given?
 
-        block.call(AuthenticationStub.test_token) if block_given?
+        @token_store.delete_token test_token
+        @token_store.set_token test_token
       rescue
       end
 
