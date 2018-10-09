@@ -104,6 +104,7 @@ module MonsoonOpenstackAuth
 
         def session_id_presented?(controller)
           #not controller.request.session_options[:id].blank?
+          return false unless controller.request.session.respond_to?(:id)
           not controller.request.session.blank? && controller.request.session.id.blank?
         end
 
