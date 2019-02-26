@@ -45,6 +45,10 @@ module MonsoonOpenstackAuth
         flash.now[:alert] = @error
         render action: :new
       end
+    rescue StandardError => e
+      @error = e.message
+      flash.now[:alert] = @error
+      render action: :new
     end
 
     def two_factor
