@@ -71,6 +71,7 @@ module MonsoonOpenstackAuth
             'domain_name' => lambda { |current_user| current_user.domain_name },
             'is_admin' => lambda { |current_user| false }, # we don't support admin tokens that bypass authorization checks
             'project_id' => lambda { |current_user| current_user.project_id },
+            'project_domain_id' => lambda { |current_user| current_user.project_domain_id },
             'user_id' => lambda { |current_user| current_user.id },
             'token.is_admin_project' => lambda { |current_user| current_user.is_admin_project_token? }
         }
