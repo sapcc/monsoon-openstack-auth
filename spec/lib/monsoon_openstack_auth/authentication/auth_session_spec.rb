@@ -196,7 +196,7 @@ describe MonsoonOpenstackAuth::Authentication::AuthSession do
         end
       end
 
-      context 'valid sso header presented' do
+      xcontext 'valid sso header presented' do
         it 'should authenticate user' do
           expect_any_instance_of(MonsoonOpenstackAuth::ApiClient).to receive(:authenticate_external_user).and_return({})
           request.env['HTTP_SSL_CLIENT_VERIFY'] = 'SUCCESS'
