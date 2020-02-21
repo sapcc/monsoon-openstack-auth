@@ -66,7 +66,10 @@ module MonsoonOpenstackAuth
           else
             nil
           end
-
+          
+          # reset session-id for Session Fixation
+          reset_session(controller)
+        
           session = AuthSession.new(controller, token_store(controller), scope)
           session.login_form_user(username,password)
         end
