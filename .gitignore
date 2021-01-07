@@ -2,6 +2,7 @@
 pkg/
 /vendor/bundle
 .env
+.byebug_history
 
 # Ignore all logfiles and tempfiles.
 log/*.log
