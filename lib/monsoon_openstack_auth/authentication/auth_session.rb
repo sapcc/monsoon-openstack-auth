@@ -16,7 +16,10 @@ module MonsoonOpenstackAuth
         def check_authentication(controller, scope_and_options={})
           raise_error = scope_and_options.delete(:raise_error)
           two_factor = scope_and_options.delete(:two_factor)
+          # deactivate tfa unless enabled
           two_factor = false unless MonsoonOpenstackAuth.configuration.two_factor_enabled?
+          # activate tfa in any case, if the header x-enable-tfa is set
+          two_factor = controller.request.headers["x-enable-tfa"] == "true" || controller.request.headers["x-enable-tfa"] == true
 
           token_store = token_store(controller)
           session = AuthSession.new(controller,token_store, scope_and_options)
