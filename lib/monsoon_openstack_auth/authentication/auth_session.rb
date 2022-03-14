@@ -19,7 +19,9 @@ module MonsoonOpenstackAuth
           # deactivate tfa unless enabled
           two_factor = false unless MonsoonOpenstackAuth.configuration.two_factor_enabled?
           # activate tfa in any case, if the header x-enable-tfa is set
-          two_factor = controller.request.headers["x-enable-tfa"] == "true" || controller.request.headers["x-enable-tfa"] == true
+          if controller.request.headers["x-enable-tfa"] == "true" || controller.request.headers["x-enable-tfa"] == true
+            two_factor = true 
+          end
 
           token_store = token_store(controller)
           session = AuthSession.new(controller,token_store, scope_and_options)
@@ -133,7 +135,7 @@ module MonsoonOpenstackAuth
         def set_two_factor_cookie(controller)
           crypt = ActiveSupport::MessageEncryptor.new(Rails.application.secrets.secret_key_base[0..31])
           value = crypt.encrypt_and_sign('valid')
-          controller.response.set_cookie(TWO_FACTOR_AUTHENTICATION, {value: value, expires: Time.now+4.hours, path: '/'})
+          controller.response.set_cookie(TWO_FACTOR_AUTHENTICATION, {value: value, expires: Time.now+4.hours, path: '/', domain: '.cloud.sap'})
         end
       end
 
