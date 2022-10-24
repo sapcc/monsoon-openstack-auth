@@ -19,7 +19,15 @@ module MonsoonOpenstackAuth
           # deactivate tfa unless enabled
           two_factor = false unless MonsoonOpenstackAuth.configuration.two_factor_enabled?
           # activate tfa in any case, if the header x-enable-tfa is set
-          if controller.request.headers["x-enable-tfa"] == "true" || controller.request.headers["x-enable-tfa"] == true
+
+          # This is a hack. After switching to SAP-ID service (OIDC) we are faced with the 
+          # problem that if SAP-ID (which runs in Converged Cloud) fails, we have no way 
+          # to log into dashboard. For this case we have created a second ingress, 
+          # which sets the header "x-enable-tfa" for the domain dashboard-rsa... 
+          # However, we use the "-snippet" annotation for this. This will be switched off soon. 
+          # Therefore only the last possibility remains to check the host for "dashboard-rsa".
+          host = controller.request.host || ""
+          if controller.request.headers["x-enable-tfa"] == "true" || controller.request.headers["x-enable-tfa"] == true || host.start_with?("dashboard-rsa")
             two_factor = true 
           end
 
