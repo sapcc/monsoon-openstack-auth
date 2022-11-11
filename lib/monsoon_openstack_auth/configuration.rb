@@ -3,7 +3,7 @@ module MonsoonOpenstackAuth
     METHODS = [
       :connection_driver, :token_auth_allowed, :basic_auth_allowed,:access_key_auth_allowed, :sso_auth_allowed,
       :form_auth_allowed, :login_redirect_url, :debug, :debug_api_calls, :logger, :authorization, :token_cache,
-      :two_factor_authentication_method,:two_factor_enabled
+      :two_factor_authentication_method,:two_factor_enabled, :enforce_natural_user
     ]
 
     attr_accessor *METHODS
