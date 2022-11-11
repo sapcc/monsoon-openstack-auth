@@ -27,7 +27,8 @@ module MonsoonOpenstackAuth
           # However, we use the "-snippet" annotation for this. This will be switched off soon. 
           # Therefore only the last possibility remains to check the host for "dashboard-rsa".
           host = controller.request.host || ""
-          if controller.request.headers["x-enable-tfa"] == "true" || controller.request.headers["x-enable-tfa"] == true || host.start_with?("dashboard-rsa")
+          if controller.request.headers["x-enable-tfa"] == "true" || controller.request.headers["x-enable-tfa"] == true ||
+            ( MonsoonOpenstackAuth.configuration.rsa_dns && host.start_with?(MonsoonOpenstackAuth.configuration.rsa_dns))
             two_factor = true 
           end
 

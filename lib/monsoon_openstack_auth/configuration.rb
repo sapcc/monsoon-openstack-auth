@@ -3,7 +3,7 @@ module MonsoonOpenstackAuth
     METHODS = [
       :connection_driver, :token_auth_allowed, :basic_auth_allowed,:access_key_auth_allowed, :sso_auth_allowed,
       :form_auth_allowed, :login_redirect_url, :debug, :debug_api_calls, :logger, :authorization, :token_cache,
-      :two_factor_authentication_method,:two_factor_enabled, :enforce_natural_user
+      :two_factor_authentication_method,:two_factor_enabled, :enforce_natural_user, :rsa_dns
     ]
 
     attr_accessor *METHODS
@@ -24,6 +24,7 @@ module MonsoonOpenstackAuth
       @authorization            = AuthorizationConfig.new
       @token_cache              = MonsoonOpenstackAuth::Cache::NoopCache
       @enforce_natural_user     = false
+      @rsa_dns                  = false
     end
 
     # support old configuration format
