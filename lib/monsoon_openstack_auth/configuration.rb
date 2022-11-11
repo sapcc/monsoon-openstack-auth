@@ -23,6 +23,7 @@ module MonsoonOpenstackAuth
       @logger                   = MonsoonOpenstackAuth::LoggerWrapper.new(Rails ? Rails.logger : Logger.new(STDERR))
       @authorization            = AuthorizationConfig.new
       @token_cache              = MonsoonOpenstackAuth::Cache::NoopCache
+      @enforce_natural_user     = false
     end
 
     # support old configuration format

@@ -24,6 +24,15 @@ module MonsoonOpenstackAuth
         return
       end
 
+      if MonsoonOpenstackAuth.configuration.enforce_natural_user 
+        unless @username =~ /\A[DCIdci]\d*\z/
+          @error = 'Only natural users are allowed to login to the dashboard!'
+          flash.now[:alert] = @error
+          render action: :new
+          return
+        end
+      end
+
       after_login_url = (params[:after_login] || main_app.root_url(
         domain_id: (@domain_id || @domain_name)
       ))
