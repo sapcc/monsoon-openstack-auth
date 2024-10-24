@@ -125,7 +125,17 @@ module MonsoonOpenstackAuth
           end
         end
 
-        authenticate(auth)
+        # if domain name and id are the same, we do not know which one is id or name
+        # so we have to try both
+        result = authenticate(auth) rescue nil
+        if result.nil?  
+          # replace auth[:auth][:identity][:password][:user][:domain][:name] with id
+          domain = auth[:auth][:identity][:password][:user][:domain]
+          if domain[:name]
+            domain[:id] = domain.delete(:name)
+            authenticate(auth)
+          end
+        end
       end
 
       def authenticate_with_token(token, scope=nil)
