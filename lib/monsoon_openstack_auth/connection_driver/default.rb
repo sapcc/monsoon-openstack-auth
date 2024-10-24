@@ -133,9 +133,10 @@ module MonsoonOpenstackAuth
           domain = auth[:auth][:identity][:password][:user][:domain]
           if domain[:name]
             domain[:id] = domain.delete(:name)
-            authenticate(auth)
+            result = authenticate(auth)
           end
         end
+        return result
       end
 
       def authenticate_with_token(token, scope=nil)
