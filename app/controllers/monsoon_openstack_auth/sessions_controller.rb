@@ -24,19 +24,33 @@ module MonsoonOpenstackAuth
         return
       end
 
-      if MonsoonOpenstackAuth.configuration.enforce_natural_user 
-        unless @username =~ /\A[DCIdci]\d*\z/
+      if MonsoonOpenstackAuth.configuration.enforce_natural_user
+        # Define the default pattern for natural user names
+        default_name_pattern = /\A[DCIdci]\d*\z/
+
+        # Check if a custom pattern for natural user names is configured
+        matches = if MonsoonOpenstackAuth.configuration.natural_user_name_pattern
+                    begin
+                      @username =~ MonsoonOpenstackAuth.configuration.natural_user_name_pattern
+                    rescue RegexpError
+                      false # Handle invalid regex errors gracefully
+                    end
+                  end
+
+        # Ensure the username matches either the default or configured pattern
+        unless matches || @username =~ default_name_pattern
           @error = 'Only natural users are allowed to login to the dashboard!'
           flash.now[:alert] = @error
           render action: :new
           return
         end
       end
+      # Determine the URL to redirect the user after login
+      after_login_url = params[:after_login] || main_app.root_url(
+        domain_id: @domain_id || @domain_name
+      )
 
-      after_login_url = (params[:after_login] || main_app.root_url(
-        domain_id: (@domain_id || @domain_name)
-      ))
-
+      # Attempt to create an authentication session using the provided credentials
       auth_session = MonsoonOpenstackAuth::Authentication::AuthSession
                      .create_from_login_form(
                        self, @username, @password,
@@ -68,9 +82,9 @@ module MonsoonOpenstackAuth
     end
 
     def check_passcode
-      after_login_url = (params[:after_login] || main_app.root_url(
-        domain_id: (@domain_id || @domain_name)
-      ))
+      after_login_url = params[:after_login] || main_app.root_url(
+        domain_id: @domain_id || @domain_name
+      )
 
       @error = begin
         session = MonsoonOpenstackAuth::Authentication::AuthSession.load_user_from_session(
@@ -84,7 +98,7 @@ module MonsoonOpenstackAuth
         else
           nil
         end
-      rescue => e
+      rescue StandardError => e
         e.message
       end
 
@@ -100,7 +114,7 @@ module MonsoonOpenstackAuth
       MonsoonOpenstackAuth::Authentication::AuthSession.logout(
         self, params[:domain_name]
       )
-      logout_url = (params[:redirect_to] || main_app.root_url)
+      logout_url = params[:redirect_to] || main_app.root_url
       redirect_to logout_url
     end
 
