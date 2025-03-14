@@ -18,6 +18,24 @@ module MonsoonOpenstackAuth
       )
     end
 
+    def consume_auth_token
+      domain_id = params[:domain_id]
+      # Determine the URL to redirect the user after login
+      after_login_url = params[:after_login] || main_app.root_url(
+        domain_id: domain_id
+      )
+
+      token = params[:token]
+      # Attempt to create an authentication session using the provided token
+      auth_session = MonsoonOpenstackAuth::Authentication::AuthSession.create_from_auth_token(self, token)
+
+      if auth_session
+        redirect_to after_login_url
+      else
+        redirect_to :new_session, alert: 'Invalid token.'
+      end
+    end
+
     def create
       unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
         redirect_to main_app.root_path, alert: 'Not allowed!'
