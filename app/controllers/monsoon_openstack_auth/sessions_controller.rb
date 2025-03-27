@@ -5,7 +5,7 @@ require_dependency 'monsoon_openstack_auth/application_controller'
 module MonsoonOpenstackAuth
   # Sessions Handler
   class SessionsController < ActionController::Base
-    before_action :load_auth_params, except: %i[destroy]
+    before_action :load_auth_params, except: %i[destroy consume_auth_token]
 
     def new
       unless MonsoonOpenstackAuth.configuration.form_auth_allowed?
@@ -25,14 +25,15 @@ module MonsoonOpenstackAuth
         domain_id: domain_id
       )
 
-      token = params[:token]
+      auth_token = params[:auth_token]
+      auth_token = decode_auth_token(auth_token) if request.get?
       # Attempt to create an authentication session using the provided token
-      auth_session = MonsoonOpenstackAuth::Authentication::AuthSession.create_from_auth_token(self, token)
+      auth_session = MonsoonOpenstackAuth::Authentication::AuthSession.create_from_auth_token(self, auth_token)
 
-      if auth_session
-        redirect_to after_login_url
+      if auth_session.nil? || !auth_session.logged_in?
+        redirect_to :new_session, alert: 'Invalid token.' and return
       else
-        redirect_to :new_session, alert: 'Invalid token.'
+        redirect_to after_login_url
       end
     end
 
@@ -145,6 +146,13 @@ module MonsoonOpenstackAuth
       @domain_id = params[:domain_id]
       @domain_name = params[:domain_name]
       @two_factor = params[:two_factor].to_s == 'true'
+    end
+
+    def decode_auth_token(encoded_token)
+      @verifier = ActiveSupport::MessageVerifier.new(Rails.application.secret_key_base)
+      @verifier.verify(encoded_token)
+    rescue ActiveSupport::MessageVerifier::InvalidSignature
+      nil # Return nil if the token is invalid
     end
   end
 end
